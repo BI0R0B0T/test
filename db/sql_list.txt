@@ -1,0 +1,33 @@
+CREATE TABLE games (
+  id          integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+  map_id      integer,
+  player1_id  integer,
+  player2_id  integer,
+  player3_id  integer,
+  player4_id  integer,
+  game_stat   smallint
+);
+
+CREATE TABLE map (
+  cell_id        integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+  type           smallint,
+  rotate         smallint,
+  can_stay_here  boolean,
+  open           boolean,
+  coins_count    smallint,
+  ship_there     boolean
+);
+
+CREATE TABLE units (
+  id                integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+  master_id         integer,
+  have_coin         boolean,
+  waiting_time      smallint DEFAULT 0,
+  die               boolean,
+  cell_position_id  integer,
+  /* Foreign keys */
+  FOREIGN KEY (cell_position_id)
+    REFERENCES map(cell_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
