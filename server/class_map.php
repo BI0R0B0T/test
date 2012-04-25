@@ -1,7 +1,16 @@
-<?php
+<?php  
+include_once "class_cells.php";
+/**
+* Типичный синглетон хранящий объект карты
+* @author M. Dolgov <dolgov@bk.ru>
+* @version 0.1
+**/  
   class map{
-    static private $map = NULL;
+    static private $map = array();
 	static private $map_id = NULL;
+	/**
+	* создает новую карту
+	**/
 	private function __construct(){
 		/*
 		* 0 - 40 пустые клетки
@@ -32,29 +41,64 @@
 		* 25 - 3 клад 3 монеты
 		* 26 - 2 клад 4 монеты
 		* 27 - 1 клад 5 монет
+		* 28 - 48 море
+		* 29 - 4 корабль на море
+		* 30 - 0 не открытая клетка
 		*/
 		$list_of_possible_cells = array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7,8,8,9,9,9,9,9,10,10,10,10,11,11,12,13,13,13,13,13,13,14,14,14,15,15,16,16,17,18,18,18,18,19,19,19,19,20,21,21,22,23,23,23,23,23,24,24,24,24,24,25,25,25,26,26,27);
 		shuffle($list_of_possible_cells);
+		$sea = array(0,1,2,3,4,5,7,8,9,10,11,12,13,14,24,25,26,39,52,65,91,104,117,130,38,51,64,77,103,116,129,142,143,144,154,155,156,157,158,159,160,161,163,164,165,166,167,168);
+		$ship = array(6, 78, 90, 162);
 		$r = 0;
-		for($i = 0; $i < 121; $i++){
-			
+		/*
+				$new_map = array();
+		for($i = 0; $i < 169; $i++){
+			if(in_array($i, $sea)){
+				$new_map[] = 28;
+			}elseif(in_array($i, $ship)){
+				$new_map[] = 29;
+			}else{
+				$new_map[] = $list_of_possible_cells[$r++];
+			}
 		}
+		return $new_map;
+		*/
+		for($i = 0; $i < 169; $i++){
+			if(in_array($i, $sea)){
+				self::$map[] = cells::new_cell(28,$i);
+			}elseif(in_array($i, $ship)){
+				self::$map[] = cells::new_cell(29,$i);
+			}else{
+				self::$map[] = cells::new_cell($list_of_possible_cells[$r++],$i);
+			}
+		}
+//		return $new_map;
 	} 
 	private function __clone(){
 		
 	} 
+	private function __destruct(){
+		
+	}
 	private function get_map_from_db(){
 		
 	}
 	static function get_map(){
-		if(self::$id === NULL){
-			if(self::$map == NULL){
-				self::$map = new map();
+		if(self::$map_id == NULL){
+			if(empty(self::$map)){
+//				self::$map = new map();
+				new map();
 			}
 		}else{
-			
+			get_map_from_db();
 		}
-		return self::$map;
+		var_dump(self::$map);
+//		return self::$map;
+	}
+	static function drop_map(){
+		
 	}
   }
+  echo "<pre>";
+  map::get_map();
 ?>
