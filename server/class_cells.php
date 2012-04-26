@@ -67,7 +67,23 @@ abstract class cells{
 			case 11: $return =  new whirligig_4();break;
 			case 12: $return =  new whirligig_5();break;
 			case 13: $return =  new ice();break;
-			default: $return =  new gun();
+			case 14: $return =  new catcher();break;
+			case 15: $return =  new gun();break;
+			case 16: $return =  new fort();break;
+			case 17: $return =  new aborigenka();break;
+			case 18: $return =  new rom();break;
+			case 19: $return =  new crocodille();break;
+			case 20: $return =  new cannibal();break;
+			case 21: $return =  new aerostat();break;
+			case 22: $return =  new airplane();break;
+			case 23: $return =  new storage_1();break;
+			case 24: $return =  new storage_2();break;
+			case 25: $return =  new storage_3();break;
+			case 26: $return =  new storage_4();break;
+			case 27: $return =  new storage_5();break;
+			case 28: $return =  new sea();break;
+			case 29: $return =  new ship();break;
+			default: $return =  new closed();
 		}
         $return->cell_id = $cell_id;
 		$return->add_same_info($type);
@@ -83,23 +99,77 @@ abstract class cells{
 	protected function set_possible_next_cells($cell_id){
 		$row = floor($this->cell_id/13);
 		$column = $this->cell_id%13;
- 		foreach($this->possible_move as $move){
- 			$this->rotate_move($move,$this->rotate);
-			if(abs($move[0]) < 100 && abs($move[1]) <100){
+		if(is_a($this, "gun")){
+			//для пушек
+			$move = $this->possible_move[0];
+			$this->rotate_move($move, $this->rotate);
+			if(0 == $move[0]){
+				$this->possible_next_cells[0] = $move[1]>0?(int)(12*13+$column):(int)$column;
+			}else{
+				$this->possible_next_cells[0] = $move[0]>0?(int)($row*13+12):(int)($row*13);
+			}
+		}elseif(is_a($this, "sea")){
+			//по морю
+			if($cell_id < 13 || $cell_id>=156){
+				if(isset($this->possible_move[$cell_id])){
+					foreach($this->possible_move[$cell_id] as $id){
+						$this->possible_next_cells[] = $id;
+					}
+				}
+				if($cell_id!=12 && $cell_id != 168){
+					$this->possible_next_cells[] = $cell_id+1;
+				}
+				if($cell_id != 0 && $cell_id != 156){
+					$this->possible_next_cells[] = $cell_id-1;
+				}
+			}elseif(0 == $column || 12 == $column ){
+				if(isset($this->possible_move[$cell_id])){
+					foreach($this->possible_move[$cell_id] as $id){
+						$this->possible_next_cells[] = $id;
+					}
+				}
+				$this->possible_next_cells[] = $cell_id+13;
+				$this->possible_next_cells[] = $cell_id-13;
+			}else{
+				if(isset($this->possible_move[$cell_id])){
+					foreach($this->possible_move[$cell_id] as $id){
+						$this->possible_next_cells[] = $id;
+					}
+				}
+			}
+		}elseif(is_a($this, "ship")){
+			//с корабля
+			if($cell_id < 13 || $cell_id>=156){
+				if($cell_id != 2 && $cell_id != 158){
+					$this->possible_next_cells[] = $cell_id - 1;
+				}
+				if($cell_id != 10 && $cell_id != 166){
+					$this->possible_next_cells[] = $cell_id + 1;
+				}
+				if($cell_id <13){ $this->possible_next_cells[] = $cell_id+13; }
+				if($cell_id >156){$this->possible_next_cells[] = $cell_id-13; }
+			}else{
+				if($cell_id != 26 && $cell_id != 38){
+					$this->possible_next_cells[] = $cell_id - 13;
+				}
+				if($cell_id != 130 && $cell_id != 142){
+					$this->possible_next_cells[] = $cell_id + 13;
+				}
+				if(0 == $column){ $this->possible_next_cells[] = $cell_id+1; }
+				if(12 == $column){$this->possible_next_cells[] = $cell_id-1; }
+			}
+		}else{
+			//остальные клетки
+			foreach($this->possible_move as $move){
+	 			$this->rotate_move($move,$this->rotate);
 				$next_col = $move[0]+$column;
 				$next_row = $move[1]+$row;
 				if($next_col < 0 || $next_col > 12) {continue;}
 				if($next_row < 0 || $next_row > 12) {continue;}
 				$this->possible_next_cells[] = (int)($next_row*13+$next_col);
-			}else{
-				if(0 == $move[0]){
-					$this->possible_next_cells[0] = $move[1]>0?(int)(12*13+$column):(int)$column;
-				}else{
-					$this->possible_next_cells[0] = $move[0]>0?(int)($row*13+12):(int)($row*13);
-				}
 			}
 		}
-		unset($this->possible_move);
+ 		unset($this->possible_move);
 	}
 	/**
 	* Изменяет значение возможных движений в зависимости от угла поворота клетки. Повороты против часовой стрелки
@@ -289,5 +359,126 @@ class gun extends automove_cell{
 		repeat_move();
 	}
 }
-
+class fort extends singlestep{
+	//16 - 2 крепость 
+	function __construct(){
+		return $this;
+	}
+	function cell_action(){
+		safe_peace();
+	}
+}
+class aborigenka extends singlestep{
+	//17 - 1 аборигенка 
+	function __construct(){
+		return $this;
+	}
+	function cell_action(){
+		safe_peace();
+		resqure_pirate();
+	}
+}
+class rom extends singlestep{
+	//18 - 4 ром 
+	private $waiting_time = 1;
+	function __construct(){
+		return $this;
+	}
+	function cell_action(){
+		wait($this->waiting_time);
+	}
+}
+class crocodille extends cells{
+	//19 - 4 крокодил
+	function __construct(){
+		return $this;
+	}
+	function cell_action(){
+		abort_move();
+	}
+}
+class cannibal extends cells{
+	//20 - 1 людоед 
+	function __construct(){
+		return $this;
+	}
+	function cell_action(){
+		kill_pirate();
+	}
+}
+class aerostat extends automove_cell{
+	//21 - 2 воздушный шар 
+	function __construct(){
+		return $this;
+	}
+	function cell_action(){
+		move_to_sheep();
+	}
+}
+class airplane extends cells{
+	//22 - 1 самолет  
+	function __construct(){
+		for($i = 0; $i<169; $i++){
+			$this->possible_next_cells[] = $i;
+		}
+		return $this;
+	}
+	function cell_action(){
+		check_to_use();
+	}
+}
+class storage_1 extends singlestep{
+	//23 - 5 клад 1 монета 
+	function __construct(){
+		$this->coins_count  = 1;
+		return $this;
+	}
+}
+class storage_2 extends singlestep{
+	//24 - 5 клад 2 монеты 
+	function __construct(){
+		$this->coins_count  = 2;
+		return $this;
+	}
+}
+class storage_3 extends singlestep{
+	//25 - 3 клад 3 монеты 
+	function __construct(){
+		$this->coins_count  = 3;
+		return $this;
+	}
+}
+class storage_4 extends singlestep{
+	//26 - 2 клад 4 монеты 
+	function __construct(){
+		$this->coins_count  = 4;
+		return $this;
+	}
+}
+class storage_5 extends singlestep{
+	//27 - 1 клад 5 монет  
+	function __construct(){
+		$this->coins_count  = 2;
+		return $this;
+	}
+}
+class sea extends cells{
+	//28 - 48 море 
+	function __construct(){
+		$this->possible_move = array(0 => array(13,14), 1=>array(13,14), 13=>array(1,14),26=>array(14), 2=>array(14), 14=>array(0,1,2,13,26), 12 => array(24,25), 11=>array(24,25), 25=>array(11,24), 10=>array(24), 24=>array(10,11,12,25,38), 38=>array(24), 156=>array(143,144), 157=>array(143,144), 158=>array(144), 143=>array(144,157), 130=>array(144), 144=>array(130,143,156,157,158),142=>array(154), 155=>array(154,167), 168=>array(154,155), 167=>array(154,155), 166=>array(154), 154=>array(142,155,166,167,168));
+		return $this;
+	}
+}
+class ship extends cells{
+	//29 - 4 корабль на море   
+	function __construct(){
+		return $this;
+	}	
+}
+class closed extends cells{
+	//30 - 0 не открытая клетка    
+	function __construct(){
+		return $this;
+	}	
+}
 ?>

@@ -16,7 +16,6 @@
 	exit();
 	$r = 0;
 	$c = 0;
-	define("ADD", "../pic/");
 	echo "<table>"; 
 	foreach($new_map as $cell){
 	if(0 == $c){
