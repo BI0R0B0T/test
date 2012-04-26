@@ -77,7 +77,7 @@ include_once "class_cells.php";
 	private function __clone(){
 		
 	} 
-	private function __destruct(){
+	function __destruct(){
 		
 	}
 	private function get_map_from_db(){
@@ -92,13 +92,11 @@ include_once "class_cells.php";
 		}else{
 			get_map_from_db();
 		}
-		var_dump(self::$map);
-//		return self::$map;
+//		var_dump(self::$map);
+		return self::$map;
 	}
 	static function drop_map(){
 		
 	}
   }
-  echo "<pre>";
-  map::get_map();
 ?>
