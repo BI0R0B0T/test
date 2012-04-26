@@ -1,42 +1,274 @@
-table{
-	border: 1px solid black;
+#map{
+	width:520px;
+	height:520px;
 }
-TD.up{
+.move_up_0{
 	width:40px;
 	height:40px;
 	background-image:url(../pic/0.bmp);
+	float:left;
 }
-TD.left{
+.move_up_1{
 	width:40px;
 	height:40px;
 	background-image:url(../pic/1.bmp);
+	float:left;
 }
-TD.down{
+.move_up_2{
 	width:40px;
 	height:40px;
 	background-image:url(../pic/2.bmp);
+	float:left;
 }
-TD.right{
+.move_up_3{
 	width:40px;
 	height:40px;
 	background-image:url(../pic/3.bmp);
-}TD.up-r{
+	float:left;
+}
+.strelka_po_diag_0{
 	width:40px;
 	height:40px;
 	background-image:url(../pic/4.bmp);
+	float:left;
 }
-TD.up-l{
+.strelka_po_diag_1{
 	width:40px;
 	height:40px;
 	background-image:url(../pic/5.bmp);
+	float:left;
 }
-TD.d-l{
+.strelka_po_diag_2{
 	width:40px;
 	height:40px;
 	background-image:url(../pic/6.bmp);
+	float:left;
 }
-TD.d-r{
+.strelka_po_diag_3{
 	width:40px;
 	height:40px;
 	background-image:url(../pic/7.bmp);
+	float:left;
+}
+.empty_cell{
+	width:40px;
+	height:40px;
+	background-color:#accc00;
+	float:left;
+}
+.sea{
+	width:40px;
+	height:40px;
+	background-color:#0080ff;
+	float:left;
+}
+.strelka_vo_vse_po_diag{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_up_d_l_r{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.horses{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.whirligig_2{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.whirligig_3{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.whirligig_4{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.whirligig_5{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.ice{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.catcher{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.fort{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.aborigenka{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.rom{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.crocodille{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.cannibal{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.aerostat{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.airplane{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.storage_1{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.storage_2{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.storage_3{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.storage_4{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.storage_5{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.ship_0{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.ship_1{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.ship_2{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.ship_3{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.closed{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_dv_po_diag_0{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_dv_po_diag_1{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_dv_po_diag_2{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_dv_po_diag_3{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_l_r_0{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_l_r_1{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_l_r_2{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_l_r_3{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_ne_w_s_0{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_ne_w_s_1{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_ne_w_s_2{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.strelka_ne_w_s_3{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.gun_0{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.gun_1{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.gun_2{
+	width:40px;
+	height:40px;
+	float:left;
+}
+.gun_3{
+	width:40px;
+	height:40px;
+	float:left;
 }

@@ -212,6 +212,7 @@ class automove_cell extends cells{
 	
 }
 class singlestep extends cells{
+	//Все клетки с возможным движением на одну клетку в любую сторону
 	protected $possible_move = array(
 										array(0,1),
 										array(0,-1),

@@ -7,29 +7,29 @@
 </head>
 <body>
 <?php
-//	$style_name = array("right", "up", "left", "down");
-	$style_name = array("up", "left", "down", "right");
-//	$style_name = array("up-r", "up-l", "d-l", "d-r");
 	include_once("class_map.php");
 	$new_map = map::get_map();
-	var_dump($new_map);
-	exit();
+	$need_rotate = array(	"move_up", 
+							"strelka_dv_po_diag", 
+							"strelka_po_diag", 
+							"strelka_ne_w_s",
+							"strelka_l_r",
+							"gun",
+							"ship");
+//	var_dump($new_map);
+//	exit();
 	$r = 0;
 	$c = 0;
-	echo "<table>"; 
+	echo "<div id =\"map\">\n"; 
 	foreach($new_map as $cell){
-	if(0 == $c){
-		echo "<tr>\n";
+		$id = $cell->cell_id;
+		$class = get_class($cell);
+		if(in_array($class, $need_rotate)){
+			$class = $class."_".$cell->rotate;
+		}
+		echo "<div id =\"$id\" class =\"$class\">$id</div>\n";
 	}
-	echo "\t<td class = \"".$style_name[$cell->rotate]."\">".@$cell->possible_next_cells[0]."</td>\n";
-	$c++;
-	if(13 == $c){
-		$c = 0;
-		$r++;
-		echo "</tr>\n";
-	}
-	}
-	echo "</table>"; 
+	echo "</div>"; 
 //	print_r($new_map); 
 ?>
 </body>
