@@ -75,8 +75,8 @@ abstract class cells{
 		return $return;
 	}
 	protected function add_same_info($type){
-//		$this->rotate = (int)round(rand(0,3));
-		$this->rotate = 3;
+		$this->rotate = (int)round(rand(0,3));
+//		$this->rotate = 2;
 		$this->type = $type;
 	}
 	private function __construct(){}
@@ -93,9 +93,9 @@ abstract class cells{
 				$this->possible_next_cells[] = (int)($next_row*13+$next_col);
 			}else{
 				if(0 == $move[0]){
-					$this->possible_next_cells[0] = $move[1]>0?(int)(12*13+$next_col):(int)$next_col;
+					$this->possible_next_cells[0] = $move[1]>0?(int)(12*13+$column):(int)$column;
 				}else{
-					$this->possible_next_cells[0] = $move[0]>0?(int)($next_row*13+12):(int)($next_row*13);
+					$this->possible_next_cells[0] = $move[0]>0?(int)($row*13+12):(int)($row*13);
 				}
 			}
 		}
@@ -282,7 +282,7 @@ class catcher extends singlestep{
 class gun extends automove_cell{
 	//15 - 2 пушка  
 	function __construct(){
-		$this->possible_move = array(0,-100);
+		$this->possible_move = array(array(0,-100));
 		return $this;
 	}
 	function cell_action(){
