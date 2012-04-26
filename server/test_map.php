@@ -8,7 +8,7 @@
 <body>
 <?php
 	include_once("class_map.php");
-	$new_map = map::get_map();
+	$new_map = map::map_generate();
 	$need_rotate = array(	"move_up", 
 							"strelka_dv_po_diag", 
 							"strelka_po_diag", 

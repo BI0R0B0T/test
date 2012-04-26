@@ -1,5 +1,6 @@
 <?php  
 include_once "class_cells.php";
+include_once "class_game_db.php";
 /**
 * Типичный синглетон хранящий объект карты
 * @author M. Dolgov <dolgov@bk.ru>
@@ -50,19 +51,6 @@ include_once "class_cells.php";
 		$sea = array(0,1,2,3,4,5,7,8,9,10,11,12,13,14,24,25,26,39,52,65,91,104,117,130,38,51,64,77,103,116,129,142,143,144,154,155,156,157,158,159,160,161,163,164,165,166,167,168);
 		$ship = array(6, 78, 90, 162);
 		$r = 0;
-		/*
-				$new_map = array();
-		for($i = 0; $i < 169; $i++){
-			if(in_array($i, $sea)){
-				$new_map[] = 28;
-			}elseif(in_array($i, $ship)){
-				$new_map[] = 29;
-			}else{
-				$new_map[] = $list_of_possible_cells[$r++];
-			}
-		}
-		return $new_map;
-		*/
 		for($i = 0; $i < 169; $i++){
 			if(in_array($i, $sea)){
 				self::$map[] = cells::new_cell(28,$i);
@@ -72,7 +60,8 @@ include_once "class_cells.php";
 				self::$map[] = cells::new_cell($list_of_possible_cells[$r++],$i);
 			}
 		}
-//		return $new_map;
+		$db_name = rand(1,100).time().".db";
+		$db = game_db::db_conn($db_name);
 	} 
 	private function __clone(){
 		
@@ -83,16 +72,16 @@ include_once "class_cells.php";
 	private function get_map_from_db(){
 		
 	}
-	static function get_map(){
-		if(self::$map_id == NULL){
-			if(empty(self::$map)){
-//				self::$map = new map();
-				new map();
-			}
-		}else{
-			get_map_from_db();
+	static function map_generate(){
+		if(empty(self::$map)){
+			new map();
 		}
-//		var_dump(self::$map);
+		return self::$map;
+	}
+	static function get_map(){
+		if(empty(self::$map)){
+			self::get_map_from_db();
+		}
 		return self::$map;
 	}
 	static function drop_map(){
