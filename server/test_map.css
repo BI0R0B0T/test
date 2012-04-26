@@ -1,0 +1,42 @@
+table{
+	border: 1px solid black;
+}
+TD.up{
+	width:40px;
+	height:40px;
+	background-image:url(../pic/0.bmp);
+}
+TD.left{
+	width:40px;
+	height:40px;
+	background-image:url(../pic/1.bmp);
+}
+TD.down{
+	width:40px;
+	height:40px;
+	background-image:url(../pic/2.bmp);
+}
+TD.right{
+	width:40px;
+	height:40px;
+	background-image:url(../pic/3.bmp);
+}TD.up-r{
+	width:40px;
+	height:40px;
+	background-image:url(../pic/4.bmp);
+}
+TD.up-l{
+	width:40px;
+	height:40px;
+	background-image:url(../pic/5.bmp);
+}
+TD.d-l{
+	width:40px;
+	height:40px;
+	background-image:url(../pic/6.bmp);
+}
+TD.d-r{
+	width:40px;
+	height:40px;
+	background-image:url(../pic/7.bmp);
+}
