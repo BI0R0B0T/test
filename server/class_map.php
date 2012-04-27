@@ -9,6 +9,19 @@ include_once "class_game_db.php";
   class map{
     static private $map = array();
 	static private $map_id = NULL;
+	static function map_generate(){
+		if(empty(self::$map)){
+			new map();
+		}
+		self::get_map_from_db();
+		return self::$map;
+	}
+	static function get_map(){
+		if(empty(self::$map)){
+			self::get_map_from_db();
+		}
+		return self::$map;
+	}
 	/**
 	* создает новую карту
 	**/
@@ -80,22 +93,6 @@ include_once "class_game_db.php";
 		for($i = 0; $i < 169; $i++){
 			self::$map[] = cells::get_cell_from_db($db,$i);
 		}
-	}
-	static function map_generate(){
-		if(empty(self::$map)){
-			new map();
-		}
-		self::get_map_from_db();
-		return self::$map;
-	}
-	static function get_map(){
-		if(empty(self::$map)){
-			self::get_map_from_db();
-		}
-		return self::$map;
-	}
-	static function drop_map(){
-		
 	}
 	/**
 	* Метод записывает сгенерированную карту в БД

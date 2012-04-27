@@ -9,7 +9,7 @@ CREATE TABLE games (
 );
 
 CREATE TABLE map (
-  cell_id        integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+  cell_id        integer PRIMARY KEY NOT NULL,
   type           smallint,
   rotate         smallint,
   can_stay_here  boolean,

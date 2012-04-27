@@ -128,6 +128,22 @@ abstract class cells{
 		}
 		return $new_cell;
 	}
+	public static function open_cell($db,$id){
+		self::change_cell($db,$id,"open",1);
+		return self::get_cell_from_db($db,$id);
+	}
+	public static function change_cell($db,$id,$property,$new_value){
+		$property_list = array("type", "open", "coins_count");
+		if(in_array($property, $property_list)){
+			if($property == "open" || "coins_count"){
+				$sql = "UPDATE map SET $property = $new_value WHERE map.cell_id = $id";
+			}else{
+				
+			}
+			$db->query($sql);
+		}
+		
+	}
 	protected function add_same_info($type){
 		$this->rotate = (int)round(rand(0,3));
 		$this->type = $type;
