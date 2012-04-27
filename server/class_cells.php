@@ -18,7 +18,7 @@ abstract class cells{
 	* @var int $type
 	* @var int $cell_id
 	*/
-  	public static function new_cell($type, $cell_id){
+  	public static function new_cell($type, $cell_id, $add_info = TRUE){
  		/*
 		* 0 - 40 пустые клетки
 		* 1 - 3 стрелка вверх
@@ -85,9 +85,11 @@ abstract class cells{
 			case 29: $return =  new ship();break;
 			default: $return =  new closed();
 		}
-        $return->cell_id = $cell_id;
-		$return->add_same_info($type);
-		$return->set_possible_next_cells($cell_id);
+		if($add_info){
+	        $return->cell_id = $cell_id;
+			$return->add_same_info($type);
+			$return->set_possible_next_cells($cell_id);
+		}
 		return $return;
 	}
 	public function cell_to_str(){
@@ -95,20 +97,39 @@ abstract class cells{
 			$is_ship = 1;
 			$rotate = array(6=>0,78=>1,162=>2,90=>3);
 			$this->rotate = $rotate[$this->cell_id];
+			$open = 1;
+		}elseif(is_a($this,"sea")){ 
+			$is_ship = 0;
+			$open = 1;
 		}else{
 			$is_ship = 0;
+			$open = 0;
 		}
-		return implode(",", array("NULL",$this->type,$this->rotate, 
-						$this->can_stay_here?1:0, 0, $this->coins_count, $is_ship));
+		return implode(",", array($this->cell_id,$this->type,$this->rotate, 
+						$this->can_stay_here?1:0, $open, $this->coins_count, $is_ship));
 	}
 	public function save_cell_in_db($db){
 		$sql = "INSERT INTO map( cell_id, type, rotate, can_stay_here, open, coins_count,"; 
 		$sql .= "ship_there) VALUES (".$this->cell_to_str().")";
 		$db->query($sql);
 	}
+	public static function get_cell_from_db($db,$id){
+		$sql = "SELECT  map.cell_id, map.type, map.rotate, map.can_stay_here, map.open, ";
+		$sql .= "map.coins_count, map.ship_there FROM map WHERE map.cell_id = ".$id;
+		$cell = $db->query($sql);
+		$res = $cell->fetchArray(SQLITE3_ASSOC);
+		if(1 == $res['open']){
+			$new_cell = self::new_cell($res['type'],$res['cell_id'],FALSE);
+			$new_cell->rotate = $res['rotate'];
+			$new_cell->can_stay_here = $res["can_stay_here"]==1?TRUE:FALSE;
+			$new_cell->coins_count = $res['coins_count'];
+		}else{
+			$new_cell = self::new_cell(30,$res['cell_id'],FALSE);
+		}
+		return $new_cell;
+	}
 	protected function add_same_info($type){
 		$this->rotate = (int)round(rand(0,3));
-//		$this->rotate = 2;
 		$this->type = $type;
 	}
 	private function __construct(){}

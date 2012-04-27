@@ -51,18 +51,19 @@ include_once "class_game_db.php";
 		$sea = array(0,1,2,3,4,5,7,8,9,10,11,12,13,14,24,25,26,39,52,65,91,104,117,130,38,51,64,77,103,116,129,142,143,144,154,155,156,157,158,159,160,161,163,164,165,166,167,168);
 		$ship = array(6, 78, 90, 162);
 		$r = 0;
-		for($i = 0; $i < 169; $i++){
-			if(in_array($i, $sea)){
-				self::$map[] = cells::new_cell(28,$i);
-			}elseif(in_array($i, $ship)){
-				self::$map[] = cells::new_cell(29,$i);
-			}else{
-				self::$map[] = cells::new_cell($list_of_possible_cells[$r++],$i);
-			}
-		}
 		self::$map_id = rand(1,100).time().".db";
 		$db = game_db::db_conn(self::$map_id);
-		self::save_map($db);
+		for($i = 0; $i < 169; $i++){
+			if(in_array($i, $sea)){
+				$cell = cells::new_cell(28,$i);
+			}elseif(in_array($i, $ship)){
+				$cell = cells::new_cell(29,$i);
+			}else{
+				$cell = cells::new_cell($list_of_possible_cells[$r++],$i);
+			}
+			$cell->save_cell_in_db($db);
+		}
+//		self::save_map($db);
 //		$db->save_map(self::$map);
 	} 
 	private function __clone(){
@@ -71,13 +72,20 @@ include_once "class_game_db.php";
 	function __destruct(){
 		
 	}
-	private function get_map_from_db(){
-		
+	private static function get_map_from_db($map_id = 0){
+		if(NULL == self::$map_id){
+			self::$map_id = $map_id;
+		}
+		$db = game_db::db_conn(self::$map_id);
+		for($i = 0; $i < 169; $i++){
+			self::$map[] = cells::get_cell_from_db($db,$i);
+		}
 	}
 	static function map_generate(){
 		if(empty(self::$map)){
 			new map();
 		}
+		self::get_map_from_db();
 		return self::$map;
 	}
 	static function get_map(){
