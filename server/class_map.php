@@ -60,8 +60,10 @@ include_once "class_game_db.php";
 				self::$map[] = cells::new_cell($list_of_possible_cells[$r++],$i);
 			}
 		}
-		$db_name = rand(1,100).time().".db";
-		$db = game_db::db_conn($db_name);
+		self::$map_id = rand(1,100).time().".db";
+		$db = game_db::db_conn(self::$map_id);
+		self::save_map($db);
+//		$db->save_map(self::$map);
 	} 
 	private function __clone(){
 		
@@ -85,6 +87,21 @@ include_once "class_game_db.php";
 		return self::$map;
 	}
 	static function drop_map(){
+		
+	}
+	/**
+	* Метод записывает сгенерированную карту в БД
+	**/
+	private static function save_map($db){
+		$values = "";
+		foreach(self::$map as $cell){
+			$cell->save_cell_in_db($db);
+		}
+	}
+	/**
+	* Метод извлекает карту из БД
+	**/
+	private static function load_map($map){
 		
 	}
   }

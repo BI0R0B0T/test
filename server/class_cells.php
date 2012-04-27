@@ -90,6 +90,22 @@ abstract class cells{
 		$return->set_possible_next_cells($cell_id);
 		return $return;
 	}
+	public function cell_to_str(){
+		if(is_a($this,"ship")){
+			$is_ship = 1;
+			$rotate = array(6=>0,78=>1,162=>2,90=>3);
+			$this->rotate = $rotate[$this->cell_id];
+		}else{
+			$is_ship = 0;
+		}
+		return implode(",", array("NULL",$this->type,$this->rotate, 
+						$this->can_stay_here?1:0, 0, $this->coins_count, $is_ship));
+	}
+	public function save_cell_in_db($db){
+		$sql = "INSERT INTO map( cell_id, type, rotate, can_stay_here, open, coins_count,"; 
+		$sql .= "ship_there) VALUES (".$this->cell_to_str().")";
+		$db->query($sql);
+	}
 	protected function add_same_info($type){
 		$this->rotate = (int)round(rand(0,3));
 //		$this->rotate = 2;

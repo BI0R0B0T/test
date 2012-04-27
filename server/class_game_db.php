@@ -1,6 +1,6 @@
 <?php
 class game_db{
-	protected static $db_connection;
+	private static $db_connection = NULL;
 	const ADR = "../db/";
 	private function __construct($db_name){
 		$db_name = self::ADR.$db_name;
@@ -12,22 +12,10 @@ class game_db{
 	private function __clone(){ }
 	function __destruct(){ }
 	public static function db_conn($db_name){
-		if(NULL === self::$db_connection){
-			self::$db_connection = new game_db($db_name);
+		if(NULL == self::$db_connection){
+			new game_db($db_name);
 		}
 		return self::$db_connection;
-	}
-	/**
-	* Метод записывает сгенерированную карту в БД
-	**/
-	public static function save_map($map){
-		
-	}
-	/**
-	* Метод извлекает карту из БД
-	**/
-	public static function load_map($map){
-		
 	}
 	/**
 	* Метод сохраняет изменения в ячейке карты в БД
