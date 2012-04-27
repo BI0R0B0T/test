@@ -18,6 +18,15 @@ CREATE TABLE map (
   ship_there     boolean
 );
 
+CREATE TABLE players (
+  id          integer PRIMARY KEY NOT NULL UNIQUE,
+  first_name  text,
+  last_name   text,
+  photo       text,
+  photo_rec   text,
+  coins smallint
+);
+
 CREATE TABLE units (
   id                integer PRIMARY KEY AUTOINCREMENT NOT NULL,
   master_id         integer,
@@ -29,5 +38,22 @@ CREATE TABLE units (
   FOREIGN KEY (cell_position_id)
     REFERENCES map(cell_id)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION, 
+  FOREIGN KEY (master_id)
+    REFERENCES players(id)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION
 );
+
+CREATE TABLE log (
+  "time"   timestamp,
+  type     smallint,
+  "text"   text,
+  who_add  integer,
+  /* Foreign keys */
+  FOREIGN KEY (who_add)
+    REFERENCES players(id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
