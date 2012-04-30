@@ -8,19 +8,25 @@ include_once "class_game_db.php";
 **/  
   class map{
     static private $map = array();
-	static private $map_id = NULL;
+	static public $map_id = NULL;
 	static function map_generate(){
 		if(empty(self::$map)){
 			new map();
 		}
 		self::get_map_from_db();
-		return self::$map;
+		return self::$map_id;
 	}
 	static function get_map(){
 		if(empty(self::$map)){
 			self::get_map_from_db();
 		}
 		return self::$map;
+	}
+	static function get_map_id(){
+		return self::$map_id;
+	}
+	static function set_map_id($map_id){
+		self::$map_id = $map_id;
 	}
 	/**
 	* создает новую карту
@@ -86,12 +92,16 @@ include_once "class_game_db.php";
 		
 	}
 	private static function get_map_from_db($map_id = 0){
-		if(NULL == self::$map_id){
+		if(is_null(self::$map_id)){
 			self::$map_id = $map_id;
 		}
 		$db = game_db::db_conn(self::$map_id);
-		for($i = 0; $i < 169; $i++){
-			self::$map[] = cells::get_cell_from_db($db,$i);
+		if($db){
+			for($i = 0; $i < 169; $i++){
+				self::$map[] = cells::get_cell_from_db($db,$i);
+			}
+		}else{
+			self::$map[] = "no db ".self::$map_id;
 		}
 	}
 	/**

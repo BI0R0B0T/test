@@ -88,7 +88,6 @@ abstract class cells{
 		if($add_info){
 	        $return->cell_id = $cell_id;
 			$return->add_same_info($type);
-			$return->set_possible_next_cells($cell_id);
 		}
 		return $return;
 	}
@@ -119,12 +118,13 @@ abstract class cells{
 		$cell = $db->query($sql);
 		$res = $cell->fetchArray(SQLITE3_ASSOC);
 		if(1 == $res['open']){
-			$new_cell = self::new_cell($res['type'],$res['cell_id'],FALSE);
+			$new_cell = self::new_cell($res['type'],$res['cell_id'],TRUE);
 			$new_cell->rotate = $res['rotate'];
 			$new_cell->can_stay_here = $res["can_stay_here"]==1?TRUE:FALSE;
 			$new_cell->coins_count = $res['coins_count'];
+			$new_cell->set_possible_next_cells($res['cell_id']);
 		}else{
-			$new_cell = self::new_cell(30,$res['cell_id'],FALSE);
+			$new_cell = self::new_cell(30,$res['cell_id'],TRUE);
 		}
 		return $new_cell;
 	}

@@ -13,6 +13,7 @@ class game_db{
 	function __destruct(){ }
 	public static function db_conn($db_name){
 		if(NULL == self::$db_connection){
+			if(!$db_name){return FALSE;	}
 			new game_db($db_name);
 		}
 		return self::$db_connection;
