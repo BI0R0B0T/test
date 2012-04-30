@@ -14,7 +14,7 @@ class game{
 		
 	}
 	public static function start_game(){
-		new game()
+		new game();
 		return self::$game_id;
 	}
 	public static function get_game($game_id){
@@ -24,6 +24,9 @@ class game{
 	}
 	public static function stop_game($game_id){
 		unlink($game_id);
+	}
+	private static function connvert_2_JSON(){
+		
 	}
 }
 ?>

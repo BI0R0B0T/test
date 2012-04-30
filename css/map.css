@@ -1,6 +1,6 @@
 #map{
-	width:520px;
-	height:520px;
+    width:520px;
+    height:520px;
 }
 #map DIV{
     width:40px;
@@ -8,34 +8,34 @@
     float:left;
 }
 .move_up_0{
-	background-image:url(../pic/0.bmp);
+    background-image:url(../pic/0.bmp);
 }
 .move_up_1{
-	background-image:url(../pic/1.bmp);
+    background-image:url(../pic/1.bmp);
 }
 .move_up_2{
-	background-image:url(../pic/2.bmp);
+    background-image:url(../pic/2.bmp);
 }
 .move_up_3{
-	background-image:url(../pic/3.bmp);
+    background-image:url(../pic/3.bmp);
 }
 .strelka_po_diag_0{
-	background-image:url(../pic/4.bmp);
+    background-image:url(../pic/4.bmp);
 }
 .strelka_po_diag_1{
-	background-image:url(../pic/5.bmp);
+    background-image:url(../pic/5.bmp);
 }
 .strelka_po_diag_2{
-	background-image:url(../pic/6.bmp);
+    background-image:url(../pic/6.bmp);
 }
 .strelka_po_diag_3{
-	background-image:url(../pic/7.bmp);
+    background-image:url(../pic/7.bmp);
 }
 .empty_cell{
-	background-color:#accc00;
+    background-color:#accc00;
 }
 .sea{
-	background-color:#0080ff;
+    background-color:#0080ff;
 }
 .strelka_vo_vse_po_diag{
 }

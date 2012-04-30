@@ -7,6 +7,10 @@
 		}
 	}
 	function start_game(){
+		require_once("class_cells.php");
+		require_once("class_game.php");
+		require_once("class_game_db.php");
+		require_once("class_map.php");
 		
 	}
 	function stop_game(){
