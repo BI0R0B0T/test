@@ -1,124 +1,173 @@
 #map{
-    width:520px;
-    height:520px;
+    width:650px;
+    height:650px;
 	border: 1px solid black;
+    float: left;
 }
 #map DIV{
-    width:40px;
-    height:40px;
+    width:50px;
+    height:50px;
     float:left;
 }
+#map_list{
+    width: 200px;
+    float: left;
+    border: 1px solid blue;
+    margin-right: 10px;
+}
 .move_up_0{
-    background-image:url(../pic/0.bmp);
+    background-image:url(../pic/50/1_0.PNG);
 }
 .move_up_1{
-    background-image:url(../pic/1.bmp);
+    background-image:url(../pic/50/1_1.PNG);
 }
 .move_up_2{
-    background-image:url(../pic/2.bmp);
+    background-image:url(../pic/50/1_2.PNG);
 }
 .move_up_3{
-    background-image:url(../pic/3.bmp);
+   background-image:url(../pic/50/1_3.PNG);
 }
 .strelka_po_diag_0{
-    background-image:url(../pic/4.bmp);
+    background-image:url(../pic/50/1_0.PNG);
 }
 .strelka_po_diag_1{
-    background-image:url(../pic/5.bmp);
+    background-image:url(../pic/50/1_1.PNG);
 }
 .strelka_po_diag_2{
-    background-image:url(../pic/6.bmp);
+    background-image:url(../pic/50/1_2.PNG);
 }
 .strelka_po_diag_3{
-    background-image:url(../pic/7.bmp);
+    background-image:url(../pic/50/1_3.PNG);
 }
 .empty_cell{
-    background-color:#accc00;
+   background-image:url(../pic/50/0.PNG);
 }
 .sea{
     background-color:#0080ff;
 }
 .strelka_vo_vse_po_diag{
+   background-image:url(../pic/50/4.PNG);
 }
 .strelka_up_d_l_r{
+   background-image:url(../pic/50/5.PNG);
 }
 .horses{
+   background-image:url(../pic/50/8.PNG);
 }
 .whirligig_2{
+   background-image:url(../pic/50/9.PNG);
 }
 .whirligig_3{
+   background-image:url(../pic/50/10.PNG);
 }
 .whirligig_4{
+   background-image:url(../pic/50/11.PNG);
 }
 .whirligig_5{
+   background-image:url(../pic/50/12.PNG);
 }
 .ice{
+   background-image:url(../pic/50/13.PNG);
 }
 .catcher{
+   background-image:url(../pic/50/14.PNG);
 }
 .fort{
+   background-image:url(../pic/50/16.PNG);
 }
 .aborigenka{
+   background-image:url(../pic/50/17.PNG);
 }
 .rom{
+   background-image:url(../pic/50/18.PNG);
 }
 .crocodille{
+   background-image:url(../pic/50/19.PNG);
 }
 .cannibal{
+   background-image:url(../pic/50/20.PNG);
 }
 .aerostat{
+   background-image:url(../pic/50/21.PNG);
 }
 .airplane{
+   background-image:url(../pic/50/22.PNG);
 }
 .storage_1{
+   background-image:url(../pic/50/23.PNG);
 }
 .storage_2{
+   background-image:url(../pic/50/24.PNG);
 }
 .storage_3{
+   background-image:url(../pic/50/25.PNG);
 }
 .storage_4{
+   background-image:url(../pic/50/26.PNG);
 }
 .storage_5{
+   background-image:url(../pic/50/27.PNG);
 }
 .ship_0{
+   background-image:url(../pic/50/29_0.PNG);
 }
 .ship_1{
+   background-image:url(../pic/50/29_1.PNG);
 }
 .ship_2{
+   background-image:url(../pic/50/29_2.PNG);
 }
 .ship_3{
+   background-image:url(../pic/50/29_3.PNG);
 }
 .closed{
+   background-image:url(../pic/50/30.PNG);
 }
 .strelka_dv_po_diag_0{
+   background-image:url(../pic/50/2_0.PNG);
 }
 .strelka_dv_po_diag_1{
+   background-image:url(../pic/50/2_1.PNG);
 }
 .strelka_dv_po_diag_2{
+   background-image:url(../pic/50/2_2.PNG);
 }
 .strelka_dv_po_diag_3{
+   background-image:url(../pic/50/2_3.PNG);
 }
 .strelka_l_r_0{
+   background-image:url(../pic/50/7_0.PNG);
 }
 .strelka_l_r_1{
+   background-image:url(../pic/50/7_1.PNG);
 }
 .strelka_l_r_2{
+   background-image:url(../pic/50/7_0.PNG);
 }
 .strelka_l_r_3{
+   background-image:url(../pic/50/7_1.PNG);
 }
 .strelka_ne_w_s_0{
+   background-image:url(../pic/50/6_0.PNG);
 }
 .strelka_ne_w_s_1{
+   background-image:url(../pic/50/6_1.PNG);
 }
 .strelka_ne_w_s_2{
+   background-image:url(../pic/50/6_2.PNG);
 }
 .strelka_ne_w_s_3{
+   background-image:url(../pic/50/6_3.PNG);
 }
 .gun_0{
+   background-image:url(../pic/50/15_0.PNG);
 }
 .gun_1{
+   background-image:url(../pic/50/15_1.PNG);
 }
 .gun_2{
+   background-image:url(../pic/50/15_2.PNG);
 }
 .gun_3{
+   background-image:url(../pic/50/15_3.PNG);
 }

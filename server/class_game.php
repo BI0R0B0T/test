@@ -21,7 +21,10 @@ class game{
 	}
 	public static function start_game(){
 		new game();
-		echo json_encode(array("gameId"=>(int)self::$game_id, "SID" => session_id()));
+		$id = explode(".",self::$game_id);
+		echo json_encode(array("gameId"=>$id[0], "SID" => session_id()));
+		include_once("class_game_list.php");
+		gamelist::add_game($id);
 		return self::$game_id;
 	}
 	public static function get_game($game_id){
@@ -31,17 +34,18 @@ class game{
 		return self::$map;
 	}
 	public static function stop_game($game_id){
-		unlink($game_id);
+		unlink(game_db::ADR.$game_id);
 		unset($_SESSION["game_id"]);
 	}
 	public static function convert_2_JSON($game_id){
 		if(is_null(self::$map)){
 			self::get_game($game_id);
 		}
+		$id = explode(".",self::$game_id);
 //		var_dump(self::$map);
 		echo json_encode(
 						array(	"map"=>self::$map, 
-								"gameId"=>(int)self::$game_id, 
+								"gameId"=>$id[0], 
 								"status"=>"OK",
 								"SID" => session_id()
 							)
@@ -53,7 +57,7 @@ class game{
 		}
 		$db = game_db::db_conn($game_id);
 		$cell = self::$map[$cell_id]->open_cell($db,$cell_id);
-		echo json_encode(array("cell"=>$cell, "status=>OK"));
+		echo json_encode(array("cell"=>$cell, "status"=>"OK"));
 	}
 }
 ?>
