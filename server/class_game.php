@@ -24,11 +24,11 @@ class game{
 		$id = explode(".",self::$game_id);
 		echo json_encode(array("gameId"=>$id[0], "SID" => session_id()));
 		include_once("class_game_list.php");
-		gamelist::add_game($id);
+		gamelist::add_game($id[0]);
 		return self::$game_id;
 	}
 	public static function get_game($game_id){
-		self::$game_id = $game_id;
+		self::$game_id = $game_id.".db";
 		map::set_map_id($game_id);
 		self::$map = map::get_map();
 		return self::$map;

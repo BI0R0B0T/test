@@ -9,8 +9,67 @@ class gamelist{
 		}
 		echo json_encode(array("gamelist"=>self::$gamelist, "status"=>"OK"));
 	}
-	public static function add_game(){
-		
+	public static function add_game($game_id, $player_number = 4){
+		self::get_db();
+		$sql ="INSERT INTO games( id, game_db, player_number, player1, player2, player4, player3, played_now, game_status) VALUES(";
+		$sql.="null, \"$game_id\", $player_number,".$_SESSION["player_id"].",null,null,null, 1, ".$_SESSION["play"].")";
+		$res = self::$game_db->query($sql);
+//		var_dump(self::$game_db->lastInsertRowID());
+/*		if(!$res){"FALSE";
+		}else{
+			var_dump($res->fetchArray(SQLITE3_ASSOC));
+			var_dump(self::$game_db->lastErrorMsg());
+			var_dump($game_id);
+			echo $sql."<br>";
+		}
+*/		self::update_user(array("status"=>$_SESSION["play"],"game_id"=>self::$game_db->lastInsertRowID()));
+	}
+	public static function update_user($property){
+		self::get_db();
+		$sql = "UPDATE players SET";
+		$str = "";
+		foreach($property as $k=>$v){
+			if($k == "player_id"){ continue;}
+			if(is_null($v)){
+				$str .= ", $k = null";
+			}else{
+				$str .= ", $k = ".(is_numeric($v)?$v:"\"".$v."\"");
+			}
+		}
+		$str[0] = " ";
+		$sql .=$str." WHERE players.id = ".$_SESSION["player_id"];
+		$res = self::$game_db->query($sql);
+/*		if(!$res){"FALSE";
+		}else{
+			var_dump($res->fetchArray(SQLITE3_ASSOC));
+			var_dump(self::$game_db->lastErrorMsg());
+			var_dump($_SESSION["player_id"]);
+			echo $sql."<br>";
+		}  */
+	}
+	public static function add_user(){
+		self::get_db();
+		$sqla = "SELECT  count() AS count FROM players WHERE players.id = ".$_SESSION["player_id"];
+		$res = self::$game_db->query($sqla);
+		$usr = $res->fetchArray(SQLITE3_ASSOC);
+		if($usr["count"]){
+			$sql = "UPDATE players SET status =  ".$_SESSION["play"].", game_id =  ".($_SESSION["gameId"]?"\"".$_SESSION["gameId"]."\"":"null");
+			$sql .=", photo_rec =  \"".$_SESSION["photo_rec"]."\", photo =  \"".$_SESSION["photo"]."\", last_name =  \"".$_SESSION["last_name"];
+			$sql .="\", first_name = \"".$_SESSION["first_name"]."\"  WHERE players.id = ".$_SESSION["player_id"];
+		}else{
+			$sql = "INSERT INTO players(id, first_name, last_name, photo, photo_rec, status, game_id) VALUES(";
+			$sql .= $_SESSION["player_id"].", \"".$_SESSION["first_name"]."\", \"".$_SESSION["last_name"]."\", \"".$_SESSION["photo"]."\", \"";
+			$sql .= $_SESSION["photo_rec"]."\", ".$_SESSION["play"].", \"".($_SESSION["gameId"]?$_SESSION["gameId"]:"null")."\")" ;
+		}
+	//	echo $sql."<br>";
+		$res = self::$game_db->query($sql);
+/*		if(!$res){
+			"FALSE";
+		}else{
+			var_dump($res);
+			var_dump(self::$game_db->lastErrorMsg());
+			var_dump($res->fetchArray(SQLITE3_ASSOC));
+		} */
 	}
 	public static function finished_game(){
 		

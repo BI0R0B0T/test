@@ -34,7 +34,7 @@ if($req){
 	}
 }else{
 	// Данные не переданы
-	var_dump($_POST);
+//	var_dump($_POST);
 	var_dump($GLOBALS);
 	echo json_encode(
 		array
@@ -45,7 +45,7 @@ if($req){
 }
 function start_game(){
 //	$_SESSION = array();
-	if(isset($_SESSION["play"]) && !is_null($_SESSION["gameId"])){
+	if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
 		game::convert_2_JSON($_SESSION["gameId"]);
 //		setcookie("SID",session_id());
 	}else{
@@ -70,7 +70,6 @@ function stopgame(){
 		$_SESSION["gameId"] = null;
 		setcookie("play",$_SESSION["play"]);
 		setcookie("gameId","");
-		setcookie("SID",$_COOKIE["PHPSESSID"]);	
 	}else{
 		echo json_encode(array("status"=>"FAIL"));
 	}	
