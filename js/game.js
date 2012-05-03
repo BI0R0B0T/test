@@ -3,6 +3,10 @@ var gameId;
 var interval = 500;
 var timer;
 var intervalMapList = null;
+var div = null;
+var li = null;
+var ul = null;
+var rec = null;
 
 function message(comandCode,comand){
 	this.comandCode = comandCode;
@@ -187,7 +191,8 @@ function drawMap(newMap){
 		div.style.cursor = "pointer";
 		div.setAttribute("onclick","cellUpdate("+cell["cell_id"]+")");
 		map.appendChild(div);
-	}	
+	}
+    div = null;
 }
 
 function changeCell(cell){
@@ -227,6 +232,8 @@ mapList.get = function(){
         var gameList = JSON.parse(req.responseText);
         mapList.draw(gameList["gamelist"]);
         req = null;
+        gameList = null;
+        jsonData = null;
     }
 }
 mapList.draw = function(games){
@@ -241,6 +248,9 @@ mapList.draw = function(games){
         li.players = games[gameName]["players"];
         ul.appendChild(li);
     }
+    li = null;
+    ul = null;
+    div = null;
 }
 mapList.updateStart = function(){
     if(!intervalMapList){ intervalMapList = setInterval("mapList.get()",10000)}
