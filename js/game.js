@@ -1,7 +1,9 @@
 var map;
 var gameId;
-var interval = 5000;
+var interval = 500;
 var timer;
+var intervalMapList = null;
+
 function message(comandCode,comand){
 	this.comandCode = comandCode;
 	this.comand = comand;
@@ -44,7 +46,7 @@ function StartGame(){
 		req = null;
 	}
 	req.open("POST", "../server/game_server.php", true);
-	req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	req.setRequestHeader("Content-Type", "text/plain");
 	req.setRequestHeader("Content-Length", jsonData.length);			
 	req.send(jsonData);				
 }
@@ -101,7 +103,7 @@ function StopGame(map_id){
 	}
 	req.open("POST", "../server/game_server.php", true);
 	req.setRequestHeader("Content-Type", "text/plain");
-	req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	req.setRequestHeader("Content-Type", "text/plain");
 	req.send(jsonData);				
 	
 }
@@ -122,7 +124,7 @@ function cellUpdate(id){
 	var req = getXmlHttpRequest();
 	var jsonData = toPost(msg);
 	req.open("POST", "../server/game_server.php", true);
-	req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	req.setRequestHeader("Content-Type", "text/plain");
 	req.setRequestHeader("Content-Length", jsonData.length);			
 	req.send(jsonData);				
 	req.onreadystatechange = function(){
@@ -149,9 +151,30 @@ function game_update(){
 		req = null;
 	}
 	req.open("POST", "../server/game_server.php", true);
-	req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	req.setRequestHeader("Content-Type", "text/plain");
 	req.setRequestHeader("Content-Length", jsonData.length);			
 	req.send(jsonData);				
+}
+function game_open(Id){
+    gameId = Id;
+    if(!gameId){return;}
+    var str = ""+gameId;
+    var msg = new message(7,str);
+    var jsonData = toPost(msg);
+    var req = getXmlHttpRequest();
+    req.onreadystatechange = function(){
+        if (req.readyState != 4) return;
+        var game = JSON.parse(req.responseText);
+        drawMap(game);
+        if(game["status"] != "FAIL")gameUpdate.start();
+        req = null;
+    }
+    req.open("POST", "../server/game_server.php", true);
+    req.setRequestHeader("Content-Type", "text/plain");
+    req.setRequestHeader("Content-Length", jsonData.length);
+    req.send(jsonData);
+    game_update();
+    gameUpdate.start();
 }
 function drawMap(newMap){
 	map = document.getElementById("map");
@@ -183,7 +206,7 @@ function exitFromGame(){
 	setCookie("PHPSESSID",null);
 	var req = getXmlHttpRequest();
 	req.open("POST", "../server/game_server.php", false);
-	req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	req.setRequestHeader("Content-Type", "text/plain");
 	req.setRequestHeader("Content-Length", jsonData.length);			
 	req.send(jsonData);				
 }
@@ -196,7 +219,7 @@ mapList.get = function(){
     var jsonData = toPost(new message(5,""));
     var req = getXmlHttpRequest();
     req.open("POST", "../server/game_server.php", true);
-    req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    req.setRequestHeader("Content-Type", "text/plain");
     req.setRequestHeader("Content-Length", jsonData.length);
     req.send(jsonData);
     req.onreadystatechange = function(){
@@ -213,14 +236,23 @@ mapList.draw = function(games){
     div.appendChild(ul);
     for(var gameName in games){
         var li = document.createElement("LI");
-        li.innerHTML  = gameName+" "+games[gameName]["game_status"]+" "+games[gameName]["player_number"] +
+        li.innerHTML  = "<a href=\"javascript:game_open("+gameName+")\">"+gameName+"</a> "+games[gameName]["game_status"]+" "+games[gameName]["player_number"] +
             "<a href='javascript:StopGame(\""+gameName+"\")'> x </a>";
         li.players = games[gameName]["players"];
         ul.appendChild(li);
     }
 }
+mapList.updateStart = function(){
+    if(!intervalMapList){ intervalMapList = setInterval("mapList.get()",10000)}
+}
+mapList.updateStop = function(){
+    clearInterval(intervalMapList);
+    intervalMapList = null;
+}
+
 window.onload = function(){
     mapList.get();
+    mapList.updateStart();
 }
 /*
 ** Функция возвращат объект XMLHttpRequest

@@ -24,12 +24,13 @@ if($req){
 	require_once("class_map.php");
 	switch ($req->comandCode){
 		case 0: start_game(); break;
-		case 1: stopgame($req->comand) ; break;
-		case 2: give_game($req->comand); break;
-		case 3: exit_from_game($req->comand); break;
-		case 4: open_cell($req->comand, $req->sid); break;
+		case 1: stopgame() ; break;
+		case 2: give_game(); break;
+		case 3: exit_from_game(); break;
+		case 4: open_cell($req->comand); break;
 		case 5: display_game_list();break;
 		case 6: drop_game($req->comand);break;
+		case 7: open_game($req->comand);break;
 		default: var_dump($req->comand);
 	}
 }else{
@@ -75,17 +76,17 @@ function stopgame(){
 	}	
 }
 
-function give_game($SID){
+function give_game(){
 	if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
 		game::convert_2_JSON($_SESSION["gameId"]);
 	}else{
 		echo json_encode(array("status"=>"FAIL"));
 	}
 }	
-function open_cell($cell_id,$SID){
+function open_cell($cell_id){
 	game::open_cell($_SESSION["gameId"],$cell_id);	
 }
-function exit_from_game($SID){
+function exit_from_game(){
 	session_destroy();
 	$_SESSION = array();
 	$_COOKIE = array();
@@ -98,5 +99,11 @@ function display_game_list(){
 function drop_game($game_id){
 	game::stop_game($game_id);
 	echo json_encode(array("status"=>"Ok"));
+}
+function open_game($game_id){
+	$_SESSION["play"] = 1;
+	$_SESSION["gameId"] = $game_id.".db";
+	give_game();
+//	var_dump($_SESSION["gameId"]) ;
 }
 ?>
