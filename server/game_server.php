@@ -9,15 +9,9 @@ header('Content-type: text/plain; charset=utf-8');
 header('Cache-Control: no-store, no-cache');
 header('Expires: ' . date('r'));
 header('Last-Modified: ' . date('r'));
-//$_POST["comandCode"] = 1;
 // Если данные были переданы...
-//if(isset($_POST["code"]) && isset($_POST["cmd"])){
 $req = json_decode($rawPost);
-//var_dump($req);
 if($req){
-//	var_dump($req);
-//	var_dump($_POST);
-//	var_dump($GLOBALS);
 	require_once("class_cells.php");
 	require_once("class_game.php");
 	require_once("class_game_db.php");
@@ -31,79 +25,106 @@ if($req){
 		case 5: display_game_list();break;
 		case 6: drop_game($req->comand);break;
 		case 7: open_game($req->comand);break;
-		default: var_dump($req->comand);
+		case 8: connect_game($req->comand);break;
+		default: echo json_encode( array ( 'status' => 'FAIL', "reason" => "incorrect comand" ) );
 	}
 }else{
 	// Данные не переданы
-//	var_dump($_POST);
-	var_dump($GLOBALS);
-	echo json_encode(
-		array
-		(
-			'result' => 'No data'
-		)
-	);
+	echo json_encode( array ( 'result' => 'No data' ) );
 }
+/**
+* Запускаем игру (происходит создание новой карты)
+*/
 function start_game(){
-//	$_SESSION = array();
+	/**
+	* Если игра уже создана
+	*/
 	if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
 		game::convert_2_JSON($_SESSION["gameId"]);
-//		setcookie("SID",session_id());
 	}else{
 		$_SESSION["play"] = 1;
 		$_SESSION["gameId"] = game::start_game();
-		setcookie("play",$_SESSION["play"]);
-		setcookie("gameId",$_SESSION["gameId"]);
 		setcookie("SID",session_id());
 	}
 	
 }
+/**
+* Останавливаем игру (при этом игра удаляется))
+*/
 function stopgame(){
-//	var_dump($SID);
-//	echo json_encode(array("status"=>"Ok", "SID"=>$SID));
-//	echo "start delete";
-//	session_id($SID);
-//	session_start();
 	if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
 		echo json_encode(array("status"=>"Ok"));
 		game::stop_game($_SESSION["gameId"]);
 		$_SESSION["play"] = 0;
 		$_SESSION["gameId"] = null;
-		setcookie("play",$_SESSION["play"]);
-		setcookie("gameId","");
 	}else{
 		echo json_encode(array("status"=>"FAIL"));
 	}	
 }
-
+/**
+* Возвращает текущую игру
+*/
 function give_game(){
 	if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
 		game::convert_2_JSON($_SESSION["gameId"]);
 	}else{
-		echo json_encode(array("status"=>"FAIL"));
+		echo json_encode(array("status"=>"FAIL", $_SESSION));
 	}
 }	
+/**
+* Открываем клетку (открыта для тестирования, потом закрою)
+* @param int $cell_id
+* 
+*/
 function open_cell($cell_id){
 	game::open_cell($_SESSION["gameId"],$cell_id);	
 }
+/**
+* выход из игры 
+*/
 function exit_from_game(){
 	session_destroy();
 	$_SESSION = array();
 	$_COOKIE = array();
 	echo json_encode(array("status"=>"Ok"));
 }
+/**
+* выводит список доступных игр
+*/
 function display_game_list(){
 	include_once("class_game_list.php");
 	gamelist::get_gamelist();
 }
+/**
+* Удаляет игру (будет доступна только для админа)
+* @param int $game_id
+* 
+*/
 function drop_game($game_id){
 	game::stop_game($game_id);
 	echo json_encode(array("status"=>"Ok"));
+	$_SESSION["play"] = 0;
+	$_SESSION["gameId"] = null;
 }
+/**
+* просматриваем игру
+* @param int $game_id
+* 
+*/
 function open_game($game_id){
-	$_SESSION["play"] = 1;
-	$_SESSION["gameId"] = $game_id.".db";
+	$_SESSION["play"] = 0;
+	$_SESSION["gameId"] = $game_id;
 	give_game();
-//	var_dump($_SESSION["gameId"]) ;
+}
+/**
+* Присоединяемся к игре
+* @param int $game_id
+* 
+*/
+function connect_game($game_id){
+	$_SESSION["play"] = 1;
+	$_SESSION["gameId"] = $game_id;
+	game::add_player();
+//	setcookie("SID",session_id());
 }
 ?>

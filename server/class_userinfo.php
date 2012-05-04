@@ -1,5 +1,5 @@
 <?php
-class UserInfo
+class user_info
 {
 	private $user_id;
 	public $first_name;		// Имя пользователя
@@ -7,7 +7,9 @@ class UserInfo
 	public $photo;		
 	public $photo_rec;		
 	public $online;   
-	public $played;   
+	public $played;
+	public $plaer_number;  
+	public $coins = 0;
 	
 	public function __construct($id, $first_name='', $last_name='', $photo='', $photo_rec='', $online=FALSE, $played = FALSE)
 	{
@@ -18,6 +20,17 @@ class UserInfo
 		$this->photo_rec = $photo_rec;
 		$this->online = $online;
 		$this->played = $played;
+	}
+	public function save_in_db(){
+		include_once("class_game_db.php");
+		$db = game_db::db_conn($_SESSION["gameId"]);
+		$sql  = "INSERT INTO players(id,player_id, first_name, last_name, photo, photo_rec, coins) VALUES(";
+		$sql .="null,".$this->user_id.", \"".$this->first_name."\", \"".$this->last_name."\", \"".$this->photo;
+		$sql .= "\", \"".$this->photo_rec."\", ".$this->coins.")" ;
+		$res = $db->query($sql);
+//		var_dump($res);
+//		var_dump($db->lastErrorMsg());
+		return $db->lastInsertRowID();
 	}
 }
 ?>

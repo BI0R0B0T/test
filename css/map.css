@@ -28,16 +28,16 @@
    background-image:url(../pic/50/1_3.PNG);
 }
 .strelka_po_diag_0{
-    background-image:url(../pic/50/1_0.PNG);
+    background-image:url(../pic/50/3_0.PNG);
 }
 .strelka_po_diag_1{
-    background-image:url(../pic/50/1_1.PNG);
+    background-image:url(../pic/50/3_1.PNG);
 }
 .strelka_po_diag_2{
-    background-image:url(../pic/50/1_2.PNG);
+    background-image:url(../pic/50/3_2.PNG);
 }
 .strelka_po_diag_3{
-    background-image:url(../pic/50/1_3.PNG);
+    background-image:url(../pic/50/3_3.PNG);
 }
 .empty_cell{
    background-image:url(../pic/50/0.PNG);
@@ -170,4 +170,14 @@
 }
 .gun_3{
    background-image:url(../pic/50/15_3.PNG);
+}
+.unit{
+	width:1px;
+	height:1px;
+	display:block;
+	border-radius:1px;
+	-moz-border-radius:1px;
+	-webkit-border-radius:1px;
+	background:#a00;
+	float:left;
 }

@@ -24,6 +24,23 @@ class gamelist{
 		}
 */		self::update_user(array("status"=>$_SESSION["play"],"game_id"=>self::$game_db->lastInsertRowID()));
 	}
+	public static function stopgame($gameid){
+		self::get_db();
+		$sql = "UPDATE games SET played_now = 0 WHERE game_db = ".$gameid;
+		self::$game_db->query($sql);
+/*		$res = 
+		if(!$res){"FALSE";
+		}else{
+			var_dump($res);
+			print_r($res->fetchArray(SQLITE3_ASSOC));
+			echo "<br>";			
+			print_r(self::$game_db->lastErrorMsg());
+			echo "<br>";			
+			print_r($gameid);
+			echo "<br>";			
+			echo $sql."<br>";
+		}*/
+	}
 	public static function update_user($property){
 		self::get_db();
 		$sql = "UPDATE players SET";
@@ -82,6 +99,7 @@ class gamelist{
 		$sql .= "FROM players INNER JOIN games ON (players.game_id = games.id)"; 
 		$sql .= "WHERE games.played_now = 1";
 		$res = self::$game_db->query($sql);
+//		var_dump($res->fetchArray(SQLITE3_ASSOC));
 		while($add = $res->fetchArray(SQLITE3_ASSOC)) {
 			self::$gamelist[$add["game_db"]]["player_number"] = $add["player_number"];
 			self::$gamelist[$add["game_db"]]["game_status"] = $add["game_status"];

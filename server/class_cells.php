@@ -215,11 +215,11 @@ abstract class cells{
 			//остальные клетки
 			foreach($this->possible_move as $move){
 	 			$this->rotate_move($move,$this->rotate);
-				$next_col = $move[0]+$column;
-				$next_row = $move[1]+$row;
+				$next_col = (int)$move[0]+(int)$column;
+				$next_row = (int)$move[1]+(int)$row;
 				if($next_col < 0 || $next_col > 12) {continue;}
 				if($next_row < 0 || $next_row > 12) {continue;}
-				$this->possible_next_cells[] = (int)($next_row*13+$next_col);
+				$this->possible_next_cells[] = (int)(floor($next_row*13)+$next_col);
 			}
 		}
  		unset($this->possible_move);
@@ -238,7 +238,7 @@ abstract class cells{
 	private function rotate_on_pi($coordinate, $left){
 		$x = $coordinate[0];
 		$y = $coordinate[1];
-		if(0 == $x || 0 == $y){
+		if(!$x || !$y){
 			if(0 == $x){
 				$coordinate = $left?array($y,$x):array(-$y,$x);
 			}else{
@@ -247,7 +247,7 @@ abstract class cells{
 		}else{
 			$c = $x*$y;
 			//определяем четверть
-			if($c > 0){
+			if($c < 0){
 				//1 or 3
 				$coordinate = $left?array(-$y,$x):array($y,-$x);
 			}else{

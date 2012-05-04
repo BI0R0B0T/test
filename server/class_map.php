@@ -70,7 +70,7 @@ include_once "class_game_db.php";
 		$sea = array(0,1,2,3,4,5,7,8,9,10,11,12,13,14,24,25,26,39,52,65,91,104,117,130,38,51,64,77,103,116,129,142,143,144,154,155,156,157,158,159,160,161,163,164,165,166,167,168);
 		$ship = array(6, 78, 90, 162);
 		$r = 0;
-		self::$map_id = rand(1,100).time().".db";
+		self::$map_id = rand(1,100).time();
 		$db = game_db::db_conn(self::$map_id);
 		for($i = 0; $i < 169; $i++){
 			if(in_array($i, $sea)){

@@ -1,5 +1,5 @@
 var gameId;
-var interval = 1500;
+var interval = 10000;
 var timer;
 var intervalMapList = null;
 
@@ -91,6 +91,9 @@ function StopGame(map_id){
 		map = null;
 		map_id = null;	
 		gameId = null;
+		mapList.updateStop();
+		mapList.get();
+		mapList.updateStart();
 	}
 	req.open("POST", "../server/game_server.php", true);
 	req.setRequestHeader("Content-Type", "text/plain");
@@ -154,7 +157,7 @@ function game_open(Id){
     gameId = Id;
     if(!gameId){return;}
     var str = ""+gameId;
-    var msg = new message(7,str);
+    var msg = new message(8,str);
     var jsonData = toPost(msg);
     var req = getXmlHttpRequest();
     req.onreadystatechange = function(){
@@ -168,13 +171,14 @@ function game_open(Id){
 		game = null;
 		Id = null;
 		str = null;
+		game_update();
+		gameUpdate.start();
    }
     req.open("POST", "../server/game_server.php", true);
     req.setRequestHeader("Content-Type", "text/plain");
     req.setRequestHeader("Content-Length", jsonData.length);
     req.send(jsonData);
-    game_update();
-    gameUpdate.start();
+    gameUpdate.stop();
 }
 function drawMap(newMap){
 	map = document.getElementById("map");
@@ -182,26 +186,73 @@ function drawMap(newMap){
 	for(var i in newMap["map"]){
 		var cell = newMap["map"][i];
 		var div = document.createElement("DIV");
-		div.id = cell["cell_id"];
+		var id = cell["cell_id"];
+		div.id = id;
 		var className = setClass4cell(cell);
 		div.className = className
 		div.marck = new Array(9999).join('leak');
 		if(className == "closed"){
 			div.style.cursor = "pointer";
-			div.setAttribute("onclick","cellUpdate("+cell["cell_id"]+")");
+			div.setAttribute("onclick","cellUpdate("+id+")");
+		}else{
+			var possib = cell["possible_next_cells"];
+			div.possible_next_cells = possib;
+			div.setAttribute("onmouseover","decoratePossibleMove("+id+")");
+			div.setAttribute("onmouseout","undecorate("+id+")");
+			possib = null;
 		}
 		map.appendChild(div);
 		cell = null;
+//		div.possible_next_cells = null;
 		div = null;
+		id = null;
+	}
+	for(var i in newMap["units"]){
+		var unit = newMap["units"][i];
+		var unitDiv = document.createElement("DIV");
+		unitDiv.id = "unit_"+unit.id;
+		unitDiv.className = "unit";
+		unitDiv.die = unit.die;
+		unitDiv.have_coins = unit.have_coins;
+		unitDiv.cell_part = unit.cell_part;
+		unitDiv.can_move = unit.can_move;
+		unitDiv.possible_move = unit.possible_move;
+		var parentDiv = document.getElementById(unit.position);
+		parentDiv.appendChild(unitDiv);
+		unit = null;
+		unitDiv = null;
+		parentDiv = null;
 	}
 	i = null;
  	newMap = null;
 	map = null;
 }
-
+function decoratePossibleMove(id){
+	var cell = document.getElementById(id);
+	for(var cellId in cell["possible_next_cells"]){
+		var div = document.getElementById(cell["possible_next_cells"][cellId]);
+		div.style.border = "1px solid red";
+		div.style.width = "48px";
+		div.style.height = "48px";
+	}
+	cellId = null;
+}
+function undecorate(id){
+	var cell = document.getElementById(id);
+	for(var cellId in cell["possible_next_cells"]){
+		var div = document.getElementById(cell["possible_next_cells"][cellId]);
+		div.style.border = "";
+		div.style.width = "50px";
+		div.style.height = "50px";
+	}
+	cellId = null;
+}
 function changeCell(cell){
     var prevCell = document.getElementById(cell["cell_id"]);
 	prevCell.className = setClass4cell(cell);
+	prevCell.possible_next_cells = cell["possible_next_cells"];
+	prevCell.setAttribute("onmouseover","decoratePossibleMove("+cell["cell_id"]+")");
+	prevCell.setAttribute("onmouseout","undecorate("+cell["cell_id"]+")");
 	prevCell = null;
 	cell = null;
 }
@@ -239,10 +290,12 @@ mapList.get = function(){
         if (reqML.readyState != 4) return;
         var gameList = JSON.parse(reqML.responseText);
         mapList.draw(gameList["gamelist"]);
+		mapList.updateStart();
         reqML = null;
         gameList = null;
         jsonData = null;
     }
+	mapList.updateStop();
 }
 mapList.draw = function(games){
     var div = document.getElementById("map_list") ;
