@@ -15,6 +15,19 @@
     border: 1px solid blue;
     margin-right: 10px;
 }
+div[druggable=true]{
+    -webkit-user-drag:element;
+    -webkit-user-select: none;
+}
+[draggable] {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+div {
+    display: block;
+}
 .move_up_0{
     background-image:url(../pic/50/1_0.PNG);
 }
@@ -172,12 +185,9 @@
    background-image:url(../pic/50/15_3.PNG);
 }
 .unit{
-	width:1px;
-	height:1px;
-	display:block;
-	border-radius:1px;
-	-moz-border-radius:1px;
-	-webkit-border-radius:1px;
+	border-radius:10px;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
 	background:#a00;
 	float:left;
 }

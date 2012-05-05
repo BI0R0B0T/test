@@ -2,6 +2,7 @@ var gameId;
 var interval = 10000;
 var timer;
 var intervalMapList = null;
+var diametr = "20px";
 
 function message(comandCode,comand){
 	this.comandCode = comandCode;
@@ -197,8 +198,6 @@ function drawMap(newMap){
 		}else{
 			var possib = cell["possible_next_cells"];
 			div.possible_next_cells = possib;
-			div.setAttribute("onmouseover","decoratePossibleMove("+id+")");
-			div.setAttribute("onmouseout","undecorate("+id+")");
 			possib = null;
 		}
 		map.appendChild(div);
@@ -217,8 +216,48 @@ function drawMap(newMap){
 		unitDiv.cell_part = unit.cell_part;
 		unitDiv.can_move = unit.can_move;
 		unitDiv.possible_move = unit.possible_move;
-		var parentDiv = document.getElementById(unit.position);
+        unitDiv.style.width = diametr;
+        unitDiv.style.height = diametr;
+        unitDiv.setAttribute("draggable",true);
+        //Событие вызываемое при переносе юнита
+        addEvent(unitDiv, 'dragstart', function (e) {
+            e.dataTransfer.effectAllowed = 'copy'; // only dropEffect='copy' will be dropable
+            e.dataTransfer.setData('Text', this.id); // required otherwise doesn't work
+ //           e.dataTransfer.setData('Text', this.position); // required otherwise doesn't work
+        });
+        var parentDiv = document.getElementById(unit.position);
 		parentDiv.appendChild(unitDiv);
+        for(var cellId in parentDiv["possible_next_cells"]){
+            var div = document.getElementById(parentDiv["possible_next_cells"][cellId]);
+            // если юнит над клеткой
+            addEvent(div, 'dragover', function (e) {
+                if (e.preventDefault) e.preventDefault(); // allows us to drop
+                this.style.border = "1px solid red";
+                this.style.width = "48px";
+                this.style.height = "48px";
+                e.dataTransfer.dropEffect = 'copy';
+                return false;
+            });
+            // если юнит ушел с клетки
+            addEvent(div,'dragleave', function (){
+                this.style.border = "";
+                this.style.width = "50px";
+                this.style.height = "50px";
+
+            });
+            // если юнита перенесли сюда
+            addEvent(div, 'drop', function (e) {
+                if (e.stopPropagation) e.stopPropagation(); // stops the browser from redirecting...why???
+
+ //               var_dump(e.dataTransfer) ;
+ //               var el = document.getElementById(e.dataTransfer.getData('Text'));
+ //               var text = document.createTextNode("Тыц");
+ //               el.appendChild(text);
+                return false;
+            });
+        }
+ //       var text = document.createTextNode(unit.position);
+ //       unitDiv.appendChild(text);
 		unit = null;
 		unitDiv = null;
 		parentDiv = null;
@@ -226,6 +265,14 @@ function drawMap(newMap){
 	i = null;
  	newMap = null;
 	map = null;
+}
+function var_dump(getObject){
+    var str = "";
+    for(var i in getObject){
+       str += i+" = "+getObject[i]+"\n";
+    }
+    alert(str);
+    return;
 }
 function decoratePossibleMove(id){
 	var cell = document.getElementById(id);
@@ -331,27 +378,60 @@ window.onload = function(){
 /*
 ** Функция возвращат объект XMLHttpRequest
 */
-function getXmlHttpRequest()
-{
-	if (window.XMLHttpRequest) 
-	{
-		try 
-		{
+function getXmlHttpRequest() {
+	if (window.XMLHttpRequest) {
+		try {
 			return new XMLHttpRequest();
-		} 
-		catch (e){}
+		} catch (e){}
 	} 
-	else if (window.ActiveXObject) 
-	{
-		try 
-		{
+	else if (window.ActiveXObject) {
+		try {
 			return new ActiveXObject('Msxml2.XMLHTTP');
 		} catch (e){}
-		try 
-		{
+		try{
 			return new ActiveXObject('Microsoft.XMLHTTP');
-		} 
-		catch (e){}
+		} catch (e){}
 	}
 	return null;
 }
+function addEvent(elem, evType, fn) {
+    if (elem.addEventListener) {
+        elem.addEventListener(evType, fn, false);
+    }
+    else if (elem.attachEvent) {
+        elem.attachEvent('on' + evType, fn)
+    }
+    else {
+        elem['on' + evType] = fn
+    }
+}
+/*
+addEvent(bin, 'drop', function (e) {
+    if (e.stopPropagation) e.stopPropagation(); // stops the browser from redirecting...why???
+
+    var el = document.getElementById(e.dataTransfer.getData('Text'));
+
+    el.parentNode.removeChild(el);
+
+    // stupid nom text + fade effect
+    bin.className = '';
+    yum.innerHTML = eat[parseInt(Math.random() * eat.length)];
+
+    var y = yum.cloneNode(true);
+    bin.appendChild(y);
+
+    setTimeout(function () {
+        var t = setInterval(function () {
+            if (y.style.opacity <= 0) {
+                if (msie) { // don't bother with the animation
+                    y.style.display = 'none';
+                }
+                clearInterval(t);
+            } else {
+                y.style.opacity -= 0.1;
+            }
+        }, 50);
+    }, 250);
+
+    return false;
+}); */

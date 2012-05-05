@@ -45,7 +45,7 @@ class unit{
 		$db->query($sql);		
 	}
 	static function born_unit_on_ship($number){
-		static $ship = array(6, 78, 90, 162);
+		static $ship = array(6, 162, 78, 90);
 		include_once("class_game_db.php");
 //		var_dump($_SESSION);
 		$cell = $ship[$number];
