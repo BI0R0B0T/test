@@ -1,47 +1,99 @@
-var gameId;
 var interval = 10000;
 var timer;
 var intervalMapList = null;
 var diametr = "20px";
+var game;
+var sid;
+var gameUpdate
 
+function serverConnect(message){
+    this.jsonData = toPost(message);
+    this.req = null;
+    this.send = function(assinc){
+        var req = getXmlHttpRequest();
+        req.open("POST", "../server/game_server.php", this.assinc);
+        req.setRequestHeader("Content-Type", "text/plain");
+        req.setRequestHeader("Content-Length", this.jsonData.length);
+        req.send(this.jsonData);
+        if(this.assinc){
+            req.onreadystatechange = function(){
+                if( req.readyState != 4) return;
+                return   JSON.parse(req.responseText);
+            }
+        }else{
+            return   JSON.parse(req.responseText);
+        }
+    }
+}
+function game(){
+    this.gameId = null;
+    this.start = function (){
+        if(this.gameId != null){ game.stop(); }
+        var conn = new serverConnect(new message(0,"start"));
+        var g = conn.send(true);
+        this.gameId = g["gameId"];
+        sid = g["SID"];
+        this.update();
+        gameUpdate.start();
+        g = null;
+        conn = null;
+    }
+    this.stop = function(map_id){
+        if(!map_id) {
+            if(!this.gameId){ return;}
+            else{ var msg = new message(1,"");}
+        } else{
+            var msg = new message(6,map_id);
+        }
+        gameUpdate.stop();
+        var conn = new serverConnect(msg);
+        conn.send();
+        map = document.getElementById("map");
+        while(map.hasChildNodes()) map.removeChild(map.lastChild);
+        map = null;
+        map_id = null;
+        this.gameId = null;
+        mapList.updateStop();
+        mapList.get();
+        mapList.updateStart();
+    }
+    this.update = function(){
+        if(!this.gameId){return;}
+        var msg = new message(2,getCookie("PHPSESSID"));
+        var conn = new serverConnect(msg);
+        var g = conn.send();
+        drawMap(g);
+        if(g["status"] = "FAIL"){gameUpdate.start();}
+        msg = null;
+        g = null;
+    }
+    this.open = function(Id){
+        this.gameId = Id;
+        if(!this.gameId){return;}
+        var str = ""+this.gameId;
+        var msg = new message(8,str);
+        var conn = new serverConnect(msg);
+        var g = conn.send();
+        drawMap(g);
+        if(g["status"] != "FAIL")gameUpdate.start();
+        msg = null;
+        g = null;
+        str = null;
+        game.update();
+        gameUpdate.start();
+    }
+}
 function message(comandCode,comand){
 	this.comandCode = comandCode;
 	this.comand = comand;
 }
 function toPost(message){
-	var sid = getCookie("PHPSESSID");
-	if(sid){ message.sid = sid; }
+    if(!getCookie("SID")) {message.sid = sid;}
+//	var sid = getCookie("PHPSESSID");
+//	if(sid){ message.sid = sid; }
 	return JSON.stringify(message);
 }
-function StartGame(){
-	if(gameId != null){ StopGame(); }
-	var msg = new message(0,"start");
-	var jsonData = toPost(msg);
-	var req = getXmlHttpRequest();
-	req.onreadystatechange = function(){
-		if (req.readyState != 4) return;
-		map = document.getElementById("map");
-		while(map.hasChildNodes()) map.removeChild(map.lastChild);
-		var game = JSON.parse(req.responseText);
-		gameId = game["gameId"];
-//		var text = document.createTextNode(game["gameId"]);
-//		map.appendChild(text);
-//		setCookie("gameId",gameId);
-//		setCookie("play",1);
-		setCookie("PHPSESSID",game["SID"]);
-		game_update();
-		gameUpdate.start();
-		//Подчищаем память
-		req = null;
-		msg = null;
-		jsonData = null;
-		game = null;
-	}
-	req.open("POST", "../server/game_server.php", true);
-	req.setRequestHeader("Content-Type", "text/plain");
-	req.setRequestHeader("Content-Length", jsonData.length);			
-	req.send(jsonData);				
-}
+
 function setCookie (name, value, expires, path, domain, secure) {
       document.cookie = name + "=" + escape(value) +
         ((expires) ? "; expires=" + expires : "") +
@@ -68,137 +120,94 @@ function getCookie(name) {
 	}
 	return(setStr);
 }
-function StopGame(map_id){
-    if(!map_id) {
-        if(!map){ return;}
-		else{ var msg = new message(1,"");}
-    } else{
- //       alert(map_id);
-        var msg = new message(6,map_id);
-    }
-	gameUpdate.stop();
 
-//	setCookie("gameId",null);
-//	setCookie("play",null);
-	var jsonData = toPost(msg);
-	var req = getXmlHttpRequest();
-	req.onreadystatechange = function(){
-		if (req.readyState != 4) return;
-		map = document.getElementById("map");
-		while(map.hasChildNodes()) map.removeChild(map.lastChild);
-		req = null;
-		msg = null;
-		jsonData = null;
-		map = null;
-		map_id = null;	
-		gameId = null;
-		mapList.updateStop();
-		mapList.get();
-		mapList.updateStart();
-	}
-	req.open("POST", "../server/game_server.php", true);
-	req.setRequestHeader("Content-Type", "text/plain");
-	req.setRequestHeader("Content-Type", "text/plain");
-	req.send(jsonData);				
-	
+function gameUpdater(){
+    this.timer = null;
+    this.start = function(){
+        if(!this.timer) this.timer = setInterval('game.update()',interval);
+    }
+    this.stop = function(){
+        clearInterval(this.timer);
+        this.timer = null;
+    }
 }
-function gameUpdate(){}
+/*
 gameUpdate.start = function(){
-	 if(!timer) timer = setInterval('game_update()',interval);
-//	game_update();
+	 if(!timer) timer = setInterval('game.update()',interval);
+//	game.update();
 }
 gameUpdate.stop = function(){
 	clearInterval(timer);
 	timer = null;
-}
-function cellUpdate(id){
-	gameUpdate.stop();
+}     */
+function cells(cell){
+    this.id = cell["cell_id"];
+    this.possible_next_cells = cell["possible_next_cells"];
+    this.type = cell["type"];
+    this.rotate = cell["rotate"];
+    this.update = function(id){
+        gameUpdate.stop();
 //    alert(id);
-	var msg = new message(4,id);
-	var req = getXmlHttpRequest();
-	var jsonData = toPost(msg);
-	req.open("POST", "../server/game_server.php", true);
-	req.setRequestHeader("Content-Type", "text/plain");
-	req.setRequestHeader("Content-Length", jsonData.length);			
-	req.send(jsonData);				
-	req.onreadystatechange = function(){
-		if (req.readyState != 4) return;
-		var cell = JSON.parse(req.responseText);
-		if(cell["status"] == "OK") { changeCell(cell["cell"]); }
-		gameUpdate.start();
-		id = null;
-		msg = null;
-		req = null;
-		jsonData = null;
-		cell = null;
-	}
+        var msg = new message(4,id);
+        var req = getXmlHttpRequest();
+        var jsonData = toPost(msg);
+        req.open("POST", "../server/game_server.php", true);
+        req.setRequestHeader("Content-Type", "text/plain");
+        req.setRequestHeader("Content-Length", jsonData.length);
+        req.send(jsonData);
+        req.onreadystatechange = function(){
+            if (req.readyState != 4) return;
+            var cell = JSON.parse(req.responseText);
+            if(cell["status"] == "OK") { cells.changeCell(cell["cell"]); }
+            gameUpdate.start();
+            id = null;
+            msg = null;
+            req = null;
+            jsonData = null;
+            cell = null;
+        }
+    }
+    this.changeCell = function(){
+        var prevCell = document.getElementById(this.id);
+        prevCell.className = cells.setClass();
+        prevCell.possible_next_cells = this.possible_next_cells;
+        prevCell.setAttribute("onmouseover","decoratePossibleMove("+this.id+")");
+        prevCell.setAttribute("onmouseout","undecorate("+this.id+")");
+        prevCell = null;
+  //      cell = null;
+    }
+    this.setClass = function(){
+        var classList = new Array("empty_cell", "move_up", "strelka_dv_po_diag", "strelka_po_diag", "strelka_vo_vse_po_diag", "strelka_up_d_l_r", "strelka_ne_w_s", "strelka_l_r", "horses", "whirligig_2", "whirligig_3", "whirligig_4", "whirligig_5", "ice", "catcher", "gun", "fort", "aborigenka", "rom", "crocodille", "cannibal", "aerostat", "airplane", "storage_1", "storage_2", "storage_3", "storage_4", "storage_5", "sea", "ship", "closed");
+        var a = classList[this.type];
+        var b = classList[this.type]+"_"+this.rotate;
+        var res = new Array(a, b, b, b, a, a, b, b, a, a, a, a, a, a, a, b, a, a, a, a, a, a, a, a, a, a, a, a, a, b, a);
+        return res[this.type];
+    }
+
 }
 
-function game_update(){
-	if(!gameId){return;}
-	var msg = new message(2,getCookie("PHPSESSID"));
-	var jsonData = toPost(msg);
-	var req = getXmlHttpRequest();
-	req.onreadystatechange = function(){
-		if (req.readyState != 4) return;
-		var game = JSON.parse(req.responseText);
-		drawMap(game);
-		if(game["status"] != "FAIL"){gameUpdate.start();}
-		msg = null;
-		jsonData = null;
-		req = null;
-		game = null;		
-	}
-	req.open("POST", "../server/game_server.php", true);
-	req.setRequestHeader("Content-Type", "text/plain");
-	req.setRequestHeader("Content-Length", jsonData.length);			
-	req.send(jsonData);				
-}
-function game_open(Id){
-    gameId = Id;
-    if(!gameId){return;}
-    var str = ""+gameId;
-    var msg = new message(8,str);
-    var jsonData = toPost(msg);
-    var req = getXmlHttpRequest();
-    req.onreadystatechange = function(){
-        if (req.readyState != 4) return;
-        var game = JSON.parse(req.responseText);
-        drawMap(game);
-        if(game["status"] != "FAIL")gameUpdate.start();
-  		req = null;
-		msg = null;
-		jsonData = null;
-		game = null;
-		Id = null;
-		str = null;
-		game_update();
-		gameUpdate.start();
-   }
-    req.open("POST", "../server/game_server.php", true);
-    req.setRequestHeader("Content-Type", "text/plain");
-    req.setRequestHeader("Content-Length", jsonData.length);
-    req.send(jsonData);
-    gameUpdate.stop();
-}
+
 function drawMap(newMap){
 	map = document.getElementById("map");
 	while(map.hasChildNodes()){ map.removeChild(map.lastChild);}
 	for(var i in newMap["map"]){
-		var cell = newMap["map"][i];
+	//	var cell = newMap["map"][i];
+		var cell = new cells(newMap["map"][i]) ;
 		var div = document.createElement("DIV");
-		var id = cell["cell_id"];
-		div.id = id;
-		var className = setClass4cell(cell);
-		div.className = className
+	//	var id = cell["cell_id"];
+		div.id = cell.id;
+        div.className = cell.setClass();
+//		var className = cells.setClass(cell);
+//		div.className = className
 		div.marck = new Array(9999).join('leak');
-		if(className == "closed"){
+		if(div.className == "closed"){
 			div.style.cursor = "pointer";
-			div.setAttribute("onclick","cellUpdate("+id+")");
+			div.setAttribute("onclick","cells.update("+id+")");
 		}else{
-			var possib = cell["possible_next_cells"];
-			div.possible_next_cells = possib;
-			possib = null;
+//			var possib = cell["possible_next_cells"];
+//			div.possible_next_cells = possib;
+			div.possible_next_cells = cell.possible_next_cells;
+//			possib = null;
 		}
 		map.appendChild(div);
 		cell = null;
@@ -294,22 +303,6 @@ function undecorate(id){
 	}
 	cellId = null;
 }
-function changeCell(cell){
-    var prevCell = document.getElementById(cell["cell_id"]);
-	prevCell.className = setClass4cell(cell);
-	prevCell.possible_next_cells = cell["possible_next_cells"];
-	prevCell.setAttribute("onmouseover","decoratePossibleMove("+cell["cell_id"]+")");
-	prevCell.setAttribute("onmouseout","undecorate("+cell["cell_id"]+")");
-	prevCell = null;
-	cell = null;
-}
-function setClass4cell(cell){
-	var classList = new Array("empty_cell", "move_up", "strelka_dv_po_diag", "strelka_po_diag", "strelka_vo_vse_po_diag", "strelka_up_d_l_r", "strelka_ne_w_s", "strelka_l_r", "horses", "whirligig_2", "whirligig_3", "whirligig_4", "whirligig_5", "ice", "catcher", "gun", "fort", "aborigenka", "rom", "crocodille", "cannibal", "aerostat", "airplane", "storage_1", "storage_2", "storage_3", "storage_4", "storage_5", "sea", "ship", "closed");
-	var a = classList[cell["type"]];
-	var b = classList[cell["type"]]+"_"+cell["rotate"];
-	var res = new Array(a, b, b, b, a, a, b, b, a, a, a, a, a, a, a, b, a, a, a, a, a, a, a, a, a, a, a, a, a, b, a);
-	return res[cell["type"]];
-}
 function exitFromGame(){
 	var jsonData = toPost(new message(3,getCookie("PHPSESSID")));
 	setCookie("PHPSESSID",null);
@@ -351,9 +344,9 @@ mapList.draw = function(games){
     div.appendChild(ul);
     for(var gameName in games){
         var li = document.createElement("LI");
-        li.innerHTML  = "<a href=\"javascript:game_open("+gameName+")\">"+gameName+"</a> "+
+        li.innerHTML  = "<a href=\"javascript:game.open("+gameName+")\">"+gameName+"</a> "+
 			games[gameName]["game_status"]+" "+games[gameName]["player_number"] +
-            "<a href='javascript:StopGame(\""+gameName+"\")'> x </a>";
+            "<a href='javascript:game.stop(\""+gameName+"\")'> x </a>";
         li.players = games[gameName]["players"];
         ul.appendChild(li);
 		li = null;
@@ -374,7 +367,9 @@ mapList.updateStop = function(){
 window.onload = function(){
     mapList.get();
     mapList.updateStart();
-}
+    game = new game();
+    gameUpdate = new gameUpdater();
+ }
 /*
 ** Функция возвращат объект XMLHttpRequest
 */

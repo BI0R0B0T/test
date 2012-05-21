@@ -26,8 +26,8 @@ print <<<LABEL
 </head>
 <body>
 <ul>
-	<li><a href="javascript:StartGame()">Start Game </a></li>
-	<li><a href="javascript:StopGame()">Stop Game </a></li>
+	<li><a href="javascript:game.start()">Start Game </a></li>
+	<li><a href="javascript:game.stop()">Stop Game </a></li>
 	<li><a href="javascript:exitFromGame()">exit </a></li>
 </ul>
 <div id="map_list">Map list will be here</div>
