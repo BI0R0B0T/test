@@ -45,7 +45,7 @@ function start_game(){
 	}else{
 		$_SESSION["play"] = 1;
 		$_SESSION["gameId"] = game::start_game();
-		setcookie("SID",session_id());
+//		setcookie("SID",session_id());
 	}
 	
 }
@@ -120,15 +120,20 @@ function open_game($game_id){
 /**
 * Присоединяемся к игре
 * @param int $game_id
-* 
+* @version 0.2
 */
 function connect_game($game_id){
 	if(isset($_SESSION["gameId"]) && $_SESSION["gameId"]){
 		give_game();
 	}else{
-		$_SESSION["play"] = 1;
-		$_SESSION["gameId"] = $game_id;
-		game::add_player();		
+		include_once("class_game_list.php");
+		if(gamelist::can_connect($game_id)){
+			$_SESSION["play"] = 1;
+			$_SESSION["gameId"] = $game_id;		
+			game::add_player();		
+		}else{
+			echo json_encode(array("status"=>"FAIL"));
+		}
 	}
 }
 /**

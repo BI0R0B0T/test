@@ -195,7 +195,16 @@ function drawMap(newMap){
 	}
 	//рисуем юниты
 	for(var i in newMap["units"]){
-		var unit = newMap["units"][i];
+		drawUnit(newMap["units"][i]);
+	}
+	i = null;
+ 	newMap = null;
+	map = null;
+}
+/**
+* Рисуем юнит на поле
+*/
+function drawUnit(unit){
 		var unitDiv = document.createElement("DIV");
 		unitDiv.id = "unit_"+unit.id;
 		unitDiv.className = "unit";
@@ -242,27 +251,22 @@ function drawMap(newMap){
                 return false;
             });
         }
- //       var text = document.createTextNode(unit.position);
- //       unitDiv.appendChild(text);
 		unit = null;
 		unitDiv = null;
 		parentDiv = null;
-	}
-	i = null;
- 	newMap = null;
-	map = null;
 }
 function unit_move(unit_id, cell_id){
 	var a = new Array(unit_id, cell_id);
-//	var msg = new message(9,a);
-//	var_dump(msg);
-//	displayInDebug(msg)
-//	a.unit_id = cell_id
     var conn = new serverConnect(new message(9,a));
     var cl = conn.send(true);
-	displayInDebug(cl);
-//    if(cl["status"] == "OK") { cells.changeCell(cl["cell"]); }
-
+	if(cl["status"] == "FAIL"){ return; }
+	for(var i in cl["map"]){
+		cells.changeCell(cl["map"][i]);
+	}
+	for(var i in cl["units"]){
+		drawUnit(cl["units"][i]);
+	}
+	i = null;
 }
 function displayInDebug(text){
 	var div = document.getElementById("debug");

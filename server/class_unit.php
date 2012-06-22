@@ -39,8 +39,8 @@ class unit{
 	function save_unit_property(){
 		include_once("class_game_db.php");
 		$db = game_db::db_conn($_SESSION["gameId"]);
-		$sql = "UPDATE units SET have_coin = ".$this->have_coins.", waiting_time = ".$this->waitng_time;
-		$sql.=", die = ".$this->die.", cell_position_id = ".$this->position.", cell_part = ".$this->cell_part;
+		$sql = "UPDATE units SET have_coin = ".($this->have_coins?1:0).", waiting_time = ".$this->waitng_time;
+		$sql.=", die = ".($this->die?1:0).", cell_position_id = ".$this->position.", cell_part = ".$this->cell_part;
 		$sql.=" WHERE id = ".$this->id;
 		$db->query($sql);		
 	}
@@ -89,11 +89,12 @@ class unit{
 		$return = array("status" => "OK");
 		if(30 == $cell->type){
 			$cell = cells::open_cell($db,$cell_id);
-			$return["cell"] = $cell;
+			$return["map"][] = $cell;
 		}
 		$this->possible_move = $cell->possible_next_cells;
 		$this->save_unit_property();
-		$return["unit"] = $this;
+		$return["units"][] = $this;
+		$return["move_list"][] = array($this->previous_position, $this->position);
 		echo json_encode($return);		
 	}
 	/**

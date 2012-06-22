@@ -3,6 +3,23 @@ class gamelist{
 	private static $gamelist = NULL;
 	private static $game_db = NULL;
 	const DBNAME = "../db/game_stat.db";
+	/**
+	* Проверяет можно ли подключится к данной игре в качестве игрока
+	* @param int $game_id
+	* @return boolean
+	* @version 0.1
+	*/
+	public static function can_connect($game_id){
+		self::get_db();
+		$sql = "SELECT player_number FROM games WHERE game_db = ".$game_id;
+		$res = self::$game_db->query($sql);
+		$count = $res->fetchArray(SQLITE3_ASSOC);
+		if($count < 4){
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
 	public static function get_gamelist(){
 		if(!self::$gamelist){
 			new gamelist();
@@ -14,32 +31,12 @@ class gamelist{
 		$sql ="INSERT INTO games( id, game_db, player_number, player1, player2, player4, player3, played_now, game_status) VALUES(";
 		$sql.="null, \"$game_id\", $player_number,".$_SESSION["player_id"].",null,null,null, 1, ".$_SESSION["play"].")";
 		$res = self::$game_db->query($sql);
-//		var_dump(self::$game_db->lastInsertRowID());
-/*		if(!$res){"FALSE";
-		}else{
-			var_dump($res->fetchArray(SQLITE3_ASSOC));
-			var_dump(self::$game_db->lastErrorMsg());
-			var_dump($game_id);
-			echo $sql."<br>";
-		}
-*/		self::update_user(array("status"=>$_SESSION["play"],"game_id"=>self::$game_db->lastInsertRowID()));
+		self::update_user(array("status"=>$_SESSION["play"],"game_id"=>self::$game_db->lastInsertRowID()));
 	}
 	public static function stopgame($gameid){
 		self::get_db();
 		$sql = "UPDATE games SET played_now = 0 WHERE game_db = ".$gameid;
 		self::$game_db->query($sql);
-/*		$res = 
-		if(!$res){"FALSE";
-		}else{
-			var_dump($res);
-			print_r($res->fetchArray(SQLITE3_ASSOC));
-			echo "<br>";			
-			print_r(self::$game_db->lastErrorMsg());
-			echo "<br>";			
-			print_r($gameid);
-			echo "<br>";			
-			echo $sql."<br>";
-		}*/
 	}
 	public static function update_user($property){
 		self::get_db();
@@ -56,13 +53,6 @@ class gamelist{
 		$str[0] = " ";
 		$sql .=$str." WHERE players.id = ".$_SESSION["player_id"];
 		$res = self::$game_db->query($sql);
-/*		if(!$res){"FALSE";
-		}else{
-			var_dump($res->fetchArray(SQLITE3_ASSOC));
-			var_dump(self::$game_db->lastErrorMsg());
-			var_dump($_SESSION["player_id"]);
-			echo $sql."<br>";
-		}  */
 	}
 	public static function add_user(){
 		self::get_db();
@@ -78,15 +68,7 @@ class gamelist{
 			$sql .= $_SESSION["player_id"].", \"".$_SESSION["first_name"]."\", \"".$_SESSION["last_name"]."\", \"".$_SESSION["photo"]."\", \"";
 			$sql .= $_SESSION["photo_rec"]."\", ".$_SESSION["play"].", \"".($_SESSION["gameId"]?$_SESSION["gameId"]:"null")."\")" ;
 		}
-	//	echo $sql."<br>";
 		$res = self::$game_db->query($sql);
-/*		if(!$res){
-			"FALSE";
-		}else{
-			var_dump($res);
-			var_dump(self::$game_db->lastErrorMsg());
-			var_dump($res->fetchArray(SQLITE3_ASSOC));
-		} */
 	}
 	public static function finished_game(){
 		
@@ -99,13 +81,11 @@ class gamelist{
 		$sql .= "FROM players INNER JOIN games ON (players.game_id = games.id)"; 
 		$sql .= "WHERE games.played_now = 1";
 		$res = self::$game_db->query($sql);
-//		var_dump($res->fetchArray(SQLITE3_ASSOC));
 		while($add = $res->fetchArray(SQLITE3_ASSOC)) {
 			self::$gamelist[$add["game_db"]]["player_number"] = $add["player_number"];
 			self::$gamelist[$add["game_db"]]["game_status"] = $add["game_status"];
 			self::$gamelist[$add["game_db"]]["players"][] = new player($add);
 		}
-//		var_dump(self::$gamelist);
 	}
 	private function __clone(){
 		
