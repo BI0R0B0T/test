@@ -147,24 +147,11 @@ function cells(cell){
     this.rotate = cell["rotate"];
     this.update = function(id){
         gameUpdate.stop();
-        var msg = new message(4,id);
-        var req = getXmlHttpRequest();
-        var jsonData = toPost(msg);
-        req.open("POST", "../server/game_server.php", true);
-        req.setRequestHeader("Content-Type", "text/plain");
-        req.setRequestHeader("Content-Length", jsonData.length);
-        req.send(jsonData);
-        req.onreadystatechange = function(){
-            if (req.readyState != 4) return;
-            var cell = JSON.parse(req.responseText);
-            if(cell["status"] == "OK") { cells.changeCell(cell["cell"]); }
-            gameUpdate.start();
-            id = null;
-            msg = null;
-            req = null;
-            jsonData = null;
-            cell = null;
-        }
+        var conn = new serverConnect(new message(4,id));
+        var cl = conn.send();
+        if(cl["status"] == "OK") { cells.changeCell(cl["cell"]); }
+        gameUpdate.start();
+		cl = null;
     }
     this.changeCell = function(){
         var prevCell = document.getElementById(this.id);
@@ -173,7 +160,6 @@ function cells(cell){
         prevCell.setAttribute("onmouseover","decoratePossibleMove("+this.id+")");
         prevCell.setAttribute("onmouseout","undecorate("+this.id+")");
         prevCell = null;
-  //      cell = null;
     }
     this.setClass = function(){
         var classList = new Array("empty_cell", "move_up", "strelka_dv_po_diag", "strelka_po_diag", "strelka_vo_vse_po_diag", "strelka_up_d_l_r", "strelka_ne_w_s", "strelka_l_r", "horses", "whirligig_2", "whirligig_3", "whirligig_4", "whirligig_5", "ice", "catcher", "gun", "fort", "aborigenka", "rom", "crocodille", "cannibal", "aerostat", "airplane", "storage_1", "storage_2", "storage_3", "storage_4", "storage_5", "sea", "ship", "closed");
@@ -267,7 +253,29 @@ function drawMap(newMap){
 	map = null;
 }
 function unit_move(unit_id, cell_id){
-	alert(unit_id+" "+cell_id);
+	var a = new Array(unit_id, cell_id);
+//	var msg = new message(9,a);
+//	var_dump(msg);
+//	displayInDebug(msg)
+//	a.unit_id = cell_id
+    var conn = new serverConnect(new message(9,a));
+    var cl = conn.send(true);
+	displayInDebug(cl);
+//    if(cl["status"] == "OK") { cells.changeCell(cl["cell"]); }
+
+}
+function displayInDebug(text){
+	var div = document.getElementById("debug");
+	while(div.hasChildNodes()){ div.removeChild(div.lastChild);}
+	var text = document.createTextNode(div);
+	div.appendChild(text)
+	var str = "";
+    for(var i in text){
+       str += i+" = "+text[i]+"<br>\n";
+    }
+
+	var text = document.createTextNode(str);
+	div.appendChild(text);
 }
 function var_dump(getObject){
     var str = "";

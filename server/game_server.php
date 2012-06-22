@@ -26,6 +26,7 @@ if($req){
 		case 6: drop_game($req->comand);break;
 		case 7: open_game($req->comand);break;
 		case 8: connect_game($req->comand);break;
+		case 9: move_unit($req->comand);break;
 		default: echo json_encode( array ( 'status' => 'FAIL', "reason" => "incorrect comand" ) );
 	}
 }else{
@@ -128,6 +129,20 @@ function connect_game($game_id){
 		$_SESSION["play"] = 1;
 		$_SESSION["gameId"] = $game_id;
 		game::add_player();		
+	}
+}
+/**
+* Перемещение юнитов по карте
+* @param array $move
+* @version 0.1
+*/
+function move_unit($move){
+	include_once("class_unit.php");
+	$unit = unit::get_unit_from_db($move[0]);
+	if($unit->checkPossibleMove()){
+		$unit->move_to($move[1]);
+	}else{
+		echo json_encode(array("status"=>"FAIL"));
 	}
 }
 ?>

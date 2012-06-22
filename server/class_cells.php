@@ -15,8 +15,10 @@ abstract class cells{
 	public $possible_next_cells = array();
 	/**
 	* @desc на основании типа вызывает генерацию нового объекта данного типа
-	* @var int $type
-	* @var int $cell_id
+	* @param int $type
+	* @param int $cell_id
+	* @param boolean $add_info
+	* @return object
 	*/
   	public static function new_cell($type, $cell_id, $add_info = TRUE){
  		/*
@@ -112,6 +114,13 @@ abstract class cells{
 		$sql .= "ship_there) VALUES (".$this->cell_to_str().")";
 		$db->query($sql);
 	}
+	/**
+	* Возвращает объект cells из БД
+	* @param object $db SQLite3
+	* @param int $id
+	* @return object
+	* @version 0.1
+	*/
 	public static function get_cell_from_db($db,$id){
 		$sql = "SELECT  map.cell_id, map.type, map.rotate, map.can_stay_here, map.open, ";
 		$sql .= "map.coins_count, map.ship_there FROM map WHERE map.cell_id = ".$id;
