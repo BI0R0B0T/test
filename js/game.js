@@ -147,7 +147,6 @@ function cells(cell){
     this.rotate = cell["rotate"];
     this.update = function(id){
         gameUpdate.stop();
-//    alert(id);
         var msg = new message(4,id);
         var req = getXmlHttpRequest();
         var jsonData = toPost(msg);
@@ -190,31 +189,25 @@ function cells(cell){
 function drawMap(newMap){
 	map = document.getElementById("map");
 	while(map.hasChildNodes()){ map.removeChild(map.lastChild);}
+	//Рисуем ячейки карты
 	for(var i in newMap["map"]){
-	//	var cell = newMap["map"][i];
 		var cell = new cells(newMap["map"][i]) ;
 		var div = document.createElement("DIV");
-	//	var id = cell["cell_id"];
 		div.id = cell.id;
         div.className = cell.setClass();
-//		var className = cells.setClass(cell);
-//		div.className = className
 		div.marck = new Array(9999).join('leak');
 		if(div.className == "closed"){
 			div.style.cursor = "pointer";
 			div.setAttribute("onclick","cells.update("+id+")");
 		}else{
-//			var possib = cell["possible_next_cells"];
-//			div.possible_next_cells = possib;
 			div.possible_next_cells = cell.possible_next_cells;
-//			possib = null;
 		}
 		map.appendChild(div);
 		cell = null;
-//		div.possible_next_cells = null;
 		div = null;
 		id = null;
 	}
+	//рисуем юниты
 	for(var i in newMap["units"]){
 		var unit = newMap["units"][i];
 		var unitDiv = document.createElement("DIV");
@@ -230,9 +223,8 @@ function drawMap(newMap){
         unitDiv.setAttribute("draggable",true);
         //Событие вызываемое при переносе юнита
         addEvent(unitDiv, 'dragstart', function (e) {
-            e.dataTransfer.effectAllowed = 'copy'; // only dropEffect='copy' will be dropable
-            e.dataTransfer.setData('Text', this.id); // required otherwise doesn't work
- //           e.dataTransfer.setData('Text', this.position); // required otherwise doesn't work
+			e.dataTransfer.effectAllowed = 'copy'; // only dropEffect='copy' will be dropable
+			e.dataTransfer.setData('Text', this.id); // required otherwise doesn't work
         });
         var parentDiv = document.getElementById(unit.position);
 		parentDiv.appendChild(unitDiv);
@@ -256,12 +248,11 @@ function drawMap(newMap){
             });
             // если юнита перенесли сюда
             addEvent(div, 'drop', function (e) {
-                if (e.stopPropagation) e.stopPropagation(); // stops the browser from redirecting...why???
-
- //               var_dump(e.dataTransfer) ;
- //               var el = document.getElementById(e.dataTransfer.getData('Text'));
- //               var text = document.createTextNode("Тыц");
- //               el.appendChild(text);
+				this.style.border = "";
+				this.style.width = "50px";
+				this.style.height = "50px";
+				if (e.stopPropagation) e.stopPropagation();
+				unit_move(e.dataTransfer.getData('Text'),this.id);
                 return false;
             });
         }
@@ -274,6 +265,9 @@ function drawMap(newMap){
 	i = null;
  	newMap = null;
 	map = null;
+}
+function unit_move(unit_id, cell_id){
+	alert(unit_id+" "+cell_id);
 }
 function var_dump(getObject){
     var str = "";

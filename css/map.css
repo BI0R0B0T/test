@@ -15,6 +15,14 @@
     border: 1px solid blue;
     margin-right: 10px;
 }
+#left{
+	width:200px;
+	float:left;
+}
+#debug{
+	width:200px;
+	float:left;
+}
 div[druggable=true]{
     -webkit-user-drag:element;
     -webkit-user-select: none;

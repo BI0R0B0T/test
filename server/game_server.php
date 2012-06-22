@@ -122,9 +122,12 @@ function open_game($game_id){
 * 
 */
 function connect_game($game_id){
-	$_SESSION["play"] = 1;
-	$_SESSION["gameId"] = $game_id;
-	game::add_player();
-//	setcookie("SID",session_id());
+	if(isset($_SESSION["gameId"]) && $_SESSION["gameId"]){
+		give_game();
+	}else{
+		$_SESSION["play"] = 1;
+		$_SESSION["gameId"] = $game_id;
+		game::add_player();		
+	}
 }
 ?>

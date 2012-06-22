@@ -25,12 +25,17 @@ print <<<LABEL
 <script type="text/javascript" src="../js/game.js"></script>
 </head>
 <body>
-<ul>
-	<li><a href="javascript:game.start()">Start Game </a></li>
-	<li><a href="javascript:game.stop()">Stop Game </a></li>
-	<li><a href="javascript:exitFromGame()">exit </a></li>
-</ul>
-<div id="map_list">Map list will be here</div>
+<div id="left">
+	<div id="rule">
+		<ul>
+			<li><a href="javascript:game.start()">Start Game </a></li>
+			<li><a href="javascript:game.stop()">Stop Game </a></li>
+			<li><a href="javascript:exitFromGame()">exit </a></li>
+		</ul>
+	</div>
+	<div id="map_list">Map list will be here</div>
+	<div id="debug"></div>
+</div>
 <div id="map">Map will be here</div>
 </body>
 </html>   
