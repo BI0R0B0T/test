@@ -23,6 +23,16 @@ print <<<LABEL
 <link href="../css/map.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="../js/json2.js"></script>
 <script type="text/javascript" src="../js/game.js"></script>
+<script type="text/javascript" id="qbaka">
+(function (w,d) {w.__qbaka_eh = w.onerror;w.__qbaka_reports=[];w.onerror = function () {
+w.__qbaka_reports.push(arguments);};w.qbaka={exec:function(c){try{c()}catch(e){}},report:function(){},
+_ldr:function(){w.qbaka._ldd=true;},customParams:{},set:function set(p, v){
+qbaka.customParams[p]=v;},exec:function(f){try{f();}catch (e){qbaka.reportException(e);}},
+reportException:function(){}};var e=d.createElement('script');e.id='qbaka';e.type='text/javascript';
+e.async=!0;e.src='//cdn.qbaka.net/reporting.js';var s=d.getElementsByTagName('script')[0];
+s.parentNode.insertBefore(e, s);w.addEventListener?w.addEventListener("load",w.qbaka._ldr,!1):
+w.attachEvent("onload", w.qbaka._ldr);qbaka.key='11811407e9cfd4d3525af7db009d8629';})(window, document);
+</script>
 </head>
 <body>
 <div id="left">

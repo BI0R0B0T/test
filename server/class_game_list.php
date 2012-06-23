@@ -17,6 +17,7 @@ class gamelist{
 		if($count < 4){
 			return TRUE;
 		}else{
+			var_dump($count);
 			return FALSE;
 		}
 	}

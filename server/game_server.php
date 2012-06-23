@@ -54,10 +54,11 @@ function start_game(){
 */
 function stopgame(){
 	if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
-		echo json_encode(array("status"=>"Ok"));
 		game::stop_game($_SESSION["gameId"]);
+		unlink("../db/".$_SESSION["gameId"].".db") ;
 		$_SESSION["play"] = 0;
 		$_SESSION["gameId"] = null;
+		echo json_encode(array("status"=>"Ok"));
 	}else{
 		echo json_encode(array("status"=>"FAIL"));
 	}	
@@ -132,7 +133,7 @@ function connect_game($game_id){
 			$_SESSION["gameId"] = $game_id;		
 			game::add_player();		
 		}else{
-			echo json_encode(array("status"=>"FAIL"));
+			echo json_encode(array("status"=>"FAIL", "info"=>"You can't connect to this game :("));
 		}
 	}
 }

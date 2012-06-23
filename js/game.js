@@ -261,7 +261,8 @@ function unit_move(unit_id, cell_id){
     var cl = conn.send(true);
 	if(cl["status"] == "FAIL"){ return; }
 	for(var i in cl["map"]){
-		cells.changeCell(cl["map"][i]);
+		var cell = new cells(cl["map"][i]);
+		cells.changeCell();
 	}
 	for(var i in cl["units"]){
 		drawUnit(cl["units"][i]);
