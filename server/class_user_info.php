@@ -26,9 +26,9 @@ class user_info
 	*/
 	public function save_in_db(){
 		$db = game_db::db_conn($_SESSION["gameId"]);
-		$sql  = "INSERT INTO players(id,player_id, first_name, last_name, photo, photo_rec, coins) VALUES(";
+		$sql  = "INSERT INTO players(id,player_id, first_name, last_name, photo, photo_rec, coins, played) VALUES(";
 		$sql .="null,".$this->user_id.", \"".$this->first_name."\", \"".$this->last_name."\", \"".$this->photo;
-		$sql .= "\", \"".$this->photo_rec."\", ".$this->coins.")" ;
+		$sql .= "\", \"".$this->photo_rec."\", ".$this->coins.", 1)" ;
 		$res = $db->query($sql);
 		return $db->lastInsertRowID();
 	}

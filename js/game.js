@@ -34,6 +34,7 @@ function game(){
         var g = conn.send(true);
         this.gameId = g["gameId"];
         sid = g["SID"];
+		gameStatus = 1;
         this.update();
         gameUpdate.start();
         g = null;
@@ -258,6 +259,9 @@ function drawUnit(unit){
 		parentDiv = null;
 }
 function unit_move(unit_id, cell_id){
+	//Проверяем произошел ли перенос юнита... а то он может остался на той-же клетке
+	var unit = document.getElementById(unit_id);
+	if(cell_id == unit.parentNode.id){ return;}
 	var a = new Array(unit_id, cell_id);
     var conn = new serverConnect(new message(9,a));
     var cl = conn.send(true);

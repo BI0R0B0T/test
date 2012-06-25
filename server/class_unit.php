@@ -78,7 +78,17 @@ class unit{
 	public function move_to($cell_id){
 		$db = game_db::db_conn($_SESSION["gameId"]);
 		//Проверяем чей сейчас ход.
-		loger::who_was_last();
+		$previous = loger::who_was_last();
+		if($previous == $_SESSION["player_id"]){
+			echo json_encode(array("status"=>"FAIL", 
+									"info"=>"This isn't your turn. Reason 1"));
+			return;
+		}
+		if($this->who_will_next($previous) != $_SESSION["player_id"]){
+			echo json_encode(array("status"=>"FAIL", 
+									"info"=>"This isn't your turn. Reason 2 (id = ".$_SESSION["player_id"]." want ".$this->who_will_next($previous).")"));
+			return;
+		}
 		loger::save(3,json_encode(array("start_move")), $_SESSION["player_id"]);
 		//Проверяем возможен ли такой ход
 		$prev_cell = cells::get_cell_from_db($db,$this->position);
@@ -108,6 +118,26 @@ class unit{
 	*/
 	public function checkPossibleMove(){
 		return TRUE;
+	}
+	/**
+	* Возвращает id игрока кто должен ходить следующим
+	* @param int $previous id предыдущего игрока
+	* @return int
+	* @version 0.1
+	*/
+	private function who_will_next($previous){
+		$db = game_db::db_conn($_SESSION["gameId"]);
+		$sql ="SELECT players.player_id FROM players WHERE players.played = 1";
+		$res = $db->query($sql);
+		$users = array();
+		$next = FALSE;
+		while($user = $res->fetchArray(SQLITE3_ASSOC)){
+			if(TRUE == $next){ return $user['player_id'];}
+			$users[] = $user['player_id'];
+			if($user['player_id'] == $previous){ $next = TRUE; }
+		}
+		
+		return $users[0];
 	}
 }
 ?>

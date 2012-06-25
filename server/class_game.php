@@ -1,4 +1,7 @@
 <?php
+/**
+* Класс синглтон с уникальным экземпляром игры.
+*/
 class game{
 	private static $game_id = NULL;
 	private static $map = NULL;
@@ -19,9 +22,6 @@ class game{
 		}else{
 			self::$game_id = $_SESSION["gameId"];
 		}
-		
-//		self::$map = map::get_map(self::$game_id);
-//		self::$game_id = self::$map->get_map_id();
 	}
 	public function __destruct(){
 		
@@ -56,7 +56,6 @@ class game{
 			self::$units = unit::get_units_from_db();
 		}
 		$id = explode(".",self::$game_id);
-//		var_dump(self::$map);
 		echo json_encode(
 						array(	"map"=>self::$map, 
 								"gameId"=>$id[0], 
@@ -66,6 +65,13 @@ class game{
 							)
 						);
 	}
+	/**
+	* Функция открывает закрытую клетку
+	* @param int $game_id идентификатор текущей игры (в последующей версии нужно убрать)
+	* @param int $cell_id идентификатор клетки
+	* @return void
+	* @version 0.1
+	*/
 	public static function open_cell($game_id, $cell_id){
 		if(is_null(self::$map)){
 			self::get_game($game_id);
@@ -74,6 +80,10 @@ class game{
 		$cell = self::$map[$cell_id]->open_cell($db,$cell_id);
 		echo json_encode(array("cell"=>$cell, "status"=>"OK"));
 	}
+	/**
+	* Фнкция добавляет нового игрока в игру
+	* @version 0.1
+	*/
 	public static function add_player(){
 		self::$player_id= new user_info($_SESSION["player_id"], $_SESSION["first_name"],
 										$_SESSION["last_name"],$_SESSION["photo"],
