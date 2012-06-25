@@ -262,7 +262,7 @@ function unit_move(unit_id, cell_id){
 	if(cl["status"] == "FAIL"){ return; }
 	for(var i in cl["map"]){
 		var cell = new cells(cl["map"][i]);
-		cells.changeCell();
+		cell.changeCell();
 	}
 	for(var i in cl["units"]){
 		drawUnit(cl["units"][i]);
