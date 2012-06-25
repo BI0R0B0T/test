@@ -5,8 +5,6 @@ class game{
 	private static $player_id = NULL;
 	private static $units = array();
 	private function __construct(){
-		include_once("class_unit.php");
-		include_once("class_userinfo.php");
 		if(!isset($_SESSION["gameId"]) || !$_SESSION["gameId"]){
 			self::$game_id = map::map_generate();
 			$_SESSION["gameId"] = self::$game_id;
@@ -35,8 +33,8 @@ class game{
 		new game();
 		$id = explode(".",self::$game_id);
 		echo json_encode(array("gameId"=>$id[0], "SID" => session_id()));
-		include_once("class_game_list.php");
 		gamelist::add_game($id[0]);
+		loger::save(0,json_encode(array("start game")), $_SESSION["player_id"]);
 		return self::$game_id;
 	}
 	public static function get_game($game_id){
@@ -47,7 +45,6 @@ class game{
 	}
 	public static function stop_game($game_id){
 		if(file_exists(game_db::ADR.$game_id)) {unlink(game_db::ADR.$game_id);}
-		include_once("class_game_list.php");
 		gamelist::stopgame($game_id);
 	}
 	public static function convert_2_JSON($game_id){
@@ -56,7 +53,6 @@ class game{
 			self::get_game($game_id);
 		}
 		if(!self::$units){
-			include_once("class_unit.php");
 			self::$units = unit::get_units_from_db();
 		}
 		$id = explode(".",self::$game_id);
@@ -79,13 +75,12 @@ class game{
 		echo json_encode(array("cell"=>$cell, "status"=>"OK"));
 	}
 	public static function add_player(){
-		include_once("class_unit.php");
-		include_once("class_userinfo.php");
 		self::$player_id= new user_info($_SESSION["player_id"], $_SESSION["first_name"],
 										$_SESSION["last_name"],$_SESSION["photo"],
 										$_SESSION["photo_rec"],1,$_SESSION["play"]
 										);
 		$_SESSION["player_number"] = self::$player_id->save_in_db();
+		loger::save(1,json_encode(array("add_player")), $_SESSION["player_id"]);
 		for($i = 0; $i < 3; $i++){
 			unit::born_unit_on_ship($_SESSION["player_number"]-1);
 		}

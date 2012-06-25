@@ -1,6 +1,4 @@
 <?php  
-include_once "class_cells.php";
-include_once "class_game_db.php";
 /**
 * Типичный синглетон хранящий объект карты
 * @author M. Dolgov <dolgov@bk.ru>

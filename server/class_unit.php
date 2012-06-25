@@ -24,7 +24,6 @@ class unit{
 		$this->id = $id;
 	}
 	static function get_units_from_db(){
-		include_once("class_game_db.php");
 		$db = game_db::db_conn($_SESSION["gameId"]);
 		$sql = "SELECT id, master_id, have_coin, waiting_time, die, cell_position_id, previous_position, cell_part FROM units ";
 		$res = $db->query($sql);
@@ -37,7 +36,6 @@ class unit{
 		return $units;
 	}
 	function save_unit_property(){
-		include_once("class_game_db.php");
 		$db = game_db::db_conn($_SESSION["gameId"]);
 		$sql = "UPDATE units SET have_coin = ".($this->have_coins?1:0).", waiting_time = ".$this->waitng_time;
 		$sql.=", die = ".($this->die?1:0).", cell_position_id = ".$this->position.", cell_part = ".$this->cell_part;
@@ -46,8 +44,6 @@ class unit{
 	}
 	static function born_unit_on_ship($number){
 		static $ship = array(6, 162, 78, 90);
-		include_once("class_game_db.php");
-//		var_dump($_SESSION);
 		$cell = $ship[$number];
 		$db = game_db::db_conn($_SESSION["gameId"]);
 		$sql = "INSERT INTO units (id, master_id, have_coin, waiting_time, die, cell_position_id, ";
@@ -62,7 +58,6 @@ class unit{
 	* @version 0.2
 	*/
 	static function get_unit_from_db($unit_id){
-		include_once("class_game_db.php");
 		$db = game_db::db_conn($_SESSION["gameId"]);
 		$unit_id = (int)substr($unit_id,5);
 		$sql = "SELECT id, master_id, have_coin, waiting_time, die, cell_position_id, previous_position, cell_part FROM units WHERE id = ".$unit_id;
@@ -81,8 +76,17 @@ class unit{
 	* @version 0.1
 	*/
 	public function move_to($cell_id){
-		include_once("class_game_db.php");
 		$db = game_db::db_conn($_SESSION["gameId"]);
+		//Проверяем чей сейчас ход.
+		loger::who_was_last();
+		loger::save(3,json_encode(array("start_move")), $_SESSION["player_id"]);
+		//Проверяем возможен ли такой ход
+		$prev_cell = cells::get_cell_from_db($db,$this->position);
+		if(!in_array($cell_id,$prev_cell->possible_next_cells)){
+			echo json_encode(array("status"=>"FAIL", 
+									"info"=>"imposible move from ".$this->position." to ".$cell_id ));
+			return;
+		}
 		$cell = cells::get_cell_from_db($db,$cell_id);
 		$this->previous_position = $this->position;
 		$this->position = $cell_id;

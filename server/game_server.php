@@ -9,13 +9,17 @@ header('Content-type: text/plain; charset=utf-8');
 header('Cache-Control: no-store, no-cache');
 header('Expires: ' . date('r'));
 header('Last-Modified: ' . date('r'));
+
+function __autoload($class_name){
+	include "class_".$class_name.".php";
+}
 // Если данные были переданы...
 $req = json_decode($rawPost);
 if($req){
-	require_once("class_cells.php");
-	require_once("class_game.php");
-	require_once("class_game_db.php");
-	require_once("class_map.php");
+	if(!check_require($req)){ 
+		echo json_encode( array ( 'status' => 'FAIL', "reason" => "incorrect comand" ) );
+		return;
+	}
 	switch ($req->comandCode){
 		case 0: start_game(); break;
 		case 1: stopgame() ; break;
@@ -33,6 +37,24 @@ if($req){
 	// Данные не переданы
 	echo json_encode( array ( 'result' => 'No data' ) );
 }
+/**
+* Проверяет правомерность запроса.
+* @param object $require JSON object то что ввел пользователь
+* @return boolean
+* @version 0.1
+*/
+function check_require($require){
+	//Проверка на то все ли параметры на месте
+	if(in_array($require->comandCode,array(4,6,7,8,9))){
+		if(!isset($require->comand) || "" == $require->comand) {return FALSE;}
+	}
+	//Проверка на то играет ли данный пользователь впринципе
+	if(!in_array($require->comandCode,array(0,8,5))){
+		if(!isset($_SESSION["gameId"]) && is_null($_SESSION["gameId"])){return FALSE;}
+	}
+	return TRUE;
+}
+
 /**
 * Запускаем игру (происходит создание новой карты)
 */
@@ -94,7 +116,6 @@ function exit_from_game(){
 * выводит список доступных игр
 */
 function display_game_list(){
-	include_once("class_game_list.php");
 	gamelist::get_gamelist();
 }
 /**
@@ -127,7 +148,6 @@ function connect_game($game_id){
 	if(isset($_SESSION["gameId"]) && $_SESSION["gameId"]){
 		give_game();
 	}else{
-		include_once("class_game_list.php");
 		if(gamelist::can_connect($game_id)){
 			$_SESSION["play"] = 1;
 			$_SESSION["gameId"] = $game_id;		
@@ -143,7 +163,6 @@ function connect_game($game_id){
 * @version 0.1
 */
 function move_unit($move){
-	include_once("class_unit.php");
 	$unit = unit::get_unit_from_db($move[0]);
 	if($unit->checkPossibleMove()){
 		$unit->move_to($move[1]);
