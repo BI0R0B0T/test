@@ -21,15 +21,15 @@ class user_info
 		$this->online = $online;
 		$this->played = $played;
 	}
+	/**
+	* Сохраняет свежесозданного пользователя в БД
+	*/
 	public function save_in_db(){
-		include_once("class_game_db.php");
 		$db = game_db::db_conn($_SESSION["gameId"]);
-		$sql  = "INSERT INTO players(id,player_id, first_name, last_name, photo, photo_rec, coins) VALUES(";
+		$sql  = "INSERT INTO players(id,player_id, first_name, last_name, photo, photo_rec, coins, played) VALUES(";
 		$sql .="null,".$this->user_id.", \"".$this->first_name."\", \"".$this->last_name."\", \"".$this->photo;
-		$sql .= "\", \"".$this->photo_rec."\", ".$this->coins.")" ;
+		$sql .= "\", \"".$this->photo_rec."\", ".$this->coins.", 1)" ;
 		$res = $db->query($sql);
-//		var_dump($res);
-//		var_dump($db->lastErrorMsg());
 		return $db->lastInsertRowID();
 	}
 }

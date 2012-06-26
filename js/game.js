@@ -5,6 +5,7 @@ var diametr = "20px";
 var game;
 var sid;
 var gameUpdate
+var gameStatus = 0; // 0-не играем, 1-наш ход, 2-не наш ход.
 
 function serverConnect(message){
     this.jsonData = toPost(message);
@@ -33,6 +34,7 @@ function game(){
         var g = conn.send(true);
         this.gameId = g["gameId"];
         sid = g["SID"];
+		gameStatus = 1;
         this.update();
         gameUpdate.start();
         g = null;
@@ -59,6 +61,7 @@ function game(){
     }
     this.update = function(){
         if(!this.gameId){return;}
+		if(gameStatus != 1){return;}
         var msg = new message(2,getCookie("PHPSESSID"));
         var conn = new serverConnect(msg);
         var g = conn.send();
@@ -149,13 +152,13 @@ function cells(cell){
         gameUpdate.stop();
         var conn = new serverConnect(new message(4,id));
         var cl = conn.send();
-        if(cl["status"] == "OK") { cells.changeCell(cl["cell"]); }
+        if(cl["status"] == "OK") { this.changeCell(cl["cell"]); }
         gameUpdate.start();
 		cl = null;
     }
     this.changeCell = function(){
         var prevCell = document.getElementById(this.id);
-        prevCell.className = cells.setClass();
+        prevCell.className = this.setClass();
         prevCell.possible_next_cells = this.possible_next_cells;
         prevCell.setAttribute("onmouseover","decoratePossibleMove("+this.id+")");
         prevCell.setAttribute("onmouseout","undecorate("+this.id+")");
@@ -183,8 +186,8 @@ function drawMap(newMap){
         div.className = cell.setClass();
 		div.marck = new Array(9999).join('leak');
 		if(div.className == "closed"){
-			div.style.cursor = "pointer";
-			div.setAttribute("onclick","cells.update("+id+")");
+//			div.style.cursor = "pointer";
+//			div.setAttribute("onclick","cells.update("+id+")");
 		}else{
 			div.possible_next_cells = cell.possible_next_cells;
 		}
@@ -256,6 +259,9 @@ function drawUnit(unit){
 		parentDiv = null;
 }
 function unit_move(unit_id, cell_id){
+	//Проверяем произошел ли перенос юнита... а то он может остался на той-же клетке
+	var unit = document.getElementById(unit_id);
+	if(cell_id == unit.parentNode.id){ return;}
 	var a = new Array(unit_id, cell_id);
     var conn = new serverConnect(new message(9,a));
     var cl = conn.send(true);
@@ -265,6 +271,9 @@ function unit_move(unit_id, cell_id){
 		cell.changeCell();
 	}
 	for(var i in cl["units"]){
+		while(exUnit = document.getElementById("unit_"+cl["units"][i]["id"])){
+			exUnit.parentNode.removeChild(exUnit);
+		}
 		drawUnit(cl["units"][i]);
 	}
 	i = null;

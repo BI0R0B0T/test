@@ -1,7 +1,7 @@
 <?php
   session_name("game");
   session_start();
-  include_once("../server/class_game_list.php");
+  include_once("../server/class_gamelist.php");
   $_SESSION = array(
   	"player_id" => ceil(rand(0,100)),
   	"first_name" => "test".(int)rand(0,10),

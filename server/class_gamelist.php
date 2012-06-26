@@ -11,16 +11,30 @@ class gamelist{
 	*/
 	public static function can_connect($game_id){
 		self::get_db();
-		$sql = "SELECT player_number FROM games WHERE game_db = ".$game_id;
+		$sql = "SELECT player1, player2, player3, player4 FROM games WHERE game_db = ".$game_id;
 		$res = self::$game_db->query($sql);
-		$count = $res->fetchArray(SQLITE3_ASSOC);
+		$count = 0;
+		$res_arr = $res->fetchArray(SQLITE3_ASSOC);
+		foreach($res_arr as $k=>$v){
+			if($v != "" || $v != NULL) { $count++; }
+		}
 		if($count < 4){
 			return TRUE;
 		}else{
-			var_dump($count);
-			return FALSE;
+/*			var_dump($count);
+			$res = self::$game_db->query("SELECT * FROM games");
+			$return = array();
+			while($add = $res->fetchArray(SQLITE3_ASSOC)){
+				$return[] = $add;
+			}
+			var_dump($return);
+*/			return FALSE;
 		}
 	}
+	/**
+	* Печатает список доступныъ игр
+	* @return void
+	*/
 	public static function get_gamelist(){
 		if(!self::$gamelist){
 			new gamelist();
@@ -29,8 +43,9 @@ class gamelist{
 	}
 	public static function add_game($game_id, $player_number = 4){
 		self::get_db();
-		$sql ="INSERT INTO games( id, game_db, player_number, player1, player2, player4, player3, played_now, game_status) VALUES(";
-		$sql.="null, \"$game_id\", $player_number,".$_SESSION["player_id"].",null,null,null, 1, ".$_SESSION["play"].")";
+		$sql ="INSERT INTO games(id, game_db, player_number, player1, player2, player4, player3, played_now,";
+		$sql.=" game_status) VALUES(null, \"$game_id\", $player_number,".$_SESSION["player_id"].",null,";
+		$sql.=" null,null, 1, ".$_SESSION["play"].")";
 		$res = self::$game_db->query($sql);
 		self::update_user(array("status"=>$_SESSION["play"],"game_id"=>self::$game_db->lastInsertRowID()));
 	}
@@ -61,13 +76,16 @@ class gamelist{
 		$res = self::$game_db->query($sqla);
 		$usr = $res->fetchArray(SQLITE3_ASSOC);
 		if($usr["count"]){
-			$sql = "UPDATE players SET status =  ".$_SESSION["play"].", game_id =  ".($_SESSION["gameId"]?"\"".$_SESSION["gameId"]."\"":"null");
-			$sql .=", photo_rec =  \"".$_SESSION["photo_rec"]."\", photo =  \"".$_SESSION["photo"]."\", last_name =  \"".$_SESSION["last_name"];
-			$sql .="\", first_name = \"".$_SESSION["first_name"]."\"  WHERE players.id = ".$_SESSION["player_id"];
+			$sql = "UPDATE players SET status =  ".$_SESSION["play"].", game_id =  ";
+			$sql.= ($_SESSION["gameId"]?"\"".$_SESSION["gameId"]."\"":"null");
+			$sql.=", photo_rec =  \"".$_SESSION["photo_rec"]."\", photo =  \"".$_SESSION["photo"];
+			$sql.="\", last_name =  \"".$_SESSION["last_name"]."\", first_name = \"";
+			$sql.=$_SESSION["first_name"]."\"  WHERE players.id = ".$_SESSION["player_id"];
 		}else{
-			$sql = "INSERT INTO players(id, first_name, last_name, photo, photo_rec, status, game_id) VALUES(";
-			$sql .= $_SESSION["player_id"].", \"".$_SESSION["first_name"]."\", \"".$_SESSION["last_name"]."\", \"".$_SESSION["photo"]."\", \"";
-			$sql .= $_SESSION["photo_rec"]."\", ".$_SESSION["play"].", \"".($_SESSION["gameId"]?$_SESSION["gameId"]:"null")."\")" ;
+			$sql = "INSERT INTO players(id, first_name, last_name, photo, photo_rec, status, game_id)";
+			$sql.= "VALUES(".$_SESSION["player_id"].", \"".$_SESSION["first_name"]."\", \"";
+			$sql.= $_SESSION["last_name"]."\", \"".$_SESSION["photo"]."\", \"".$_SESSION["photo_rec"]."\", ";
+			$sql.= $_SESSION["play"].", \"".($_SESSION["gameId"]?$_SESSION["gameId"]:"null")."\")" ;
 		}
 		$res = self::$game_db->query($sql);
 	}
@@ -98,6 +116,7 @@ class gamelist{
 		self::$game_db;
 	}
 }
+
 class player{
 	public $player_id;
 	public $first_name;
