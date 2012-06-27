@@ -16,8 +16,8 @@ function __autoload($class_name){
 // Если данные были переданы...
 $req = json_decode($rawPost);
 if($req){
-	if(!check_require($req)){ 
-		echo json_encode( array ( 'status' => 'FAIL', "reason" => "incorrect comand" ) );
+	if($code = check_require($req)){ 
+		echo json_encode( array ( 'status' => 'FAIL', "reason" => "incorrect comand ($code)", "req" => $req ) );
 		return;
 	}
 	switch ($req->comandCode){
@@ -31,7 +31,7 @@ if($req){
 		case 7: open_game($req->comand);break;
 		case 8: connect_game($req->comand);break;
 		case 9: move_unit($req->comand);break;
-		default: echo json_encode( array ( 'status' => 'FAIL', "reason" => "incorrect comand" ) );
+		default: echo json_encode( array ( 'status' => 'FAIL', "reason" => "incorrect comand (0)" ) );
 	}
 }else{
 	// Данные не переданы
@@ -40,19 +40,19 @@ if($req){
 /**
 * Проверяет правомерность запроса.
 * @param object $require JSON object то что ввел пользователь
-* @return boolean
-* @version 0.1
+* @return mixed boolean(FALSE)|int(code)
+* @version 0.2
 */
 function check_require($require){
 	//Проверка на то все ли параметры на месте
 	if(in_array($require->comandCode,array(4,6,7,8,9))){
-		if(!isset($require->comand) || "" == $require->comand) {return FALSE;}
+		if(!isset($require->comand) or "" == $require->comand) {return 1;}
 	}
 	//Проверка на то играет ли данный пользователь впринципе
-	if(!in_array($require->comandCode,array(0,8,5))){
-		if(!isset($_SESSION["gameId"]) && is_null($_SESSION["gameId"])){return FALSE;}
+	if(!in_array($require->comandCode,array(0,8,5,6))){
+		if(!isset($_SESSION["gameId"]) && is_null($_SESSION["gameId"])){return 2;}
 	}
-	return TRUE;
+	return FALSE;
 }
 
 /**
