@@ -23,6 +23,26 @@
 	width:200px;
 	float:left;
 }
+#select_game{
+	width: 500px;
+	height:500px;
+	border-radius:10px;
+	border: 1px solid black;
+	padding:10px;
+	position:absolute;
+	margin: -250px -250px 0;
+	top:50%;
+	left:50%;
+	
+}
+#map_list_big{
+	width: 458px;
+	height: 400px;
+	border:1px solid black;
+	margin:10px;
+	padding:10px;
+	overflow: auto;
+}
 div[druggable=true]{
     -webkit-user-drag:element;
     -webkit-user-select: none;

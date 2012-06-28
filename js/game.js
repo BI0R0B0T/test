@@ -416,33 +416,3 @@ function addEvent(elem, evType, fn) {
         elem['on' + evType] = fn
     }
 }
-/*
-addEvent(bin, 'drop', function (e) {
-    if (e.stopPropagation) e.stopPropagation(); // stops the browser from redirecting...why???
-
-    var el = document.getElementById(e.dataTransfer.getData('Text'));
-
-    el.parentNode.removeChild(el);
-
-    // stupid nom text + fade effect
-    bin.className = '';
-    yum.innerHTML = eat[parseInt(Math.random() * eat.length)];
-
-    var y = yum.cloneNode(true);
-    bin.appendChild(y);
-
-    setTimeout(function () {
-        var t = setInterval(function () {
-            if (y.style.opacity <= 0) {
-                if (msie) { // don't bother with the animation
-                    y.style.display = 'none';
-                }
-                clearInterval(t);
-            } else {
-                y.style.opacity -= 0.1;
-            }
-        }, 50);
-    }, 250);
-
-    return false;
-}); */

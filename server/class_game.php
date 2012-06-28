@@ -61,7 +61,8 @@ class game{
 								"gameId"=>$id[0], 
 								"status"=>"OK",
 								"SID" => session_id(),
-								"units" =>self::$units
+								"units" =>self::$units,
+								"you_move"=> "1"
 							)
 						);
 	}
