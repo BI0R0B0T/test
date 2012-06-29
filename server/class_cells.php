@@ -1,9 +1,9 @@
 <?php
-abstract class cells{
 /**
 * Паттерн фабрика по созданию новой клетки
 * @author M.Dolgov <dolgov@bk.ru>
 **/
+abstract class cells{
 	public $cell_id;
     public $type;
 	public $rotate;

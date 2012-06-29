@@ -6,10 +6,12 @@
 <html>
 <head>
 <title>Piraty</title>
-<meta name="autor" content="Dolgov M.S.">
-<link href="../css/map.css" rel="stylesheet" type="text/css">
+<meta name="autor" content="Dolgov M.S." />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="../css/map.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="../js/json2.js"></script>
 <script type="text/javascript" src="../js/game.js"></script>
+<!--
 <script type="text/javascript" id="qbaka">
 (function (w,d) {w.__qbaka_eh = w.onerror;w.__qbaka_reports=[];w.onerror = function () {
 w.__qbaka_reports.push(arguments);};w.qbaka={exec:function(c){try{c()}catch(e){}},report:function(){},
@@ -19,7 +21,7 @@ reportException:function(){}};var e=d.createElement('script');e.id='qbaka';e.typ
 e.async=!0;e.src='//cdn.qbaka.net/reporting.js';var s=d.getElementsByTagName('script')[0];
 s.parentNode.insertBefore(e, s);w.addEventListener?w.addEventListener("load",w.qbaka._ldr,!1):
 w.attachEvent("onload", w.qbaka._ldr);qbaka.key='11811407e9cfd4d3525af7db009d8629';})(window, document);
-</script>
+</script> -->
 </head>
 <body>
 <?php
@@ -35,9 +37,20 @@ w.attachEvent("onload", w.qbaka._ldr);qbaka.key='11811407e9cfd4d3525af7db009d862
 		"gameId" => null
 	  );
 	  gamelist::add_user();
+  }else{
+//  	var_dump($_SESSION);
   }
   if(isset($_GET["g"])){
+      $id = $_GET["g"];
 print <<<LABEL
+<script type="text/javascript" id="selector">
+    window.onload = function(){
+        global.type = 2;
+        game = new game();
+        game.open($id);
+        gameUpdate = new gameUpdater();
+    }
+</script>
 </div>
 <div id="map">Map will be here</div>
 </body>
@@ -46,12 +59,20 @@ LABEL;
 	  
   }else{
 print <<<LABEL
+<script type="text/javascript" id="selector">
+    window.onload = function(){
+        global.type = 1;
+        mapList.get();
+        mapList.updateStart();
+        game = new game();
+        gameUpdate = new gameUpdater();
+     }
+ </script>
 <div id="select_game">
 	<div id="map_list_big">Map list will be here</div>
 	<div id="rule">
 		<ul>
-			<li><a href="javascript:game.start()">Start Game </a></li>
-			<li><a href="javascript:game.stop()">Stop Game </a></li>
+			<li><a href="javascript:game.start()">Create NEW Game </a></li>
 			<li><a href="javascript:exitFromGame()">exit </a></li>
 		</ul>
 	</div>
@@ -65,9 +86,9 @@ LABEL;
   function need_to_add(){
 	  $name = array("player_id", "first_name", "last_name");
 	  foreach($name as $v){
-		  if(!isset($_SESSION[$v]) ||  "" == $_SESSION[$v]) { return FALSE; }
+		  if(!isset($_SESSION[$v]) ||  "" == $_SESSION[$v]) { return TRUE; }
 	  }
-	  return TRUE;
+	  return FALSE;
   }
 	function __autoload($class_name){
 		include "../server/class_".$class_name.".php";
@@ -78,8 +99,7 @@ print <<<LABEL
 <div id="left">
 	<div id="rule">
 		<ul>
-			<li><a href="javascript:game.start()">Start Game </a></li>
-			<li><a href="javascript:game.stop()">Stop Game </a></li>
+			<li><a href="javascript:game.start()">Create Game </a></li>
 			<li><a href="javascript:exitFromGame()">exit </a></li>
 		</ul>
 	</div>

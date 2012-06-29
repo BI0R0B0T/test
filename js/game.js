@@ -6,6 +6,13 @@ var game;
 var sid;
 var gameUpdate
 var gameStatus = 0; // 0-не играем, 1-наш ход, 2-не наш ход.
+//var global;
+//    global.gameStatus = 0; // 0-не играем, 1-наш ход, 2-не наш ход.
+
+var global = function(){
+    this.gameStatus = 0;
+    this.type = 1;
+}
 
 function serverConnect(message){
     this.jsonData = toPost(message);
@@ -34,9 +41,10 @@ function game(){
         var g = conn.send(true);
         this.gameId = g["gameId"];
         sid = g["SID"];
-		gameStatus = 1;
-        this.update();
-        gameUpdate.start();
+		global.gameStatus = 1;
+        document.location.href = "game.php?g="+this.gameId;
+//        this.update();
+//        gameUpdate.start();
         g = null;
         conn = null;
     }
@@ -51,7 +59,7 @@ function game(){
         var conn = new serverConnect(msg);
         conn.send();
         map = document.getElementById("map");
-        while(map.hasChildNodes()) map.removeChild(map.lastChild);
+ //       while(map.hasChildNodes()) map.removeChild(map.lastChild);
         map = null;
         map_id = null;
         this.gameId = null;
@@ -61,7 +69,7 @@ function game(){
     }
     this.update = function(){
         if(!this.gameId){return;}
-		if(gameStatus != 1){return;}
+		if(global.gameStatus != 1){return;}
         var msg = new message(2,getCookie("PHPSESSID"));
         var conn = new serverConnect(msg);
         var g = conn.send();
@@ -345,6 +353,7 @@ mapList.get = function(){
     reqML.onreadystatechange = function(){
         if (reqML.readyState != 4) return;
         var gameList = JSON.parse(reqML.responseText);
+        if(null == gameList["gamelist"]){return ;}
         mapList.draw(gameList["gamelist"]);
 		mapList.updateStart();
         reqML = null;
@@ -354,15 +363,27 @@ mapList.get = function(){
 	mapList.updateStop();
 }
 mapList.draw = function(games){
-    var div = document.getElementById("map_list") ;
+    if(global.type == 1){
+        var mapListId = "map_list_big";
+    }else{
+  //      var mapListId = "map_list";
+        return ;
+    }
+//    alert(games);
+    var div = document.getElementById(mapListId) ;
     while(div.hasChildNodes()){ div.removeChild(div.lastChild);}
     var ul = document.createElement("UL");
     div.appendChild(ul);
     for(var gameName in games){
         var li = document.createElement("LI");
-        li.innerHTML  = "<a href=\"javascript:game.open("+gameName+")\">"+gameName+"</a> "+
-			games[gameName]["game_status"]+" "+games[gameName]["player_number"] +
-            "<a href='javascript:game.stop(\""+gameName+"\")'> x </a>";
+		if(global.type == 1){
+	        li.innerHTML  = gameName+"<a href=game.php?g="+gameName+">play</a> <a href= #>view</a>"+
+			"<a href='javascript:game.stop(\""+gameName+"\")'> x </a>";
+	    }else{
+	        li.innerHTML  = "<a href=\"javascript:game.open("+gameName+")\">"+gameName+"</a> "+
+				games[gameName]["game_status"]+" "+games[gameName]["player_number"] +
+          		"<a href='javascript:game.stop(\""+gameName+"\")'> x </a>";
+	    }
         li.players = games[gameName]["players"];
         ul.appendChild(li);
 		li = null;
@@ -380,12 +401,7 @@ mapList.updateStop = function(){
     intervalMapList = null;
 }
 
-window.onload = function(){
-    mapList.get();
-    mapList.updateStart();
-    game = new game();
-    gameUpdate = new gameUpdater();
- }
+
 /*
 ** Функция возвращат объект XMLHttpRequest
 */

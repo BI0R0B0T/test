@@ -73,22 +73,12 @@ class unit{
 	/**
 	* Перемещение юнита по полю
 	* @param int $cell_id
-	* @version 0.1
+	* @param boolean $need_return
+	* @return mixed array|void
+	* @version 0.2
 	*/
-	public function move_to($cell_id){
+	public function move_to($cell_id, $need_return = FALSE){
 		$db = game_db::db_conn($_SESSION["gameId"]);
-		//Проверяем чей сейчас ход.
-		$previous = loger::who_was_last();
-		if($previous == $_SESSION["player_id"]){
-			echo json_encode(array("status"=>"FAIL", 
-									"info"=>"This isn't your turn. Reason 1"));
-			return;
-		}
-		if($this->who_will_next($previous) != $_SESSION["player_id"]){
-			echo json_encode(array("status"=>"FAIL", 
-									"info"=>"This isn't your turn. Reason 2 (id = ".$_SESSION["player_id"]." want ".$this->who_will_next($previous).")"));
-			return;
-		}
 		loger::save(3,json_encode(array("start_move")), $_SESSION["player_id"]);
 		//Проверяем возможен ли такой ход
 		$prev_cell = cells::get_cell_from_db($db,$this->position);
@@ -97,26 +87,59 @@ class unit{
 									"info"=>"imposible move from ".$this->position." to ".$cell_id ));
 			return;
 		}
-		$cell = cells::get_cell_from_db($db,$cell_id);
-		$this->previous_position = $this->position;
+		if(!$need_return){$this->previous_position = $this->position;}
 		$this->position = $cell_id;
-		$return = array("status" => "OK");
+		//получаем информацию о клетке на которую идет юнит
+		$cell = cells::get_cell_from_db($db,$cell_id);
+		$return = array("status" => "OK", "you_move" => 0);
 		if(30 == $cell->type){
 			$cell = cells::open_cell($db,$cell_id);
 			$return["map"][] = $cell;
+		}
+		//обрабатываем автомувы
+		if($cell->auto_move){
+			if(1==count($cell->possible_next_cells)){
+				$prev_return = $this->move_to($cell->possible_next_cells[0], TRUE);
+				if(isset($prev_return["map"]) && !empty($prev_return["map"])){
+					foreach($prev_return["map"] as $v){
+						$return["map"][] = $v;
+					}
+				}
+				$return["move_list"] = $prev_return["move_list"];
+			}
+			$return["you_move"] = 1;
 		}
 		$this->possible_move = $cell->possible_next_cells;
 		$this->save_unit_property();
 		$return["units"][] = $this;
 		$return["move_list"][] = array($this->previous_position, $this->position);
-		echo json_encode($return);		
+		if($need_return){
+			return $return;
+		}else{
+			echo json_encode($return);	
+		}
 	}
 	/**
 	* Проверка на то может ли данный юнит сейчас двигаться
 	* @return boolean
-	* @version 0.1
+	* @version 0.2
 	*/
 	public function checkPossibleMove(){
+		return TRUE;
+		$db = game_db::db_conn($_SESSION["gameId"]);
+		//Проверяем чей сейчас ход.
+		$previous = loger::who_was_last();
+		if($previous == $_SESSION["player_id"]){
+			echo json_encode(array("status"=>"FAIL", 
+									"info"=>"This isn't your turn. Reason 1"));
+			return FALSE;
+		}
+		if($this->who_will_next($previous) != $_SESSION["player_id"]){
+			echo json_encode(array("status"=>"FAIL", 
+									"info"=>"This isn't your turn. Reason 2 (id = ".$_SESSION["player_id"]
+											." want ".$this->who_will_next($previous).")"));
+			return FALSE;
+		}
 		return TRUE;
 	}
 	/**
