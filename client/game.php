@@ -48,7 +48,6 @@ print <<<LABEL
         global.type = 2;
         game = new game();
         game.open($id);
-        gameUpdate = new gameUpdater();
     }
 </script>
 </div>
@@ -65,7 +64,6 @@ print <<<LABEL
         mapList.get();
         mapList.updateStart();
         game = new game();
-        gameUpdate = new gameUpdater();
      }
  </script>
 <div id="select_game">

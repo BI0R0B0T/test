@@ -4,7 +4,7 @@ var intervalMapList = null;
 var diametr = "20px";
 var game;
 var sid;
-var gameUpdate
+var gameUpdate = new gameUpdater();
 var gameStatus = 0; // 0-не играем, 1-наш ход, 2-не наш ход.
 //var global;
 //    global.gameStatus = 0; // 0-не играем, 1-наш ход, 2-не наш ход.

@@ -480,6 +480,7 @@ class aerostat extends automove_cell{
 }
 class airplane extends cells{
 	//22 - 1 самолет  
+	private $active = TRUE;
 	function __construct(){
 		for($i = 0; $i<169; $i++){
 			$this->possible_next_cells[] = $i;

@@ -29,7 +29,14 @@ class game{
 	private function __clone(){
 		
 	}
-	public static function start_game(){
+
+    /**
+     * Создаем новую игру
+     * @static
+     * @param int $type тип игры
+     * @return null|string
+     */
+    public static function start_game($type){
 		new game();
 		$id = explode(".",self::$game_id);
 		echo json_encode(array("gameId"=>$id[0], "SID" => session_id()));
