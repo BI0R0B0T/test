@@ -6,15 +6,23 @@
     <script type="text/javascript" src="http://userapi.com/js/api/openapi.js?49"></script>
 
     <script type="text/javascript">
-        VK.init({apiId: 456156});
+        VK.init({apiId: 3022262});
     </script>
     <script type="text/javascript">
         VK.Widgets.Auth("vk_auth", {width: "200px", onAuth: function(data) {
-            var str;
-            for(var i in data){
-                str += i+" "+data[i]+", ";
+            var str ="";
+            for(var i in data['session']){
+                str +="&"+i+"="+encodeURIComponent(data['session'][i]) ;
             }
-            alert('user '+str+' authorized');
+			alert('user '+str+' authorized');
+			
+			var str = "?uid="+data['uid'];
+			str +="?first_name="+data['first_name'];
+			str +="?last_name="+data['last_name'];
+			str +="?photo="+data['photo'];
+			str +="?photo_rec="+data['photo_rec'];
+			location.href = "http://kodomo.fbb.msu.ru/~dolgov/piraty/vk_auth.php"+str;
+//            alert('user '+str+' authorized');
         } });
     </script></head>
 <body>
