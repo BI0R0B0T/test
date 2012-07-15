@@ -5,13 +5,13 @@ var diametr = "20px";
 var game;
 var sid;
 var gameUpdate = new gameUpdater();
-var gameStatus = 0; // 0-не играем, 1-наш ход, 2-не наш ход.
+//var gameStatus = 0; // 0-не играем, 1-наш ход, 2-не наш ход.
 //var global;
 //    global.gameStatus = 0; // 0-не играем, 1-наш ход, 2-не наш ход.
 
-var global = function(){
-    this.gameStatus = 0;
-    this.type = 1;
+var global = {
+	gameStatus: 0, 	// 0-не играем, 1-наш ход, 2-не наш ход.
+	type: 1
 }
 
 function serverConnect(message){
@@ -190,6 +190,7 @@ function drawMap(newMap){
 	for(var i in newMap["map"]){
 		var cell = new cells(newMap["map"][i]) ;
 		var div = document.createElement("DIV");
+		div.id = cell.id;
 		div.id = cell.id;
         div.className = cell.setClass();
 		div.marck = new Array(9999).join('leak');
@@ -401,6 +402,26 @@ mapList.updateStop = function(){
     intervalMapList = null;
 }
 
+function getPlayerInfo(id){
+	var conn = new serverConnect(new message(10,id));
+	return conn.send(true);
+}
+
+function drawPlayerInfo(playerInfo){
+	var div = document.getElementById("player_info");
+	while(div.hasChildNodes()){ div.removeChild(div.lastChild);}
+	var textDiv = document.createElement("DIV");
+	textDiv.id = "player_info_txt";
+	div.appendChild(textDiv)
+	textDiv.style.background ="url(\""+playerInfo["photo_rec"]+"\") no-repeat";
+	var text = document.createTextNode(playerInfo["first_name"]);
+	textDiv.appendChild(text)
+	var text = document.createTextNode(playerInfo["last_name"]);
+	textDiv.appendChild(text)
+	var text = document.createElement("DIV");
+	text.id = "player_info_bg";
+	div.appendChild(text)
+}
 
 /*
 ** Функция возвращат объект XMLHttpRequest

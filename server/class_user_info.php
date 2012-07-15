@@ -1,14 +1,18 @@
 <?php
+/**
+* Информация о игроке
+* @version 0.1
+*/
 class user_info
 {
 	private $user_id;
 	public $first_name;		// Имя пользователя
 	public $last_name;		// Фамилия пользователя
-	public $photo;		
-	public $photo_rec;		
+	public $photo;			// большая фотка пользователя
+	public $photo_rec;		// уменьшеный аватар
 	public $online;   
 	public $played;
-	public $plaer_number;  
+	public $player_number;	//номер пользователя на поле (1-4)  
 	public $coins = 0;
 	
 	public function __construct($id, $first_name='', $last_name='', $photo='', $photo_rec='', $online=FALSE, $played = FALSE)
@@ -26,7 +30,7 @@ class user_info
 	*/
 	public function save_in_db(){
 		$db = game_db::db_conn($_SESSION["gameId"]);
-		$sql  = "INSERT INTO players(id,player_id, first_name, last_name, photo, photo_rec, coins, played) VALUES(";
+		$sql="INSERT INTO players(id,player_id,first_name,last_name,photo,photo_rec,coins,played) VALUES(";
 		$sql .="null,".$this->user_id.", \"".$this->first_name."\", \"".$this->last_name."\", \"".$this->photo;
 		$sql .= "\", \"".$this->photo_rec."\", ".$this->coins.", 1)" ;
 		$res = $db->query($sql);

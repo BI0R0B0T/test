@@ -64,6 +64,7 @@ print <<<LABEL
         mapList.get();
         mapList.updateStart();
         game = new game();
+		drawPlayerInfo(getPlayerInfo(""));
      }
  </script>
 <div id="select_game">
@@ -76,6 +77,7 @@ print <<<LABEL
 	</div>
 	<div id="debug"></div>
 </div>
+<div id="player_info"></div>
 </body>
 </html>   
 LABEL;

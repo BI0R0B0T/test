@@ -1,6 +1,7 @@
 <?php
 session_name("game");
 session_start();
+require_once("config.php");
 // Читаем данные, переданные в POST
 $rawPost = file_get_contents('php://input');
 // Заголовки ответа
@@ -10,7 +11,7 @@ header('Cache-Control: no-store, no-cache');
 header('Expires: ' . date('r'));
 header('Last-Modified: ' . date('r'));
 /**
- * Автоматическое подключение классов
+ * Автоматическое подключение классовvk_auth.php
  * @param string $class_name имя класса
  * @version 0.1
  */

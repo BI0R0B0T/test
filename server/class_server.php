@@ -40,6 +40,7 @@ class server{
             case 7: self::open_game($req->comand);break;
             case 8: self::connect_game($req->comand);break;
             case 9: self::move_unit($req->comand);break;
+            case 10: self::get_player_info($req->comand);break;
             default:
                     self::add("reason", "incorrect comand (0)");
                     self::return_fail();
@@ -96,7 +97,7 @@ class server{
             }
         }
         //Проверка на то играет ли данный пользователь впринципе
-        if(!in_array($require->comandCode,array(0,8,5,6))){
+        if(!in_array($require->comandCode,array(0,8,5,6,10))){
             if(!isset($_SESSION["gameId"]) && is_null($_SESSION["gameId"])){
                 self::add("reason", "incorrect comand (2)");
                 self::add("req", $require);
@@ -220,4 +221,14 @@ class server{
             self::return_fail();
         }
     }
+	
+	private static function get_player_info($id){
+		if($id){
+			
+		}else{
+			$player = new player($_SESSION);
+			self::add("player", (array)$player);
+			self::output();			
+		}
+	}
 }
