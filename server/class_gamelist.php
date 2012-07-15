@@ -2,7 +2,6 @@
 class gamelist{
 	private static $gamelist = NULL;
 	private static $game_db = NULL;
-	const DBNAME = "../db/game_stat.db";
 	/**
 	* Проверяет можно ли подключится к данной игре в качестве игрока
 	* @param int $game_id
@@ -111,9 +110,8 @@ class gamelist{
 	}
 	private static function get_db(){
 		if(!self::$game_db){
-			self::$game_db = new SQLite3(self::DBNAME);
+			self::$game_db = game_stat::get_db();
 		}
-		self::$game_db;
 	}
 }
 ?>

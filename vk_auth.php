@@ -2,20 +2,28 @@
 /**
 * Авторизация через VK.COM
 */
-ini_set("display_error","On");
+ini_set('display_errors','On');
 require_once ("server/config.php");
 function __autoload($class_name){
 	include_once "server/class_".$class_name.".php";
 } 
-	if(isset($_GET["access_token"]) && isset($_GET["expires_in"]) && isset($_GET["user_id"])){
-		$url = "https://api.vk.com/method/";
-		$token = $_GET["access_token"];
-		$uid = $_GET["user_id"];
-		$user_info = file_get_contents($url."users.get?uid=$uid&fields=first_name,last_name,photo&access_token=$token");
-		$user_info = json_decode($user_info);
-		var_dump($user_info);
-	}
-//	var_dump($_GET);
+if(isset($_GET["access_token"]) && isset($_GET["expires_in"]) && isset($_GET["user_id"])){
+	$url = "https://api.vk.com/method/";
+	$token = new token();
+	$token->new_token($_GET["user_id"],$_GET["access_token"],$_GET["expires_in"]);
+	$user_info = file_get_contents($url."users.get?uid={$token->player_id}&fields=first_name,last_name,photo,photo_rec&access_token=".$token->get_token());
+	$user_info = json_decode($user_info);
+	$user_info = (array)$user_info->response[0];
+	$user_info['player_id'] = $user_info['uid'];
+//	var_dump($user_info);
+	$user = new player($user_info);
+	$user->add_in_session();
+	gamelist::add_user();
+//	var_dump($user);
+}
+exit();
+die();
+	var_dump($_GET);
 //	var_dump($_SESSION);
 //	var_dump($_COOKIE['vk_app_'.APP_ID]);
 	
@@ -68,6 +76,6 @@ if($member !== FALSE) {
 } else {
   /* Пользователь не авторизирован в Open API */
 //  var_dump($member);
-
+ 
 }
 ?>
