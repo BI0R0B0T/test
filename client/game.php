@@ -41,7 +41,8 @@ w.attachEvent("onload", w.qbaka._ldr);qbaka.key='11811407e9cfd4d3525af7db009d862
 //  	var_dump($_SESSION);
   }
   if(isset($_GET["g"])){
-      $id = $_GET["g"];
+	//Запустить игру
+     $id = $_GET["g"];
 print <<<LABEL
 <script type="text/javascript" id="selector">
     window.onload = function(){
@@ -57,6 +58,7 @@ print <<<LABEL
 LABEL;
 	  
   }else{
+  //Запустить окно выбора игры
 print <<<LABEL
 <script type="text/javascript" id="selector">
     window.onload = function(){
@@ -71,13 +73,24 @@ print <<<LABEL
 	<div id="map_list_big">Map list will be here</div>
 	<div id="rule">
 		<ul>
-			<li><a href="javascript:game.start()">Create NEW Game </a></li>
 			<li><a href="javascript:exitFromGame()">exit </a></li>
+			<li><a href="javascript:game.newGame()">start new game</a></li>
 		</ul>
 	</div>
 	<div id="debug"></div>
 </div>
 <div id="player_info"></div>
+<div id="create_game">
+	<div id="select_option">
+		<header>Выберите тип игры</header>
+		<ul>
+			<li><a href="javascript:game.start(1)">1x1</a></li>
+			<li><a href="javascript:game.start(2)">2x2</a></li>
+			<li><a href="javascript:game.start(3)">4(Каждый сам за себя)</a></li>
+		</ul>
+		<footer><a href="javascript:game.cancel()">cancel </a></footer>
+	</div>
+</div>
 </body>
 </html>   
 LABEL;

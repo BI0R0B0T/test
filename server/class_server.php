@@ -30,7 +30,7 @@ class server{
         }
         self::check_require($req);
         switch ($req->comandCode){
-            case 0: self::start_game(); break;
+            case 0: self::start_game($req->comand); break;
             case 1: self::stopgame() ; break;
             case 2: self::give_game(); break;
             case 3: self::exit_from_game(); break;
@@ -89,7 +89,7 @@ class server{
      */
     private static function check_require($require){
         //Проверка на то все ли параметры на месте
-        if(in_array($require->comandCode,array(4,6,7,8,9))){
+        if(in_array($require->comandCode,array(0,4,6,7,8,9))){
             if(!isset($require->comand) or "" == $require->comand) {
                 self::add("reason", "incorrect comand (1)");
                 self::add("req", $require);

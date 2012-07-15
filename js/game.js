@@ -35,9 +35,9 @@ function serverConnect(message){
 }
 function game(){
     this.gameId = null;
-    this.start = function (){
+    this.start = function (option){
         if(this.gameId != null){ game.stop(); }
-        var conn = new serverConnect(new message(0,"start"));
+        var conn = new serverConnect(new message(0,option));
         var g = conn.send(true);
         this.gameId = g["gameId"];
         sid = g["SID"];
@@ -93,6 +93,16 @@ function game(){
         game.update();
         gameUpdate.start();
     }
+	this.newGame = function(){
+		document.getElementById("create_game").style.display = "block";
+		document.getElementById("select_option").style.display = "block";
+		document.getElementById("player_info").style.display = "none";
+	}
+	this.cancel = function(){
+		document.getElementById("create_game").style.display = "none";
+		document.getElementById("select_option").style.display = "none";
+		document.getElementById("player_info").style.display = "block";
+	}
 }
 function message(comandCode,comand){
 	this.comandCode = comandCode;

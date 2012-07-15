@@ -40,7 +40,11 @@ class gamelist{
 		}
 		echo json_encode(array("gamelist"=>self::$gamelist, "status"=>"OK"));
 	}
-	public static function add_game($game_id, $player_number = 4){
+	public static function add_game($game_id){
+		switch($_SESSION["game_type"]){
+			case 1: $player_number = 2; break;
+			default: $player_number = 4; break;	
+		}
 		self::get_db();
 		$sql ="INSERT INTO games(id, game_db, player_number, player1, player2, player4, player3, played_now,";
 		$sql.=" game_status) VALUES(null, \"$game_id\", $player_number,".$_SESSION["player_id"].",null,";

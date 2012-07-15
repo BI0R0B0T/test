@@ -37,6 +37,14 @@ class game{
      * @return null|string
      */
     public static function start_game($type){
+		switch($type){
+			case 1: $player_number = 2; break;
+			case 2: $player_number = 4; break;
+			case 3: $player_number = 4; break;
+			default: 	server::add("reason", "incorrect game type");
+						server::return_fail();
+		}
+		$_SESSION["game_type"] = $type;
 		new game();
 		$id = explode(".",self::$game_id);
 		echo json_encode(array("gameId"=>$id[0], "SID" => session_id()));
