@@ -248,6 +248,20 @@ div {
 	left:10px;
 	color:#FFF;
 	padding-top:15px;
+	text-align:right;
+}
+#player_info_txt p{
+/*	border: 1px solid white;*/
+	margin: -10px 0px 0px 0px;
+	text-align:left;
+}
+#player_info_txt a{
+/*	border: 1px solid red;*/
+	margin: -10px 0px 0px 0px;
+	text-align:left;
+	color:#f00;
+	text-decoration: none;
+	padding-right:10px;
 }
 #create_game{
 	width:100%;

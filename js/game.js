@@ -37,7 +37,11 @@ function game(){
     this.gameId = null;
     this.start = function (option){
         if(this.gameId != null){ game.stop(); }
-        var conn = new serverConnect(new message(0,option));
+        var msg = {
+			type:option,
+			desc:""
+        };
+        var conn = new serverConnect(new message(0,msg));
         var g = conn.send(true);
         this.gameId = g["gameId"];
         sid = g["SID"];
@@ -346,6 +350,7 @@ function exitFromGame(){
 	req.setRequestHeader("Content-Type", "text/plain");
 	req.setRequestHeader("Content-Length", jsonData.length);			
 	req.send(jsonData);	
+	window.location = "http://kodomo.fbb.msu.ru/~dolgov/piraty/index.php";
 	jsonData = null;
 	req = null;			
 }
@@ -424,7 +429,16 @@ function drawPlayerInfo(playerInfo){
 	textDiv.id = "player_info_txt";
 	div.appendChild(textDiv)
 	textDiv.style.background ="url(\""+playerInfo["photo_rec"]+"\") no-repeat";
-	var text = document.createTextNode(playerInfo["first_name"]);
+	var p = document.createElement("P"); 
+	textDiv.appendChild(p);
+	var text = document.createElement("A");
+	text.href = "javascript:exitFromGame()";
+	text.title = "exit";
+	text.appendChild(document.createTextNode("exit")) ;
+	textDiv.appendChild(text)
+	textDiv = null;
+	textDiv = p;
+	var text = document.createTextNode(playerInfo["first_name"]+" ");
 	textDiv.appendChild(text)
 	var text = document.createTextNode(playerInfo["last_name"]);
 	textDiv.appendChild(text)

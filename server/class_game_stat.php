@@ -13,7 +13,7 @@ class game_stat{
 	public function __construct(){} 
 	public static function check_error(){
 		if(self::$game_db->lastErrorCode() > 0){
-			throw new Exception( $db->lastErrorMsg() );
+			throw new Exception( self::$game_db->lastErrorMsg() );
 		}
 	}
 }

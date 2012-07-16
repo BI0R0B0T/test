@@ -29,6 +29,7 @@ class token{
 		$stmt = $db->prepare("SELECT token, expires_in FROM tokens WHERE id =:id");
 		$stmt->bindValue(':id', $player_id, SQLITE3_INTEGER);
 		$result = $stmt->execute();
+		game_stat::check_error();
 		$result = $result->fetchArray();
 		if(empty($result)){
 			return FALSE;

@@ -37,17 +37,18 @@ class game{
      * @return null|string
      */
     public static function start_game($type){
-		if((int)$type <=0 || (int)$type > 3)){
+		if((int)$type->type <=0 || (int)$type->type > 3){
 			server::add("reason", "incorrect game type");
 			server::return_fail();
 		}else{
-			$_SESSION["game_type"] = $type;
+			$_SESSION["game_type"] = $type->type;
+			$_SESSION["game_desc"] = $type->desc;
 		}
 		new game();
 		$id = explode(".",self::$game_id);
 		echo json_encode(array("gameId"=>$id[0], "SID" => session_id()));
 		gamelist::add_game($id[0]);
-		loger::save(0,json_encode(array("start game")), $_SESSION["player_id"]);
+		loger::save(0,json_encode(array("start game", $_SESSION["game_type"], $_SESSION["game_desc"])), $_SESSION["player_id"]);
 		return self::$game_id;
 	}
 	public static function get_game($game_id){

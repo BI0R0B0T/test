@@ -12,6 +12,7 @@ class gamelist{
 		self::get_db();
 		$sql = "SELECT player1, player2, player3, player4 FROM games WHERE game_db = ".$game_id;
 		$res = self::$game_db->query($sql);
+		game_stat::check_error();
 		$count = 0;
 		$res_arr = $res->fetchArray(SQLITE3_ASSOC);
 		foreach($res_arr as $k=>$v){
@@ -38,24 +39,30 @@ class gamelist{
 		if(!self::$gamelist){
 			new gamelist();
 		}
-		echo json_encode(array("gamelist"=>self::$gamelist, "status"=>"OK"));
+		server::add("gamelist", self::$gamelist);
+		server::output();
 	}
+	/**
+	* Add game info in game_stat
+	* 
+	* @param string $game_id
+	* @version 0.2
+	*/
 	public static function add_game($game_id){
-		switch($_SESSION["game_type"]){
-			case 1: $player_number = 2; break;
-			default: $player_number = 4; break;	
-		}
+		$player_number = (1==$_SESSION[game_type]?2:4);
 		self::get_db();
 		$sql ="INSERT INTO games(id, game_db, player_number, player1, player2, player4, player3, played_now,";
-		$sql.=" game_status) VALUES(null, \"$game_id\", $player_number,".$_SESSION["player_id"].",null,";
-		$sql.=" null,null, 1, ".$_SESSION["play"].")";
+		$sql.=" game_status, type, desc) VALUES(null, \"$game_id\", $player_number,".$_SESSION["player_id"].",null,";
+		$sql.=" null,null, 1, ".$_SESSION["play"].", ".$_SESSION["type"].", ".$_SESSION["desc"]?$_SESSION["desc"]:$game_id.")";
 		$res = self::$game_db->query($sql);
+		game_stat::check_error();
 		self::update_user(array("status"=>$_SESSION["play"],"game_id"=>self::$game_db->lastInsertRowID()));
 	}
 	public static function stopgame($gameid){
 		self::get_db();
 		$sql = "UPDATE games SET played_now = 0 WHERE game_db = ".$gameid;
 		self::$game_db->query($sql);
+		game_stat::check_error();
 	}
 	public static function update_user($property){
 		self::get_db();
@@ -72,6 +79,7 @@ class gamelist{
 		$str[0] = " ";
 		$sql .=$str." WHERE players.id = ".$_SESSION["player_id"];
 		$res = self::$game_db->query($sql);
+		game_stat::check_error();
 	}
 	public static function add_user(){
 		self::get_db();
@@ -91,6 +99,7 @@ class gamelist{
 			$sql.= $_SESSION["play"].", \"".($_SESSION["gameId"]?$_SESSION["gameId"]:"null")."\")" ;
 		}
 		$res = self::$game_db->query($sql);
+		game_stat::check_error();
 	}
 	public static function finished_game(){
 		
@@ -103,6 +112,7 @@ class gamelist{
 		$sql .= "FROM players INNER JOIN games ON (players.game_id = games.id)"; 
 		$sql .= "WHERE games.played_now = 1";
 		$res = self::$game_db->query($sql);
+		game_stat::check_error();
 		while($add = $res->fetchArray(SQLITE3_ASSOC)) {
 			self::$gamelist[$add["game_db"]]["player_number"] = $add["player_number"];
 			self::$gamelist[$add["game_db"]]["game_status"] = $add["game_status"];

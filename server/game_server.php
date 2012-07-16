@@ -19,5 +19,9 @@ function __autoload($class_name){
 	include "class_".$class_name.".php";
 }
 // Передаем данные серверу на обработку
-server::input($rawPost);
+try{
+	server::input($rawPost);
+}catch(Exception $e){
+	echo json_encode(array("status"=>"FAIL", "reason" =>$e->getMessage()));
+}
 ?>

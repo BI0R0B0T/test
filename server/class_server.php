@@ -116,8 +116,8 @@ class server{
         if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
             game::convert_2_JSON($_SESSION["gameId"]);
         }else{
-            $_SESSION["play"] = 1;
-            $_SESSION["gameId"] = game::start_game($type);
+			$_SESSION["play"] = 1;
+			$_SESSION["gameId"] = game::start_game($type);
         }
 
     }

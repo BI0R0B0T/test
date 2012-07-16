@@ -34,7 +34,7 @@ class loger{
 	*/
 	public static function save($type, $text, $id){
 		$log = new loger($type, $text, $id);
-		$db = game_db::db_conn($_SESSION["gameId"]);
+		$db = game_db::db_conn();
 		$sql = "INSERT INTO log('time','type','text','who_add') VALUES ('now', ";
 		$sql.= $log->type.", '";
 		$sql.= $log->text."', ";
@@ -52,7 +52,7 @@ class loger{
 	* @return int
 	*/
 	public static function who_was_last(){
-		$db = game_db::db_conn($_SESSION["gameId"]);
+		$db = game_db::db_conn();
 		$sql = "SELECT log.who_add FROM log WHERE log.type = 3 ORDER BY log.'time' DESC LIMIT 1";
 		$res = $db->query($sql);
 		$later = $res->fetchArray(SQLITE3_ASSOC);

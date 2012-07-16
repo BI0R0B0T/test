@@ -24,7 +24,7 @@ class unit{
 		$this->id = $id;
 	}
 	static function get_units_from_db(){
-		$db = game_db::db_conn($_SESSION["gameId"]);
+		$db = game_db::db_conn();
 		$sql = "SELECT id, master_id, have_coin, waiting_time, die, cell_position_id, previous_position, cell_part FROM units ";
 		$res = $db->query($sql);
 		$units = array();
@@ -36,7 +36,7 @@ class unit{
 		return $units;
 	}
 	function save_unit_property(){
-		$db = game_db::db_conn($_SESSION["gameId"]);
+		$db = game_db::db_conn();
 		$sql = "UPDATE units SET have_coin = ".($this->have_coins?1:0).", waiting_time = ".$this->waitng_time;
 		$sql.=", die = ".($this->die?1:0).", cell_position_id = ".$this->position.", cell_part = ".$this->cell_part;
 		$sql.=" WHERE id = ".$this->id;
@@ -45,7 +45,7 @@ class unit{
 	static function born_unit_on_ship($number){
 		static $ship = array(6, 162, 78, 90);
 		$cell = $ship[$number];
-		$db = game_db::db_conn($_SESSION["gameId"]);
+		$db = game_db::db_conn();
 		$sql = "INSERT INTO units (id, master_id, have_coin, waiting_time, die, cell_position_id, ";
 		$sql.= "previous_position, cell_part) VALUES(null, ".$_SESSION["player_id"].", 0, 0, 0, ";
 		$sql.= "$cell, $cell, 0)";
@@ -58,7 +58,7 @@ class unit{
 	* @version 0.2
 	*/
 	static function get_unit_from_db($unit_id){
-		$db = game_db::db_conn($_SESSION["gameId"]);
+		$db = game_db::db_conn();
 		$unit_id = (int)substr($unit_id,5);
 		$sql = "SELECT id, master_id, have_coin, waiting_time, die, cell_position_id, previous_position, cell_part FROM units WHERE id = ".$unit_id;
 		$res = $db->query($sql);
@@ -78,7 +78,7 @@ class unit{
 	* @version 0.2
 	*/
 	public function move_to($cell_id, $need_return = FALSE){
-		$db = game_db::db_conn($_SESSION["gameId"]);
+		$db = game_db::db_conn();
 		loger::save(3,json_encode(array("start_move")), $_SESSION["player_id"]);
 		//Проверяем возможен ли такой ход
 		$prev_cell = cells::get_cell_from_db($db,$this->position);
@@ -126,7 +126,7 @@ class unit{
 	*/
 	public function checkPossibleMove(){
 		return TRUE;
-		$db = game_db::db_conn($_SESSION["gameId"]);
+		$db = game_db::db_conn();
 		//Проверяем чей сейчас ход.
 		$previous = loger::who_was_last();
 		if($previous == $_SESSION["player_id"]){
@@ -149,7 +149,7 @@ class unit{
 	* @version 0.1
 	*/
 	private function who_will_next($previous){
-		$db = game_db::db_conn($_SESSION["gameId"]);
+		$db = game_db::db_conn();
 		$sql ="SELECT players.player_id FROM players WHERE players.played = 1";
 		$res = $db->query($sql);
 		$users = array();
