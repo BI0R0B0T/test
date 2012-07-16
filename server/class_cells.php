@@ -266,6 +266,24 @@ abstract class cells{
 		}
 		return $coordinate;
 	}
+	/**
+	* Действие которое происходит когда юнит приходит на клетку
+	* 
+	* @param object $unit 
+	*/
+	public function move_in($unit){}
+	/**
+	* Действие которое происходит когда пользователь уходит с клетки
+	* 
+	* @param object $unit
+	*/
+	public function move_out($unit){}
+	/**
+	* Действие которое происходит когда юнит стоит на клетке (в начале хода пользователя)
+	* 
+	* @param object $unit
+	*/
+	public function stand_action($unit){}
 }
 
 class automove_cell extends cells{
