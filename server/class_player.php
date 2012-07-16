@@ -5,6 +5,8 @@
  * Date: 29.06.12
  * Time: 17:20
  * To change this template use File | Settings | File Templates.
+ * Данный класс нужен для работы с общей БД, для отдельной игры используется класс user_info.
+ * В будущем оба класса будут объеденены.
  * @version 0.3
  */
 class player
@@ -39,15 +41,22 @@ class player
 	* @return void
 	*/
 	public function add_in_session(){
-		$_SESSION = array(
-			"player_id" => $this->player_id,
-			"first_name" => $this->first_name,
-			"last_name" => $this->last_name,
-			"photo" => $this->photo,
-			"photo_rec" => $this->photo_rec,
-			"SID" => session_id(),
-			"play" => 0,
-			"gameId" => null
-		 );
+		$_SESSION["player_id"] =   $this->player_id;
+		$_SESSION["first_name"] =   $this->first_name;
+		$_SESSION["last_name"] =   $this->last_name;
+		$_SESSION["photo"] =     $this->photo;
+		$_SESSION["photo_rec"] =   $this->photo_rec;
+		$_SESSION["SID"] =       session_id();
+		$_SESSION["play"] =     0;
+		$_SESSION["gameId"] =     null;
  	}
+	public static function get_from_db($id){
+		$db = game_stat::get_db();
+		$sql = "SELECT players.first_name, players.last_name, players.photo, players.photo_rec, ";
+		$sql.= "players.status, players.game_id FROM players WHERE players.id = ".$id;
+		$resault = $db->query($sql);
+		$resault = $resault->fetchArray(SQLITE3_ASSOC);
+		$resault["player_id"] = $id;
+		return new player($resault);
+	}
 }
