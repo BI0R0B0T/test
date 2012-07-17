@@ -36,9 +36,9 @@ class user_info
 		//Определим какой по номеру он будет
 		$sql = "SELECT player1_id, player2_id, player3_id, player4_id FROM games";
 		$res = $db->query($sql);
-		game_db::check_error();
+		game_db::check_error($sql);
 		$res = $res->fetchArray(SQLITE3_ASSOC);
-		if(!res){
+		if(!$res){
 			$this->player_number = 1;
 			$this->update_player_id_in_games();
 		}else{
@@ -60,7 +60,7 @@ class user_info
 		$sql .="null,".$this->user_id.", \"".$this->first_name."\", \"".$this->last_name."\", \"".$this->photo;
 		$sql .= "\", \"".$this->photo_rec."\", ".$this->coins.", 1,".self::$color_array[$this->player_number].")" ;
 		$res = $db->query($sql);
-		game_db::check_error();
+		game_db::check_error($sql);
 		return $db->lastInsertRowID();
 	}
 	
@@ -68,7 +68,7 @@ class user_info
 		$db = game_db::db_conn();
 		$sql = "UPDATE games SET player".$this->player_number."_id = ".$this->user_id." WHERE id = 1";
 		$db->query($sql);
-		game_db::check_error();
+		game_db::check_error($sql);
 	}
 }
 ?>

@@ -382,6 +382,7 @@ mapList.draw = function(games){
     if(global.type == 1){
         var mapListId = "map_list_big";
     }else{
+//    	alert(global.type);
   //      var mapListId = "map_list";
         return ;
     }

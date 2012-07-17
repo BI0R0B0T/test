@@ -12,21 +12,16 @@ class game_db{
 	private function __clone(){ }
 	function __destruct(){ }
 	public static function db_conn($db_name = FALSE){
-		if(!$db_name){
-			$db_name = $_SESSION["gameId"];
-		}
 		if(NULL == self::$db_connection){
-			if(!$db_name){return FALSE;	}
+			if(!$db_name){$db_name = $_SESSION["gameId"];	}
 			new game_db($db_name);
 		}
 		return self::$db_connection;
 	}
-	public static function check_error(){
-		var_dump($_SESSION);
-		var_dump(self::$db_connection);
-//		if($this->lastErrorCode() > 0){
-//			throw new Exception( $this->lastErrorMsg() );
-//		}
+	public static function check_error($sql){
+		if(self::$db_connection->lastErrorCode() > 0){
+			throw new Exception( self::$db_connection->lastErrorMsg()."\n sql: ".$sql );
+		}
 	}
 }
 ?>

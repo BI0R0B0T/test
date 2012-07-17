@@ -27,6 +27,7 @@ class unit{
 		$db = game_db::db_conn();
 		$sql = "SELECT id, master_id, have_coin, waiting_time, die, cell_position_id, previous_position, cell_part FROM units ";
 		$res = $db->query($sql);
+		game_db::check_error($sql);
 		$units = array();
 		while($unit = $res->fetchArray(SQLITE3_ASSOC)){
 			$units[$unit["id"]] = new unit( $unit["id"],$unit["master_id"],$unit["cell_position_id"],
@@ -40,6 +41,7 @@ class unit{
 		$sql = "UPDATE units SET have_coin = ".($this->have_coins?1:0).", waiting_time = ".$this->waitng_time;
 		$sql.=", die = ".($this->die?1:0).", cell_position_id = ".$this->position.", cell_part = ".$this->cell_part;
 		$sql.=" WHERE id = ".$this->id;
+		game_db::check_error($sql);
 		$db->query($sql);		
 	}
 	static function born_unit_on_ship($number){
@@ -50,6 +52,7 @@ class unit{
 		$sql.= "previous_position, cell_part) VALUES(null, ".$_SESSION["player_id"].", 0, 0, 0, ";
 		$sql.= "$cell, $cell, 0)";
 		$db->query($sql);
+		game_db::check_error($sql);
 	}
 	/**
 	* Получение юнита из БД
@@ -62,6 +65,7 @@ class unit{
 		$unit_id = (int)substr($unit_id,5);
 		$sql = "SELECT id, master_id, have_coin, waiting_time, die, cell_position_id, previous_position, cell_part FROM units WHERE id = ".$unit_id;
 		$res = $db->query($sql);
+		game_db::check_error($sql);
 		$units = array();
 		while($unit = $res->fetchArray(SQLITE3_ASSOC)){
 			$units[$unit["id"]] = new unit( $unit["id"],$unit["master_id"],$unit["cell_position_id"],
@@ -152,6 +156,7 @@ class unit{
 		$db = game_db::db_conn();
 		$sql ="SELECT players.player_id FROM players WHERE players.played = 1";
 		$res = $db->query($sql);
+		game_db::check_error($sql);
 		$users = array();
 		$next = FALSE;
 		while($user = $res->fetchArray(SQLITE3_ASSOC)){

@@ -40,6 +40,7 @@ class loger{
 		$sql.= $log->text."', ";
 		$sql.= $log->user_id.")";
 		$db->query($sql);
+		game_db::check_error($sql);
 	}
 	/**
 	* Возвращает объект логи начиная с указанного времени
@@ -55,6 +56,7 @@ class loger{
 		$db = game_db::db_conn();
 		$sql = "SELECT log.who_add FROM log WHERE log.type = 3 ORDER BY log.'time' DESC LIMIT 1";
 		$res = $db->query($sql);
+		game_db::check_error($sql);
 		$later = $res->fetchArray(SQLITE3_ASSOC);
 		if($later){
 			return (int)$later["who_add"];

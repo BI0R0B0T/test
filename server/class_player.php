@@ -55,6 +55,7 @@ class player
 		$sql = "SELECT players.first_name, players.last_name, players.photo, players.photo_rec, ";
 		$sql.= "players.status, players.game_id FROM players WHERE players.id = ".$id;
 		$resault = $db->query($sql);
+		game_stat::check_error($sql);
 		$resault = $resault->fetchArray(SQLITE3_ASSOC);
 		$resault["player_id"] = $id;
 		return new player($resault);

@@ -29,7 +29,7 @@ class token{
 		$stmt = $db->prepare("SELECT token, expires_in FROM tokens WHERE id =:id");
 		$stmt->bindValue(':id', $player_id, SQLITE3_INTEGER);
 		$result = $stmt->execute();
-		game_stat::check_error();
+		game_stat::check_error("SELECT token, expires_in FROM tokens WHERE id =".$player_id);
 		$result = $result->fetchArray();
 		if(empty($result)){
 			return FALSE;
@@ -64,7 +64,7 @@ class token{
 		}
 		$db = game_stat::get_db();
 		$resault = $db->query($sql);
-		game_stat::check_error();
+		game_stat::check_error($sql);
 	}
 	private function save_in_session(){
 		$_SESSION["expires_in"] = $this->expires_in;

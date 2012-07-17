@@ -12,7 +12,7 @@ class gamelist{
 		self::get_db();
 		$sql = "SELECT player1, player2, player3, player4 FROM games WHERE game_db = ".$game_id;
 		$res = self::$game_db->query($sql);
-		game_stat::check_error();
+		game_stat::check_error($sql);
 		$count = 0;
 		$res_arr = $res->fetchArray(SQLITE3_ASSOC);
 		foreach($res_arr as $k=>$v){
@@ -39,7 +39,7 @@ class gamelist{
 		if(!self::$gamelist){
 			new gamelist();
 		}
-		server::add("gamelist", self::$gamelist);
+		server::add("gamelist", array("gamelist"=>self::$gamelist));
 		server::output();
 	}
 	/**
@@ -49,20 +49,20 @@ class gamelist{
 	* @version 0.2
 	*/
 	public static function add_game($game_id){
-		$player_number = (1==$_SESSION[game_type]?2:4);
+		$player_number = (1==$_SESSION["game_type"]?2:4);
 		self::get_db();
 		$sql ="INSERT INTO games(id, game_db, player_number, player1, player2, player4, player3, played_now,";
-		$sql.=" game_status, type, desc) VALUES(null, \"$game_id\", $player_number,".$_SESSION["player_id"].",null,";
-		$sql.=" null,null, 1, ".$_SESSION["play"].", ".$_SESSION["type"].", ".$_SESSION["desc"]?$_SESSION["desc"]:$game_id.")";
+		$sql.=" game_status, type, desc) VALUES(null, '".$game_id."', $player_number,".$_SESSION["player_id"].",null,";
+		$sql.=" null, null, 1, ".$_SESSION["play"].", ".$_SESSION["game_type"].", '".($_SESSION["game_desc"]?$_SESSION["game_desc"]:$game_id)."')";
 		$res = self::$game_db->query($sql);
-		game_stat::check_error();
+		game_stat::check_error($sql);
 		self::update_user(array("status"=>$_SESSION["play"],"game_id"=>self::$game_db->lastInsertRowID()));
 	}
 	public static function stopgame($gameid){
 		self::get_db();
 		$sql = "UPDATE games SET played_now = 0 WHERE game_db = ".$gameid;
 		self::$game_db->query($sql);
-		game_stat::check_error();
+		game_stat::check_error($sql);
 	}
 	public static function update_user($property){
 		self::get_db();
@@ -79,12 +79,13 @@ class gamelist{
 		$str[0] = " ";
 		$sql .=$str." WHERE players.id = ".$_SESSION["player_id"];
 		$res = self::$game_db->query($sql);
-		game_stat::check_error();
+		game_stat::check_error($sql);
 	}
 	public static function add_user(){
 		self::get_db();
-		$sqla = "SELECT  count() AS count FROM players WHERE players.id = ".$_SESSION["player_id"];
-		$res = self::$game_db->query($sqla);
+		$sql = "SELECT  count() AS count FROM players WHERE players.id = ".$_SESSION["player_id"];
+		$res = self::$game_db->query($sql);
+		game_stat::check_error($sql);
 		$usr = $res->fetchArray(SQLITE3_ASSOC);
 		if($usr["count"]){
 			$sql = "UPDATE players SET status =  ".$_SESSION["play"].", game_id =  ";
@@ -99,7 +100,7 @@ class gamelist{
 			$sql.= $_SESSION["play"].", \"".($_SESSION["gameId"]?$_SESSION["gameId"]:"null")."\")" ;
 		}
 		$res = self::$game_db->query($sql);
-		game_stat::check_error();
+		game_stat::check_error($sql);
 	}
 	public static function finished_game(){
 		
@@ -107,15 +108,17 @@ class gamelist{
 	private function __construct(){
 		self::get_db();
 		$sql  = "SELECT  games.game_db, games.player_number, games.player1, games.player2,"; 
-		$sql .= "games.player3, games.player4, games.game_status, players.first_name,"; 
+		$sql .= "games.player3, games.player4, games.game_status, games.type, games.desc, players.first_name,"; 
 		$sql .= "players.last_name, players.id as player_id, players.photo, players.photo_rec "; 
 		$sql .= "FROM players INNER JOIN games ON (players.game_id = games.id)"; 
 		$sql .= "WHERE games.played_now = 1";
 		$res = self::$game_db->query($sql);
-		game_stat::check_error();
+		game_stat::check_error($sql);
 		while($add = $res->fetchArray(SQLITE3_ASSOC)) {
 			self::$gamelist[$add["game_db"]]["player_number"] = $add["player_number"];
 			self::$gamelist[$add["game_db"]]["game_status"] = $add["game_status"];
+			self::$gamelist[$add["game_db"]]["game_type"] = $add["type"];
+			self::$gamelist[$add["game_db"]]["game_desc"] = $add["desc"];
 			self::$gamelist[$add["game_db"]]["players"][] = new player($add);
 		}
 	}

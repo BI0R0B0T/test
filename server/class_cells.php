@@ -113,6 +113,7 @@ abstract class cells{
 		$sql = "INSERT INTO map( cell_id, type, rotate, can_stay_here, open, coins_count,"; 
 		$sql .= "ship_there) VALUES (".$this->cell_to_str().")";
 		$db->query($sql);
+		game_db::check_error($sql);
 	}
 	/**
 	* Возвращает объект cells из БД
@@ -125,6 +126,7 @@ abstract class cells{
 		$sql = "SELECT  map.cell_id, map.type, map.rotate, map.can_stay_here, map.open, ";
 		$sql .= "map.coins_count, map.ship_there FROM map WHERE map.cell_id = ".$id;
 		$cell = $db->query($sql);
+		game_db::check_error($sql);
 		$res = $cell->fetchArray(SQLITE3_ASSOC);
 		if(1 == $res['open']){
 			$new_cell = self::new_cell($res['type'],$res['cell_id'],TRUE);
@@ -150,6 +152,7 @@ abstract class cells{
 				
 			}
 			$db->query($sql);
+			game_db::check_error($sql);
 		}
 		
 	}

@@ -11,9 +11,9 @@ class game_stat{
 		return self::$game_db;
 	}
 	public function __construct(){} 
-	public static function check_error(){
+	public static function check_error($sql){
 		if(self::$game_db->lastErrorCode() > 0){
-			throw new Exception( self::$game_db->lastErrorMsg() );
+			throw new Exception( self::$game_db->lastErrorMsg()." sql: ".$sql );
 		}
 	}
 }
