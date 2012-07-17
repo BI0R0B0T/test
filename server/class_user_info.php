@@ -5,7 +5,7 @@
 */
 class user_info
 {
-	private $user_id;
+	public $user_id;
 	public $first_name;		// Имя пользователя
 	public $last_name;		// Фамилия пользователя
 	public $photo;			// большая фотка пользователя
@@ -69,6 +69,14 @@ class user_info
 		$sql = "UPDATE games SET player".$this->player_number."_id = ".$this->user_id." WHERE id = 1";
 		$db->query($sql);
 		game_db::check_error($sql);
+	}
+	public static function get_from_db($id){
+		$db = game_db::db_conn();
+		$sql = "SELECT first_name,last_name,photo,photo_rec,coins,played, color FROM players WHERE played = 1 and player_id = ".$id;
+		$res = $db->query($sql);
+		game_db::check_error($sql);
+		$res = $res->fetchArray(SQLITE3_ASSOC);
+		return new user_info($id,$res["first_name"],$res["last_name"],$res["photo"],$res["photo_rec"],TRUE,TRUE,$res["color"]);
 	}
 }
 ?>

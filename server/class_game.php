@@ -7,6 +7,7 @@ class game{
 	private static $map = NULL;
 	private static $player_id = NULL;
 	private static $units = array();
+	private static $players = array();
 	private function __construct(){
 		if(!isset($_SESSION["gameId"]) || !$_SESSION["gameId"]){
 			self::$game_id = map::map_generate();
@@ -110,6 +111,35 @@ class game{
 			unit::born_unit_on_ship($_SESSION["player_number"]-1);
 		}
 		self::convert_2_JSON($_SESSION["gameId"]);
+	}
+	/**
+	* @param object $unit
+	*/
+	public static function add_unit($unit){
+		
+	}
+	/**
+	* @param int $id
+	*/
+	public static function get_unit($id){
+		
+	}	
+	/**
+	* @param object $player
+	*/
+	public static function add_player($player){
+		if(!isset(self::$players[$id])){
+			self::$players[$id] = $player;
+		}
+	}
+	/**
+	* @param int $id
+	*/
+	public static function get_player($id){
+		if(!isset(self::$players[$id])){
+			self::add_player(user_info::get_from_db($id));
+		}
+		return self::$players[$id];
 	}
 }
 ?>

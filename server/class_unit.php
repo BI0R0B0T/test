@@ -7,6 +7,7 @@ class unit{
 	public $cell_part;
 	public $can_move;
 	public $possible_move;
+	public $color;
 	private $master;
 	private $waitng_time;
 	private $previous_position;
@@ -22,6 +23,7 @@ class unit{
 		$this->waitng_time = $waitng_time;
 		$this->previous_position = $previous_position; 
 		$this->id = $id;
+		$this->color = 0xFF0000;
 	}
 	static function get_units_from_db(){
 		$db = game_db::db_conn();
