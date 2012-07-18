@@ -64,11 +64,11 @@ class server{
      * @return void
      */
     public static function add($field, $data){
-        if( in_array($field, array("map", "move", "unit"))){
-            self::$responce[$field][] = $data;
-        }else{
-            self::$responce = $data;
-        }
+    	switch ($field){
+			case "unit":    self::$responce["units"][] = $data; break;
+			case "move_list": self::$responce["move_list"][] = $data; break;
+			default:  self::$responce[$field] = $data;
+    	}
     }
 
     /**

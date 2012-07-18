@@ -35,17 +35,17 @@ class loger{
 	public static function save($type, $text, $id){
 		$log = new loger($type, $text, $id);
 		$db = game_db::db_conn();
-		$sql = "INSERT INTO log('time','type','text','who_add') VALUES ('now', ";
-		$sql.= $log->type.", '";
+		$sql = "INSERT INTO log('id','text','type','who_add') VALUES (null, '";
 		$sql.= $log->text."', ";
+		$sql.= $log->type.", ";
 		$sql.= $log->user_id.")";
 		$db->query($sql);
 		game_db::check_error($sql);
 	}
 	/**
-	* Возвращает объект логи начиная с указанного времени
+	* Возвращает объект логи начиная с указанного id
 	*/
-	public function get_from($time){
+	public function get_from($id){
 		
 	}
 	/**
@@ -54,7 +54,7 @@ class loger{
 	*/
 	public static function who_was_last(){
 		$db = game_db::db_conn();
-		$sql = "SELECT log.who_add FROM log WHERE log.type = 3 ORDER BY log.'time' DESC LIMIT 1";
+		$sql = "SELECT log.who_add FROM log WHERE log.type = 3 ORDER BY log.'id' DESC LIMIT 1";
 		$res = $db->query($sql);
 		game_db::check_error($sql);
 		$later = $res->fetchArray(SQLITE3_ASSOC);

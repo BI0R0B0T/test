@@ -239,11 +239,12 @@ function drawUnit(unit){
 		unitDiv.cell_part = unit.cell_part;
 		unitDiv.can_move = unit.can_move;
 		unitDiv.possible_move = unit.possible_move;
-        unitDiv.style.width = diametr;
-        unitDiv.style.height = diametr;
-        unitDiv.setAttribute("draggable",true);
-        //Событие вызываемое при переносе юнита
-        addEvent(unitDiv, 'dragstart', function (e) {
+		unitDiv.style.width = diametr;
+		unitDiv.style.height = diametr;
+		unitDiv.style.background = "#"+unit.color.toString(16);
+		unitDiv.setAttribute("draggable",true);
+		//Событие вызываемое при переносе юнита
+		addEvent(unitDiv, 'dragstart', function (e) {
 			e.dataTransfer.effectAllowed = 'copy'; // only dropEffect='copy' will be dropable
 			e.dataTransfer.setData('Text', this.id); // required otherwise doesn't work
         });
@@ -424,6 +425,8 @@ function getPlayerInfo(id){
 }
 
 function drawPlayerInfo(playerInfo){
+//	var_dump(playerInfo.player);
+	playerInfo = playerInfo.player;
 	var div = document.getElementById("player_info");
 	while(div.hasChildNodes()){ div.removeChild(div.lastChild);}
 	var textDiv = document.createElement("DIV");

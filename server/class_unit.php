@@ -23,7 +23,8 @@ class unit{
 		$this->waitng_time = $waitng_time;
 		$this->previous_position = $previous_position; 
 		$this->id = $id;
-		$this->color = 0xFF0000;
+		$master = game::get_player($this->master);
+		$this->color = $master->color;
 	}
 	static function get_units_from_db(){
 		$db = game_db::db_conn();
@@ -89,18 +90,17 @@ class unit{
 		//Проверяем возможен ли такой ход
 		$prev_cell = cells::get_cell_from_db($db,$this->position);
 		if(!in_array($cell_id,$prev_cell->possible_next_cells)){
-			echo json_encode(array("status"=>"FAIL", 
-									"info"=>"imposible move from ".$this->position." to ".$cell_id ));
-			return;
+			server::add("reason", "imposible move from ".$this->position." to ".$cell_id );
+			server::return_fail(); 
 		}
 		if(!$need_return){$this->previous_position = $this->position;}
 		$this->position = $cell_id;
 		//получаем информацию о клетке на которую идет юнит
 		$cell = cells::get_cell_from_db($db,$cell_id);
-		$return = array("status" => "OK", "you_move" => 0);
+		server::add("you_move", 0);
 		if(30 == $cell->type){
 			$cell = cells::open_cell($db,$cell_id);
-			$return["map"][] = $cell;
+			server::add("map", $cell);
 		}
 		//обрабатываем автомувы
 		if($cell->auto_move){
@@ -108,21 +108,24 @@ class unit{
 				$prev_return = $this->move_to($cell->possible_next_cells[0], TRUE);
 				if(isset($prev_return["map"]) && !empty($prev_return["map"])){
 					foreach($prev_return["map"] as $v){
-						$return["map"][] = $v;
+						server::add("map", $v);
 					}
 				}
-				$return["move_list"] = $prev_return["move_list"];
+				server::add("move_list", $prev_return["move_list"]);
 			}
-			$return["you_move"] = 1;
+			server::add("you_move", 1);
 		}
 		$this->possible_move = $cell->possible_next_cells;
 		$this->save_unit_property();
+		game::add_unit($this);
+		server::add("units", game::get_units());
+		server::add("move_list", array($this->previous_position, $this->position));
 		$return["units"][] = $this;
 		$return["move_list"][] = array($this->previous_position, $this->position);
 		if($need_return){
 			return $return;
 		}else{
-			echo json_encode($return);	
+			server::output();
 		}
 	}
 	/**

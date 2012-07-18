@@ -39,7 +39,7 @@ class gamelist{
 		if(!self::$gamelist){
 			new gamelist();
 		}
-		server::add("gamelist", array("gamelist"=>self::$gamelist));
+		server::add("gamelist", self::$gamelist);
 		server::output();
 	}
 	/**
