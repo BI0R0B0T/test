@@ -77,7 +77,7 @@
 		
 		$r = 0;
 		self::$map_id = rand(1,100).time();
-		$db = game_db::db_conn(self::$map_id);
+		game_db::db_conn(self::$map_id);
 		for($i = 0; $i < 169; $i++){
 			if(in_array($i, $sea)){
 				$cell = cells::new_cell(28,$i);
@@ -86,10 +86,8 @@
 			}else{
 				$cell = cells::new_cell($list_of_possible_cells[$r++],$i);
 			}
-			$cell->save_cell_in_db($db);
+			$cell->save_cell_in_db();
 		}
-//		self::save_map($db);
-//		$db->save_map(self::$map);
 	} 
 	private function __clone(){
 		
@@ -104,7 +102,7 @@
 		$db = game_db::db_conn(self::$map_id);
 		if($db){
 			for($i = 0; $i < 169; $i++){
-				self::$map[] = cells::get_cell_from_db($db,$i);
+				self::$map[] = cells::get_cell_from_db($i);
 			}
 		}else{
 			self::$map[] = "no db ".self::$map_id;
@@ -113,10 +111,10 @@
 	/**
 	* Метод записывает сгенерированную карту в БД
 	**/
-	private static function save_map($db){
+	private static function save_map(){
 		$values = "";
 		foreach(self::$map as $cell){
-			$cell->save_cell_in_db($db);
+			$cell->save_cell_in_db();
 		}
 	}
 	/**

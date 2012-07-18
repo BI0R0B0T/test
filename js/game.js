@@ -5,13 +5,11 @@ var diametr = "20px";
 var game;
 var sid;
 var gameUpdate = new gameUpdater();
-//var gameStatus = 0; // 0-не играем, 1-наш ход, 2-не наш ход.
-//var global;
-//    global.gameStatus = 0; // 0-не играем, 1-наш ход, 2-не наш ход.
-
 var global = {
-	gameStatus: 0, 	// 0-не играем, 1-наш ход, 2-не наш ход.
-	type: 1
+	gameStatus: 0,			// 0-не играем, 1-наш ход, 2-не наш ход, 3 - ожидаем подключения остальных
+	type: 1,
+	gameStatusInterval: 1000, // Время через которое обновляется статус игры
+	intervalGameStatus: null	//Хранится ссылка на интервал обновления статуса игры
 }
 
 function serverConnect(message){
@@ -45,8 +43,9 @@ function game(){
         var g = conn.send(true);
         this.gameId = g["gameId"];
         sid = g["SID"];
-		global.gameStatus = 1;
-        document.location.href = "game.php?g="+this.gameId;
+        this.checkStatus();
+		global.gameStatus = 3;
+//        document.location.href = "game.php?g="+this.gameId;
 //        this.update();
 //        gameUpdate.start();
         g = null;
@@ -101,11 +100,43 @@ function game(){
 		document.getElementById("create_game").style.display = "block";
 		document.getElementById("select_option").style.display = "block";
 		document.getElementById("player_info").style.display = "none";
+		mapList.updateStop();
 	}
 	this.cancel = function(){
 		document.getElementById("create_game").style.display = "none";
 		document.getElementById("select_option").style.display = "none";
+		document.getElementById("wait_connection").style.display = "none";
 		document.getElementById("player_info").style.display = "block";
+		var elems = getElementsByClass("pop_up");
+		for (var i = 0; i < elems.length; i++) {
+			elems[i].style.display = "none";
+		}
+		clearInterval(global.intervalGameStatus);
+    	global.intervalGameStatus = null;
+    	mapList.updateStart();
+	}
+	this.checkStatus = function(){
+		document.getElementById("create_game").style.display = "block";
+		document.getElementById("select_option").style.display = "none";
+		document.getElementById("player_info").style.display = "none";
+		document.getElementById("wait_connection").style.display = "block";
+        var conn = new serverConnect(new message(11,this.gameId));
+        var status = conn.send(true);
+        if(status["gameId"] != undefined){
+			document.location.href = "game.php?g="+status["gameId"];
+        }
+        if(status["game_status"] == 2){
+        	if(!global.intervalGameStatus){ 
+        		window.setTimeout("game.checkStatus()",global.gameStatusInterval);
+//        		global.intervalGameStatus = setInterval("game.checkStatus()",global.gameStatusInterval)
+        	}
+			global.gameStatus = 3;
+			mapList.updateStop();
+        }else{
+			clearInterval(global.intervalGameStatus);
+    		global.intervalGameStatus = null;
+    		document.location.href = "game.php?g="+this.gameId;
+        }
 	}
 }
 function message(comandCode,comand){

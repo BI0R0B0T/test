@@ -41,6 +41,7 @@ class server{
             case 8: self::connect_game($req->comand);break;
             case 9: self::move_unit($req->comand);break;
             case 10: self::get_player_info($req->comand);break;
+            case 11: self::get_game_status($req->comand);break;
             default:
                     self::add("reason", "incorrect comand (0)");
                     self::return_fail();
@@ -127,10 +128,14 @@ class server{
     private static function stopgame(){
         if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
             game::stop_game($_SESSION["gameId"]);
-            unlink("../db/".$_SESSION["gameId"].".db") ;
-            $_SESSION["play"] = 0;
-            $_SESSION["gameId"] = null;
-            self::output();
+            if(unlink("../db/".$_SESSION["gameId"].".db")){
+	            $_SESSION["play"] = 0;
+	            $_SESSION["gameId"] = null;
+	            self::output();
+            }else{
+            	self::add("reason", "Can't drop file "."../db/".$_SESSION["gameId"].".db") ;
+				self::return_fail();
+            }
         }else{
             self::return_fail();
         }
@@ -230,5 +235,11 @@ class server{
 			self::add("player", (array)$player);
 			self::output();			
 		}
+	}
+	
+	private static function get_game_status($game_id){
+		$_SESSION["gameId"] = $game_id;
+		self::add("game_status",gamelist::get_game_status());
+		self::output();
 	}
 }

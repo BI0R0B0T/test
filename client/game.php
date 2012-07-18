@@ -25,7 +25,7 @@ w.attachEvent("onload", w.qbaka._ldr);qbaka.key='11811407e9cfd4d3525af7db009d862
 </head>
 <body>
 <?php
-  if(need_to_add()){
+/*  if(need_to_add()){
 	  $_SESSION = array(
 		"player_id" => (int)ceil(rand(0,100)),
 		"first_name" => "test".(int)rand(0,10),
@@ -40,9 +40,13 @@ w.attachEvent("onload", w.qbaka._ldr);qbaka.key='11811407e9cfd4d3525af7db009d862
   }else{
 //  	var_dump($_SESSION);
   }
+  */
   if(isset($_GET["g"])){
 	//Запустить игру
      $id = $_GET["g"];
+     if(!file_exists("../db/".$_GET["g"].".db")){
+		 echo "<script type=\"text/javascript\">document.location.href = \"game.php\"</script>";
+     }
 print <<<LABEL
 <script type="text/javascript" id="selector">
     window.onload = function(){
@@ -81,7 +85,7 @@ print <<<LABEL
 </div>
 <div id="player_info"></div>
 <div id="create_game">
-	<div id="select_option">
+	<div id="select_option" class="pop_up">
 		<header>Выберите тип игры</header>
 		<ul>
 			<li><a href="javascript:game.start(1)">1x1</a></li>
@@ -90,6 +94,12 @@ print <<<LABEL
 		</ul>
 		<footer><a href="javascript:game.cancel()">cancel </a></footer>
 	</div>
+</div>
+<div id="wait_connection" class="pop_up">
+	<header>Ожидаем остальных игроков</header>
+	<span class="spinner"></span>
+	<ul></ul>​
+	<footer><a href="javascript:game.cancel()">cancel </a></footer>
 </div>
 </body>
 </html>   

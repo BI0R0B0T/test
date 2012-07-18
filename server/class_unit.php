@@ -85,10 +85,9 @@ class unit{
 	* @version 0.2
 	*/
 	public function move_to($cell_id, $need_return = FALSE){
-		$db = game_db::db_conn();
 		loger::save(3,json_encode(array("start_move")), $_SESSION["player_id"]);
 		//Проверяем возможен ли такой ход
-		$prev_cell = cells::get_cell_from_db($db,$this->position);
+		$prev_cell = cells::get_cell_from_db($this->position);
 		if(!in_array($cell_id,$prev_cell->possible_next_cells)){
 			server::add("reason", "imposible move from ".$this->position." to ".$cell_id );
 			server::return_fail(); 
@@ -96,10 +95,10 @@ class unit{
 		if(!$need_return){$this->previous_position = $this->position;}
 		$this->position = $cell_id;
 		//получаем информацию о клетке на которую идет юнит
-		$cell = cells::get_cell_from_db($db,$cell_id);
+		$cell = cells::get_cell_from_db($cell_id);
 		server::add("you_move", 0);
 		if(30 == $cell->type){
-			$cell = cells::open_cell($db,$cell_id);
+			$cell = cells::open_cell($cell_id);
 			server::add("map", $cell);
 		}
 		//обрабатываем автомувы
@@ -134,7 +133,6 @@ class unit{
 	* @version 0.2
 	*/
 	public function checkPossibleMove(){
-		return TRUE;
 		$db = game_db::db_conn();
 		//Проверяем чей сейчас ход.
 		$previous = loger::who_was_last();

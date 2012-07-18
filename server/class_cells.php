@@ -109,7 +109,8 @@ abstract class cells{
 		return implode(",", array($this->cell_id,$this->type,$this->rotate, 
 						$this->can_stay_here?1:0, $open, $this->coins_count, $is_ship));
 	}
-	public function save_cell_in_db($db){
+	public function save_cell_in_db(){
+		$db = game_db::db_conn();
 		$sql = "INSERT INTO map( cell_id, type, rotate, can_stay_here, open, coins_count,"; 
 		$sql .= "ship_there) VALUES (".$this->cell_to_str().")";
 		$db->query($sql);
@@ -117,12 +118,12 @@ abstract class cells{
 	}
 	/**
 	* Возвращает объект cells из БД
-	* @param object $db SQLite3
 	* @param int $id
 	* @return object
-	* @version 0.1
+	* @version 0.2
 	*/
-	public static function get_cell_from_db($db,$id){
+	public static function get_cell_from_db($id){
+		$db = game_db::db_conn();
 		$sql = "SELECT  map.cell_id, map.type, map.rotate, map.can_stay_here, map.open, ";
 		$sql .= "map.coins_count, map.ship_there FROM map WHERE map.cell_id = ".$id;
 		$cell = $db->query($sql);
@@ -139,11 +140,12 @@ abstract class cells{
 		}
 		return $new_cell;
 	}
-	public static function open_cell($db,$id){
-		self::change_cell($db,$id,"open",1);
-		return self::get_cell_from_db($db,$id);
+	public static function open_cell($id){
+		self::change_cell($id,"open",1);
+		return self::get_cell_from_db($id);
 	}
-	public static function change_cell($db,$id,$property,$new_value){
+	public static function change_cell($id,$property,$new_value){
+		$db = game_db::db_conn();
 		$property_list = array("type", "open", "coins_count");
 		if(in_array($property, $property_list)){
 			if($property == "open" || "coins_count"){

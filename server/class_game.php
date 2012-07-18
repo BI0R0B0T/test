@@ -88,7 +88,7 @@ class game{
 			self::get_game($game_id);
 		}
 		$db = game_db::db_conn($game_id);
-		$cell = self::$map[$cell_id]->open_cell($db,$cell_id);
+		$cell = self::$map[$cell_id]->open_cell($cell_id);
 		server::add("cell",$cell);
 		server::output();
 	}
@@ -106,6 +106,7 @@ class game{
 		for($i = 0; $i < 3; $i++){
 			unit::born_unit_on_ship($_SESSION["player_number"]-1);
 		}
+		gamelist::update_game_status();
 		self::convert_2_JSON($_SESSION["gameId"]);
 	}
 	/**
