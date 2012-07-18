@@ -84,7 +84,7 @@ class unit{
 	* @return mixed array|void
 	* @version 0.2
 	*/
-	public function move_to($cell_id, $need_return = FALSE){
+	public function move_to($cell_id, $need_return = TRUE){
 		loger::save(3,json_encode(array("start_move")), $_SESSION["player_id"]);
 		//Проверяем возможен ли такой ход
 		$prev_cell = cells::get_cell_from_db($this->position);
@@ -92,22 +92,25 @@ class unit{
 			server::add("reason", "imposible move from ".$this->position." to ".$cell_id );
 			server::return_fail(); 
 		}
-		if(!$need_return){$this->previous_position = $this->position;}
+		//Взаимодействие с клеткой с которой уходит юнит
+		$prev_cell->move_out($this);
+		if($need_return){$this->previous_position = $this->position;}
 		$this->position = $cell_id;
 		//получаем информацию о клетке на которую идет юнит
 		$cell = cells::get_cell_from_db($cell_id);
-		server::add("you_move", 0);
 		if(30 == $cell->type){
 			$cell = cells::open_cell($cell_id);
-			server::add("map", $cell);
+			server::add("cell", $cell);
 		}
+		//взаимодействие с клеткой на которую пришел юнит
+		$cell->move_in($this);
 		//обрабатываем автомувы
 		if($cell->auto_move){
 			if(1==count($cell->possible_next_cells)){
 				$prev_return = $this->move_to($cell->possible_next_cells[0], TRUE);
 				if(isset($prev_return["map"]) && !empty($prev_return["map"])){
 					foreach($prev_return["map"] as $v){
-						server::add("map", $v);
+						server::add("cell", $v);
 					}
 				}
 				server::add("move_list", $prev_return["move_list"]);

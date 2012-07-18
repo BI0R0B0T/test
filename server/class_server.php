@@ -68,6 +68,7 @@ class server{
     	switch ($field){
 			case "unit":    self::$responce["units"][] = $data; break;
 			case "move_list": self::$responce["move_list"][] = $data; break;
+			case "cell": self::$responce["map"][] = $data; break;
 			default:  self::$responce[$field] = $data;
     	}
     }
@@ -221,6 +222,9 @@ class server{
     private static function move_unit($move){
         $unit = unit::get_unit_from_db($move[0]);
         if($unit->checkPossibleMove()){
+        	//действие клеток на юниты
+        	
+        	//перемещение юнита
             $unit->move_to($move[1]);
         }else{
             self::return_fail();
