@@ -15,6 +15,7 @@ class user_info
 	public $player_number;	//номер пользователя на поле (1-4)  
 	public $coins = 0;
 	public $color;
+	public $move_finished = TRUE;
 	private static $color_array = array(1=>0xffffff, 2=>0xff0000, 3=>0x0000ff, 4=>0x000000);
 	
 	public function __construct($id, $first_name='', $last_name='', $photo='', $photo_rec='', $online=FALSE, $played = FALSE, $color = 0xff0000, $number = 1)

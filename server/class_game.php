@@ -47,7 +47,7 @@ class game{
 		$id = explode(".",self::$game_id);
 		echo json_encode(array("gameId"=>$id[0], "SID" => session_id()));
 		gamelist::add_game($id[0]);
-		loger::save(0,json_encode(array("start game", $_SESSION["game_type"], $_SESSION["game_desc"])), $_SESSION["player_id"]);
+		loger::save(0,json_encode(array("start game", $_SESSION["game_type"], $_SESSION["game_desc"])));
 		return self::$game_id;
 	}
 	public static function get_game($game_id){
@@ -97,7 +97,7 @@ class game{
 										$_SESSION["photo_rec"],1,$_SESSION["play"]
 										);
 		$_SESSION["player_number"] = self::$player_id->save_in_db();
-		loger::save(1,json_encode(array("add_player")), $_SESSION["player_id"]);
+		loger::save(1,json_encode(array("add_player")));
 		for($i = 0; $i < 3; $i++){
 			unit::born_unit_on_ship($_SESSION["player_number"]-1);
 		}
@@ -115,13 +115,26 @@ class game{
 	*/
 	public static function get_unit($id){
 		 if(!isset(self::$units[$id])){
-			  self::$units[$id] = unit::get_unit_from_db($id);
+			  self::$units = unit::get_units_from_db();
 		 }
 		 return self::$units[$id];
 	}	
 	public static function get_units(){
 		 return self::$units;
 	}	
+	/**
+	* @param int $cell_id
+	* @return array
+	*/
+	public static function get_units_from_cell($cell_id){
+		$return = array();
+		foreach(self::$units as $id=>$unit){
+			if($unit->position == $cell_id){
+				$return[$id] = $unit;
+			}
+		}
+		return $return;
+	}
 	/**
 	* @param object $player
 	*/
@@ -206,6 +219,13 @@ class game{
 			self::$map[$cell_id] = cells::get_cell_from_db($cell_id);
 		}
 		return self::$map[$cell_id];
+	}
+	/**
+	* @param object $cell class cells
+	* @version 0.1
+	*/
+	public static function add_cell($cell){
+		self::$map[$cell->cell_id] = $cell;
 	}
 }
 ?>

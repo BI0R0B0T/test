@@ -85,7 +85,7 @@ class unit{
 	* @version 0.3
 	*/
 	public function move_to($cell_id, $need_return = TRUE){
-		loger::save(3,json_encode(array("start_move")), $_SESSION["player_id"]);
+		loger::save(3,json_encode(array("start_move")));
 		//Проверяем возможен ли такой ход
 		$prev_cell = cells::get_cell_from_db($this->position);
 		if(!in_array($cell_id,$prev_cell->possible_next_cells)){
@@ -106,9 +106,18 @@ class unit{
 		$this->possible_move = $cell->possible_next_cells;
 		$this->save_unit_property();
 		server::add("move_list", array($this->previous_position, $this->position));
+		loger::save(4,json_decode(array($this->previous_position, $this->position)));
 		if($need_return){
 			game::add_unit($this);
 			server::add("units", game::get_units());
+			$player = game::get_player($_SESSION["player_id"]);
+			if($player->move_finished){
+				server::add("you_move", 0);
+				loger::save(5,"move finished");
+			}else{
+				server::add("you_move", 1);
+			}
+			
 			server::output();
 		}else{
 			return;

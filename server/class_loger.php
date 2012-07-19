@@ -31,10 +31,9 @@ class loger{
 	* Сохранение данной записи в БД
 	* @param int $type - тип записи
 	* @param string $text текст записи в формате JSON
-	* @param int $id id пользователя
 	*/
-	public static function save($type, $text, $id){
-		$log = new loger($type, $text, $id);
+	public static function save($type, $text){
+		$log = new loger($type, $text, $_SESSION["player_id"]);
 		$db = game_db::db_conn();
 		$sql = "INSERT INTO log('id','text','type','who_add') VALUES (null, '";
 		$sql.= $log->text."', ";
@@ -55,7 +54,7 @@ class loger{
 	*/
 	public static function who_was_last(){
 		$db = game_db::db_conn();
-		$sql = "SELECT log.who_add FROM log WHERE log.type = 3 ORDER BY log.'id' DESC LIMIT 1";
+		$sql = "SELECT log.who_add FROM log WHERE log.type = 5 ORDER BY log.'id' DESC LIMIT 1";
 		$res = $db->query($sql);
 		game_db::check_error($sql);
 		$later = $res->fetchArray(SQLITE3_ASSOC);

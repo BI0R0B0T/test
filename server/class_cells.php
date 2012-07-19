@@ -149,7 +149,7 @@ abstract class cells{
 		$db = game_db::db_conn();
 		$property_list = array("type", "open", "coins_count");
 		if(in_array($property, $property_list)){
-			if($property == "open" || "coins_count"){
+			if($property == "open" || $property == "coins_count"){
 				$sql = "UPDATE map SET $property = $new_value WHERE map.cell_id = $id";
 			}else{
 				
@@ -272,12 +272,28 @@ abstract class cells{
 		}
 		return $coordinate;
 	}
+	public function update_info_in_db(){
+		$db = game_db::db_conn();
+		$sql = "UPDATE map SET ";
+		$sql.= "type = ".$this->type.", ";
+		$sql.= "rotate = ".$this->rotate.", ";
+		$sql.= "can_stay_here = ".($this->can_stay_here?1:0)." ,";
+		$sql.= "open = ".(is_a($this, "closed")?0:1).", ";
+		$sql.= "coins_count = ".$this->coins_count.", ";
+		$sql.= "ship_there = ".($this->ship_there?1:0)." ";
+		$sql.= "WHERE map.cell_id = 1";
+		$db->query($sql);
+		game_db::check_error($sql);
+	}
 	/**
 	* Действие которое происходит когда юнит приходит на клетку
 	* 
 	* @param object $unit 
 	*/
-	public function move_in($unit){}
+	public function move_in($unit){
+		$this->count++;
+		//Тут будет вызов метода взаимодействия с юнитами на этой клетке
+	}
 	/**
 	* Действие которое происходит когда пользователь уходит с клетки
 	* 
@@ -296,11 +312,12 @@ class automove_cell extends cells{
 	public $can_stay_here = FALSE;
 	public $auto_move = TRUE;
 	public function move_in($unit){
-		$this->count++;
+		parent::move_in($unit);
 		if(1==count($this->possible_next_cells)){
 			$prev_return = $unit->move_to($this->possible_next_cells[0], FALSE);
 		}else{
-			server::add("you_move", 1);
+			$player = game::get_player($_SESSION["player_id"]);
+			$player->move_finished = FALSE;
 		}
 	}
 }
@@ -430,8 +447,10 @@ class ice extends automove_cell{
 	function __construct(){
 		return $this;
 	}
-	function cell_action(){
-		repeat_move();
+	function move_in($unit){
+		parent::move_in($unit);
+		$next_cell_id = $this->cell_id + ($unit->position - $unit->previous_position);
+		$unit->move_to($next_cell_id,FALSE);
 	}
 }
 class catcher extends singlestep{
@@ -562,6 +581,25 @@ class sea extends cells{
 	function __construct(){
 		$this->possible_move = array(0 => array(13,14), 1=>array(13,14), 13=>array(1,14),26=>array(14), 2=>array(14), 14=>array(0,1,2,13,26), 12 => array(24,25), 11=>array(24,25), 25=>array(11,24), 10=>array(24), 24=>array(10,11,12,25,38), 38=>array(24), 156=>array(143,144), 157=>array(143,144), 158=>array(144), 143=>array(144,157), 130=>array(144), 144=>array(130,143,156,157,158),142=>array(154), 155=>array(154,167), 168=>array(154,155), 167=>array(154,155), 166=>array(154), 154=>array(142,155,166,167,168));
 		return $this;
+	}
+	function move_in($unit){
+		parent::move_in($unit);
+		if(!in_array($this->cell_id,
+				array(0,1,11,12,13,14,24,25,143,144,154,155,156,157,167,168))){
+					$prev_cell = game::get_cell($unit->previous_position);
+					if(is_a($prev_cell,"ship")){
+						//Перемещение корабля за игроком
+						$prev_id = $prev_cell->cell_id;
+						$prev_cell->cell_id = $this->cell_id;
+						$this->cell_id = $prev_id;
+						$this->update_info_in_db();
+						$prev_cell->update_info_in_db();
+						server::add("cell",$this);
+						server::add("cell",$prev_cell);
+						//Перемещение юнитов на корабле за кораблем
+						
+					}	
+				}
 	}
 }
 class ship extends cells{
