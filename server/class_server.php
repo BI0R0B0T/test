@@ -217,11 +217,11 @@ class server{
     /**
      * Перемещение юнитов по карте
      * @param array $move
-     * @version 0.2
+     * @version 0.3
      */
     private static function move_unit($move){
-        $unit = unit::get_unit_from_db($move[0]);
-        if($unit->checkPossibleMove()){
+		$unit = game::get_unit($move[0]);
+        if(game::checkPossibleMove()){
         	//действие клеток на юниты
         	
         	//перемещение юнита

@@ -81,8 +81,8 @@ class unit{
 	* Перемещение юнита по полю
 	* @param int $cell_id
 	* @param boolean $need_return
-	* @return mixed array|void
-	* @version 0.2
+	* @return void
+	* @version 0.3
 	*/
 	public function move_to($cell_id, $need_return = TRUE){
 		loger::save(3,json_encode(array("start_move")), $_SESSION["player_id"]);
@@ -97,81 +97,22 @@ class unit{
 		if($need_return){$this->previous_position = $this->position;}
 		$this->position = $cell_id;
 		//получаем информацию о клетке на которую идет юнит
-		$cell = cells::get_cell_from_db($cell_id);
+		$cell = game::get_cell($cell_id);
 		if(30 == $cell->type){
-			$cell = cells::open_cell($cell_id);
-			server::add("cell", $cell);
+			$cell = game::open_cell($cell_id);
 		}
 		//взаимодействие с клеткой на которую пришел юнит
 		$cell->move_in($this);
-		//обрабатываем автомувы
-		if($cell->auto_move){
-			if(1==count($cell->possible_next_cells)){
-				$prev_return = $this->move_to($cell->possible_next_cells[0], TRUE);
-				if(isset($prev_return["map"]) && !empty($prev_return["map"])){
-					foreach($prev_return["map"] as $v){
-						server::add("cell", $v);
-					}
-				}
-				server::add("move_list", $prev_return["move_list"]);
-			}
-			server::add("you_move", 1);
-		}
 		$this->possible_move = $cell->possible_next_cells;
 		$this->save_unit_property();
-		game::add_unit($this);
-		server::add("units", game::get_units());
 		server::add("move_list", array($this->previous_position, $this->position));
-		$return["units"][] = $this;
-		$return["move_list"][] = array($this->previous_position, $this->position);
 		if($need_return){
-			return $return;
-		}else{
+			game::add_unit($this);
+			server::add("units", game::get_units());
 			server::output();
+		}else{
+			return;
 		}
-	}
-	/**
-	* Проверка на то может ли данный юнит сейчас двигаться
-	* @return boolean
-	* @version 0.2
-	*/
-	public function checkPossibleMove(){
-		$db = game_db::db_conn();
-		//Проверяем чей сейчас ход.
-		$previous = loger::who_was_last();
-		if($previous == $_SESSION["player_id"]){
-			echo json_encode(array("status"=>"FAIL", 
-									"info"=>"This isn't your turn. Reason 1"));
-			return FALSE;
-		}
-		if($this->who_will_next($previous) != $_SESSION["player_id"]){
-			echo json_encode(array("status"=>"FAIL", 
-									"info"=>"This isn't your turn. Reason 2 (id = ".$_SESSION["player_id"]
-											." want ".$this->who_will_next($previous).")"));
-			return FALSE;
-		}
-		return TRUE;
-	}
-	/**
-	* Возвращает id игрока кто должен ходить следующим
-	* @param int $previous id предыдущего игрока
-	* @return int
-	* @version 0.1
-	*/
-	private function who_will_next($previous){
-		$db = game_db::db_conn();
-		$sql ="SELECT players.player_id FROM players WHERE players.played = 1";
-		$res = $db->query($sql);
-		game_db::check_error($sql);
-		$users = array();
-		$next = FALSE;
-		while($user = $res->fetchArray(SQLITE3_ASSOC)){
-			if(TRUE == $next){ return $user['player_id'];}
-			$users[] = $user['player_id'];
-			if($user['player_id'] == $previous){ $next = TRUE; }
-		}
-		
-		return $users[0];
 	}
 }
 ?>

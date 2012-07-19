@@ -6,30 +6,22 @@ class gamelist{
 	* Проверяет можно ли подключится к данной игре в качестве игрока
 	* @param int $game_id
 	* @return boolean
-	* @version 0.1
+	* @version 0.2
 	*/
 	public static function can_connect($game_id){
 		self::get_db();
-		$sql = "SELECT player1, player2, player3, player4 FROM games WHERE game_db = ".$game_id;
+		$sql = "SELECT player1, player2, player3, player4, game_type FROM games WHERE game_db = ".$game_id;
 		$res = self::$game_db->query($sql);
 		game_stat::check_error($sql);
-		$count = 0;
-		$res_arr = $res->fetchArray(SQLITE3_ASSOC);
-		foreach($res_arr as $k=>$v){
-			if($v != "" || $v != NULL) { $count++; }
-		}
-		if($count < 4){
-			return TRUE;
-		}else{
-/*			var_dump($count);
-			$res = self::$game_db->query("SELECT * FROM games");
-			$return = array();
-			while($add = $res->fetchArray(SQLITE3_ASSOC)){
-				$return[] = $add;
+		$max = (1==$res["game_type"]?2:4);
+		$can = FALSE;
+		for($i = 1; $i<=$max; $i++){
+			if(!$res["player".$i]){
+				$can = TRUE;
+				break;
 			}
-			var_dump($return);
-*/			return FALSE;
 		}
+		return $can;
 	}
 	/**
 	* Печатает список доступныъ игр

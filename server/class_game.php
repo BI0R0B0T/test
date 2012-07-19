@@ -78,18 +78,13 @@ class game{
 	}
 	/**
 	* Функция открывает закрытую клетку
-	* @param int $game_id идентификатор текущей игры (в последующей версии нужно убрать)
 	* @param int $cell_id идентификатор клетки
 	* @return void
 	* @version 0.1
 	*/
-	public static function open_cell($game_id, $cell_id){
-		if(is_null(self::$map)){
-			self::get_game($game_id);
-		}
-		$db = game_db::db_conn($game_id);
-		$cell = self::$map[$cell_id]->open_cell($cell_id);
-		server::add("cell",$cell);
+	public static function open_cell($cell_id){
+		self::$map[$cell_id]=cells::open_cell($cell_id);
+		server::add("cell",self::$map[$cell_id]);
 		server::output();
 	}
 	/**
@@ -164,6 +159,53 @@ class game{
 		$sql.=$_SESSION["player_id"].",null,null,null,".$_SESSION["game_type"].")";
 		$db->query($sql);
 		game_db::check_error($sql);
+	}
+	/**
+	* Возвращает ID игрока чей ход следующий
+	* @return int 
+	* @version 0.1
+	*/
+	public static function who_next(){
+		$previous_id = loger::who_was_last();
+		$previous = self::get_player($previous_id);
+		$db = game_db::db_conn();
+		$sql = "SELECT games.player1_id,games.player2_id,games.player3_id,games.player4_id,games.game_type ";
+		$sql.="FROM games";
+		$res = $db->query($sql);
+		game_db::check_error();
+		$res = $res->fetchArray(SQLITE3_ASSOC);
+		$max = (1==$res["game_type"]?2:4);
+		if($previous->player_number == $max){
+			$next_number = 1;
+		}else{
+			$next_number = $previous->player_number+1;
+		}	
+		return $res["player".$next_number."_id"];
+	}
+		/**
+	* Проверка на то может ли данный игрок сейчас ходить
+	* @return boolean
+	* @version 0.3
+	*/
+	public static function checkPossibleMove(){
+		if(self::who_next() == $_SESSION["player_id"]){
+			return TRUE;
+		}else{
+			server::add("reason", "This isn't your turn. Reason 2 (id = ".$_SESSION["player_id"]
+											." want ".$this->who_will_next($previous).")");
+			server::return_fail();
+		}
+	}
+	/**
+	* @param int $cell_id id клетки
+	* @return object class cells
+	* @version 0.1
+	*/
+	public static function get_cell($cell_id){
+		if(!isset(self::$map[$cell_id])){
+			self::$map[$cell_id] = cells::get_cell_from_db($cell_id);
+		}
+		return self::$map[$cell_id];
 	}
 }
 ?>

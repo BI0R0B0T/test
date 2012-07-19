@@ -18,10 +18,10 @@ class player
     public $photo_rec;
     public function __construct($add){
         $this->player_id = $add["player_id"];
-        $this->first_name   = is_null($add["first_name"])?"no":$add["first_name"];
-        $this->last_name   = is_null($add["last_name"])?"no":$add["last_name"];
+        $this->first_name= is_null($add["first_name"])?"no":$add["first_name"];
+        $this->last_name = is_null($add["last_name"])?"no":$add["last_name"];
         $this->photo     = is_null($add["photo"])?"no":$add["photo"];
-        $this->photo_rec   = is_null($add["photo_rec"])?"no":$add["photo_rec"];
+        $this->photo_rec = is_null($add["photo_rec"])?"no":$add["photo_rec"];
     }
     /**
     * Вырезает из GET запроса информацию о игроке
@@ -41,14 +41,14 @@ class player
 	* @return void
 	*/
 	public function add_in_session(){
-		$_SESSION["player_id"] =   $this->player_id;
-		$_SESSION["first_name"] =   $this->first_name;
-		$_SESSION["last_name"] =   $this->last_name;
-		$_SESSION["photo"] =     $this->photo;
-		$_SESSION["photo_rec"] =   $this->photo_rec;
-		$_SESSION["SID"] =       session_id();
-		$_SESSION["play"] =     0;
-		$_SESSION["gameId"] =     null;
+		$_SESSION["player_id"]	= $this->player_id;
+		$_SESSION["first_name"]	= $this->first_name;
+		$_SESSION["last_name"]	= $this->last_name;
+		$_SESSION["photo"]		= $this->photo;
+		$_SESSION["photo_rec"]	= $this->photo_rec;
+		$_SESSION["SID"]		= session_id();
+		$_SESSION["play"]		= 0;
+		$_SESSION["gameId"]		= null;
  	}
 	public static function get_from_db($id){
 		$db = game_stat::get_db();

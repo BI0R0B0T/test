@@ -13,6 +13,7 @@ abstract class cells{
 	public $ship_there = FALSE;
 	protected $possible_move = array();//массив возможных перемещений, каждое перемещение это координаты (x,y)
 	public $possible_next_cells = array();
+	private $count = 0; //Сколько раз пользователь был на этой клетке за ход
 	/**
 	* @desc на основании типа вызывает генерацию нового объекта данного типа
 	* @param int $type
@@ -294,7 +295,14 @@ abstract class cells{
 class automove_cell extends cells{
 	public $can_stay_here = FALSE;
 	public $auto_move = TRUE;
-	
+	public function move_in($unit){
+		$this->count++;
+		if(1==count($this->possible_next_cells)){
+			$prev_return = $unit->move_to($this->possible_next_cells[0], FALSE);
+		}else{
+			server::add("you_move", 1);
+		}
+	}
 }
 class singlestep extends cells{
 	//Все клетки с возможным движением на одну клетку в любую сторону
