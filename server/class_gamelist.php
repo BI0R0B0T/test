@@ -10,10 +10,11 @@ class gamelist{
 	*/
 	public static function can_connect($game_id){
 		self::get_db();
-		$sql = "SELECT player1, player2, player3, player4, game_type FROM games WHERE game_db = ".$game_id;
+		$sql = "SELECT player1, player2, player3, player4, type FROM games WHERE game_db = ".$game_id;
 		$res = self::$game_db->query($sql);
 		game_stat::check_error($sql);
-		$max = (1==$res["game_type"]?2:4);
+		$res = $res->fetchArray(SQLITE3_ASSOC);
+		$max = (1==$res["type"]?2:4);
 		$can = FALSE;
 		for($i = 1; $i<=$max; $i++){
 			if(!$res["player".$i]){

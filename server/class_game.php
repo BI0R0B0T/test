@@ -114,10 +114,20 @@ class game{
 	* @param int $id
 	*/
 	public static function get_unit($id){
-		 if(!isset(self::$units[$id])){
-			  self::$units = unit::get_units_from_db();
-		 }
-		 return self::$units[$id];
+		if($id[0] == "u"){
+			$i++;
+			$unit_id = "";
+			while($id[$i]){
+				$$unit_id = $id[$i++];
+			}
+			
+		}else{
+			$unit_id = $id;
+		}
+		if(!isset(self::$units[$unit_id])){
+			self::$units = unit::get_units_from_db();
+		}
+		return self::$units[$unit_id];
 	}	
 	public static function get_units(){
 		 return self::$units;
@@ -185,7 +195,7 @@ class game{
 		$sql = "SELECT games.player1_id,games.player2_id,games.player3_id,games.player4_id,games.game_type ";
 		$sql.="FROM games";
 		$res = $db->query($sql);
-		game_db::check_error();
+		game_db::check_error($sql);
 		$res = $res->fetchArray(SQLITE3_ASSOC);
 		$max = (1==$res["game_type"]?2:4);
 		if($previous->player_number == $max){
