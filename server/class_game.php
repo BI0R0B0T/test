@@ -122,13 +122,16 @@ class game{
 		}else{
 			$unit_id = $id;
 		}
-		if(!isset(self::$units[$unit_id])){
+		if(!self::$units) {
 			self::$units = unit::get_units_from_db();
 		}
 		return self::$units[$unit_id];
 	}	
 	public static function get_units(){
-		 return self::$units;
+		if(!self::$units) {
+			self::$units = unit::get_units_from_db();
+		}
+		return self::$units;
 	}	
 	/**
 	* @param int $cell_id
@@ -136,6 +139,9 @@ class game{
 	*/
 	public static function get_units_from_cell($cell_id){
 		$return = array();
+		if(!self::$units) {
+			self::$units = unit::get_units_from_db();
+		}
 		foreach(self::$units as $id=>$unit){
 			if($unit->position == $cell_id){
 				$return[$id] = $unit;
@@ -234,6 +240,24 @@ class game{
 	*/
 	public static function add_cell($cell){
 		self::$map[$cell->cell_id] = $cell;
+	}
+	/**
+	* Возвращает клетку с кораблем, для данного пользователя
+	* @param int $master_id
+	* @return object class cells
+	*/
+	public static function get_ship($master_id){
+		$db = game_db::db_conn();
+		$sql = "SELECT map.cell_id FROM map WHERE map.type = 29";
+		$res = $db->query($sql);
+		game_db::check_error($sql);
+		$i = 1;
+		$resault = array();
+		while($a = $res->fetchArray(SQLITE3_ASSOC)){
+			$resault[$i++] = $a["cell_id"];
+		}
+		$player = self::get_player($master_id);
+		return self::get_cell($resault[$player->player_number]);
 	}
 }
 ?>

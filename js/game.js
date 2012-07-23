@@ -8,7 +8,7 @@ var gameUpdate = new gameUpdater();
 var global = {
 	gameStatus: 0,			// 0-не играем, 1-наш ход, 2-не наш ход, 3 - ожидаем подключения остальных
 	type: 1,
-	gameStatusInterval: 1000, // Время через которое обновляется статус игры
+	gameStatusInterval: 2000, // Время через которое обновляется статус игры
 	intervalGameStatus: null	//Хранится ссылка на интервал обновления статуса игры
 }
 
@@ -107,10 +107,10 @@ function game(){
 		document.getElementById("select_option").style.display = "none";
 		document.getElementById("wait_connection").style.display = "none";
 		document.getElementById("player_info").style.display = "block";
-		var elems = getElementsByClass("pop_up");
-		for (var i = 0; i < elems.length; i++) {
-			elems[i].style.display = "none";
-		}
+//		var elems = document.getElementsByClass("pop_up");
+//		for (var i = 0; i < elems.length; i++) {
+//			elems[i].style.display = "none";
+//		}
 		clearInterval(global.intervalGameStatus);
     	global.intervalGameStatus = null;
     	mapList.updateStart();
@@ -127,8 +127,8 @@ function game(){
         }
         if(status["game_status"] == 2){
         	if(!global.intervalGameStatus){ 
-        		window.setTimeout("game.checkStatus()",global.gameStatusInterval);
-//        		global.intervalGameStatus = setInterval("game.checkStatus()",global.gameStatusInterval)
+//        		window.setTimeout("game.checkStatus()",global.gameStatusInterval);
+        		global.intervalGameStatus = setInterval("game.checkStatus()",global.gameStatusInterval)
         	}
 			global.gameStatus = 3;
 			mapList.updateStop();

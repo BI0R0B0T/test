@@ -515,17 +515,18 @@ class cannibal extends cells{
 	function __construct(){
 		return $this;
 	}
-	function cell_action(){
-		kill_pirate();
+	function move_in($unit){
+		$unit->unit_die();
 	}
 }
-class aerostat extends automove_cell{
+class aerostat extends cells{
 	//21 - 2 воздушный шар 
 	function __construct(){
 		return $this;
 	}
-	function cell_action(){
-		move_to_sheep();
+	function move_in($unit){
+		parent::move_in($unit);
+		$unit->go_to_ship();
 	}
 }
 class airplane extends cells{
@@ -601,14 +602,14 @@ class sea extends cells{
 						foreach($units as $k=>$u){
 							if($k == $unit->id){ continue; }
 							$u->unit_die();
-							loger::save(6,$u->id);
 						}
 						//Перемещение юнитов на корабле за кораблем
 						$units = game::get_units_from_cell($this->cell_id);
 						foreach($units as $k=>$u){
 							if($k == $unit->id){ continue; }
 							$u->previous_position = $u->position;
-							$u->position = $this->cell_id;
+							$u->position = $prev_cell->cell_id;
+							$u->possible_move = $prev_cell->possible_next_cells;
 							$u->save_unit_property();
 							server::add("move_list",array($u->previous_position, 
 																$u->position));

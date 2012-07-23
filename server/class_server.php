@@ -23,6 +23,7 @@ class server{
      * @return void
      */
     public static function input($request){
+		game::get_ship(1);
         $req = json_decode($request);
         if(!$req){
             self::add("reason", "no data");

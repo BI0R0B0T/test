@@ -39,6 +39,9 @@ class unit{
 		}
 		return $units;
 	}
+	/**
+	* save unit property in game_db
+	*/
 	function save_unit_property(){
 		$db = game_db::db_conn();
 		$sql = "UPDATE units SET have_coin = ".($this->have_coins?1:0).", waiting_time = ".$this->waitng_time;
@@ -110,7 +113,6 @@ class unit{
 		loger::save(4,json_encode(array($this->id=>array($this->previous_position, 
 														$this->position))));
 		if($need_return){
-			game::add_unit($this);
 			server::add("units", game::get_units());
 			$player = game::get_player($_SESSION["player_id"]);
 			if($player->move_finished){
@@ -133,7 +135,7 @@ class unit{
 	*
 	*/
 	public function unit_die(){
-		
+		loger::save(6,$this->id);
 	}
 	/**
 	* Убийство юнита. Юнит моментально воскрешается на корабле. Без монет и всего что с ним было.
@@ -152,7 +154,8 @@ class unit{
 	* перемещение юнита на корабль со всем добром.
 	*/
 	public function go_to_ship(){
-		
+		$ship = game::get_ship($this->master);
+		$this->move_to($ship->cell_id);
 	}
 }
 ?>
