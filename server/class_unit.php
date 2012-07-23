@@ -99,14 +99,15 @@ class unit{
 		//получаем информацию о клетке на которую идет юнит
 		$cell = game::get_cell($cell_id);
 		if(30 == $cell->type){
-			$cell = game::open_cell($cell_id);
+			$cell = cells::open_cell($cell_id);
+			server::add("cell",$cell);
 		}
 		//взаимодействие с клеткой на которую пришел юнит
 		$cell->move_in($this);
 		$this->possible_move = $cell->possible_next_cells;
 		$this->save_unit_property();
 		server::add("move_list", array($this->previous_position, $this->position));
-		loger::save(4,json_decode(array($this->previous_position, $this->position)));
+		loger::save(4,json_encode(array($this->previous_position, $this->position)));
 		if($need_return){
 			game::add_unit($this);
 			server::add("units", game::get_units());

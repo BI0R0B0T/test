@@ -9,9 +9,10 @@
 <?php
 	ini_set('display_errors','On');
 	require_once("server/config.php");
-	echo "<a href=\"http://oauth.vk.com/authorize?client_id=".APP_ID."&scope=friends,offline&redirect_uri=".
+	echo "<ul><li><a href=\"http://oauth.vk.com/authorize?client_id=".APP_ID."&scope=friends,offline&redirect_uri=".
 	"http://kodomo.fbb.msu.ru/~dolgov/piraty/graber.html&display=popup&response_type=token\"".
-	"title=\"Зайти через ВКонтакте\">Зайти через ВКонтакте</a>";
+	"title=\"Зайти через ВКонтакте\">Зайти через ВКонтакте</a></li>".
+	"<li><a href =\"http://localhost/piraty/client/test_user.php\">as test</a></li></ul>";
 ?>
 </body>
 </html>

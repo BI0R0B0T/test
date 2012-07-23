@@ -115,11 +115,15 @@ class game{
 	*/
 	public static function get_unit($id){
 		if($id[0] == "u"){
-			$i++;
+//			$i=5;
 			$unit_id = "";
-			while($id[$i]){
-				$$unit_id = $id[$i++];
+			$strlen = strlen($id);
+			for($i = 5; $i<=$strlen;$i++){
+				$unit_id .= $id{$i++};
 			}
+//			while($id{$i}){
+//				$unit_id .= $id{$i++};
+//			}
 			
 		}else{
 			$unit_id = $id;
@@ -215,7 +219,7 @@ class game{
 			return TRUE;
 		}else{
 			server::add("reason", "This isn't your turn. Reason 2 (id = ".$_SESSION["player_id"]
-											." want ".$this->who_will_next($previous).")");
+											." want ".self::who_next().")");
 			server::return_fail();
 		}
 	}

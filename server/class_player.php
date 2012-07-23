@@ -20,8 +20,8 @@ class player
         $this->player_id = $add["player_id"];
         $this->first_name= is_null($add["first_name"])?"no":$add["first_name"];
         $this->last_name = is_null($add["last_name"])?"no":$add["last_name"];
-        $this->photo     = is_null($add["photo"])?"no":$add["photo"];
-        $this->photo_rec = is_null($add["photo_rec"])?"no":$add["photo_rec"];
+        $this->photo     = is_null($add["photo"])?"../pic/no_photo.png":$add["photo"];
+        $this->photo_rec = is_null($add["photo_rec"])?"../pic/no_photo.png":$add["photo_rec"];
     }
     /**
     * Вырезает из GET запроса информацию о игроке

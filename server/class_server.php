@@ -225,7 +225,7 @@ class server{
         	//действие клеток на юниты
         	
         	//перемещение юнита
-            $unit->move_to($move[1]);
+            $unit->move_to($move[1], TRUE);
         }else{
             self::return_fail();
         }
