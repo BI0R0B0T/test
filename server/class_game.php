@@ -79,13 +79,12 @@ class game{
 	/**
 	* Функция открывает закрытую клетку
 	* @param int $cell_id идентификатор клетки
-	* @return void
-	* @version 0.1
+	* @return object class cells
+	* @version 0.2
 	*/
 	public static function open_cell($cell_id){
 		self::$map[$cell_id]=cells::open_cell($cell_id);
-		server::add("cell",self::$map[$cell_id]);
-		server::output();
+		return self::$map[$cell_id];
 	}
 	/**
 	* Фнкция добавляет нового игрока в игру
@@ -115,16 +114,11 @@ class game{
 	*/
 	public static function get_unit($id){
 		if($id[0] == "u"){
-//			$i=5;
 			$unit_id = "";
 			$strlen = strlen($id);
 			for($i = 5; $i<=$strlen;$i++){
 				$unit_id .= $id{$i++};
 			}
-//			while($id{$i}){
-//				$unit_id .= $id{$i++};
-//			}
-			
 		}else{
 			$unit_id = $id;
 		}

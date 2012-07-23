@@ -42,6 +42,7 @@ class server{
             case 9: self::move_unit($req->comand);break;
             case 10: self::get_player_info($req->comand);break;
             case 11: self::get_game_status($req->comand);break;
+            case 12: self::get_log($req->comand);break;
             default:
                     self::add("reason", "incorrect comand (0)");
                     self::return_fail();
@@ -154,10 +155,11 @@ class server{
     /**
      * Открываем клетку (открыта для тестирования, потом закрою)
      * @param int $cell_id
-     *
      */
     private static function open_cell($cell_id){
-        game::open_cell($_SESSION["gameId"],$cell_id);
+		self::add("cell",game::open_cell($_SESSION["gameId"],$cell_id));
+		self::output();
+
     }
     /**
      * выход из игры (игра не удаляется)
@@ -231,19 +233,30 @@ class server{
         }
     }
 	
-	private static function get_player_info($id){
+	private static function get_player_info($id = FALSE){
 		if($id){
-			
+			//Выводит информацию по конкретному пользователю
+			$player = game::get_player($id);
 		}else{
+			//Выводит информацию по текущему пользователю (чья сессия)
 			$player = new player($_SESSION);
-			self::add("player", (array)$player);
-			self::output();			
 		}
+		self::add("player", (array)$player);
+		self::output();			
 	}
 	
 	private static function get_game_status($game_id){
 		$_SESSION["gameId"] = $game_id;
 		self::add("game_status",gamelist::get_game_status());
+		self::output();
+	}
+	/**
+	* Выводит какие события произошли начиная с указанного события
+	* @param int $from id с какого начиная выводятся логи
+	*/
+	private static function get_log($from){
+		self::add("you_move",(game::who_next() == $_SESSION["player_id"])?1:0);
+		loger::get_from((int)$from);
 		self::output();
 	}
 }

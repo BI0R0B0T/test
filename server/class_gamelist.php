@@ -171,7 +171,7 @@ class gamelist{
 		$res = $res->fetchArray(SQLITE3_ASSOC);
 		if($res["played_now"] != 1){ 
 			server::add("info","don't need update game_status");
-			return;
+			server::output();
 		}
 		$full = TRUE;
 		for($i = 1; $i<=$res["player_number"]; $i++){

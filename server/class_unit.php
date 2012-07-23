@@ -10,7 +10,7 @@ class unit{
 	public $color;
 	private $master;
 	private $waitng_time;
-	private $previous_position;
+	public $previous_position;
 	function __construct($id, $master,$position, $die, $have_coins, $cell_part,
 						$waitng_time, $previous_position,$possible_move=array()){
 		$this->master = $master;
@@ -85,29 +85,30 @@ class unit{
 	* @version 0.3
 	*/
 	public function move_to($cell_id, $need_return = TRUE){
-		loger::save(3,json_encode(array("start_move")));
 		//Проверяем возможен ли такой ход
-		$prev_cell = cells::get_cell_from_db($this->position);
+		$prev_cell = game::get_cell($this->position);
 		if(!in_array($cell_id,$prev_cell->possible_next_cells)){
 			server::add("reason", "imposible move from ".$this->position." to ".$cell_id );
 			server::return_fail(); 
 		}
+		loger::save(3,json_encode(array("start_move")));
 		//Взаимодействие с клеткой с которой уходит юнит
 		$prev_cell->move_out($this);
-		if($need_return){$this->previous_position = $this->position;}
+		$this->previous_position = $this->position;
 		$this->position = $cell_id;
 		//получаем информацию о клетке на которую идет юнит
 		$cell = game::get_cell($cell_id);
 		if(30 == $cell->type){
-			$cell = cells::open_cell($cell_id);
+			$cell = game::open_cell($cell_id);
 			server::add("cell",$cell);
 		}
 		//взаимодействие с клеткой на которую пришел юнит
 		$cell->move_in($this);
 		$this->possible_move = $cell->possible_next_cells;
 		$this->save_unit_property();
-		server::add("move_list", array($this->previous_position, $this->position));
-		loger::save(4,json_encode(array($this->previous_position, $this->position)));
+		server::add("move_list",array($this->previous_position,$this->position));
+		loger::save(4,json_encode(array($this->id=>array($this->previous_position, 
+														$this->position))));
 		if($need_return){
 			game::add_unit($this);
 			server::add("units", game::get_units());
@@ -123,6 +124,35 @@ class unit{
 		}else{
 			return;
 		}
+	}
+	public function get_previous_position(){
+		return $this->previous_position;
+	}
+	/**
+	* Смерть юнита. Он мертв пока не произошло воскрешение в шатре амазонки
+	*
+	*/
+	public function unit_die(){
+		
+	}
+	/**
+	* Убийство юнита. Юнит моментально воскрешается на корабле. Без монет и всего что с ним было.
+	*
+	*/
+	public function unit_kill(){
+		
+	}
+	/**
+	* Воскрешение юнита в шатре амазонки. Только в том случае, если у игрока меньше 3ех юнитов.
+	*/
+	public function unit_resurect(){
+		
+	}
+	/**
+	* перемещение юнита на корабль со всем добром.
+	*/
+	public function go_to_ship(){
+		
 	}
 }
 ?>

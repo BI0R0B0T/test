@@ -281,7 +281,7 @@ abstract class cells{
 		$sql.= "open = ".(is_a($this, "closed")?0:1).", ";
 		$sql.= "coins_count = ".$this->coins_count.", ";
 		$sql.= "ship_there = ".($this->ship_there?1:0)." ";
-		$sql.= "WHERE map.cell_id = 1";
+		$sql.= "WHERE map.cell_id = ".$this->cell_id;
 		$db->query($sql);
 		game_db::check_error($sql);
 	}
@@ -596,8 +596,25 @@ class sea extends cells{
 						$prev_cell->update_info_in_db();
 						server::add("cell",$this);
 						server::add("cell",$prev_cell);
+						//Убийство юнитов на которых корабль наехал
+						$units = game::get_units_from_cell($this->cell_id);
+						foreach($units as $k=>$u){
+							if($k == $unit->id){ continue; }
+							$u->unit_die();
+							loger::save(6,$u->id);
+						}
 						//Перемещение юнитов на корабле за кораблем
-						
+						$units = game::get_units_from_cell($this->cell_id);
+						foreach($units as $k=>$u){
+							if($k == $unit->id){ continue; }
+							$u->previous_position = $u->position;
+							$u->position = $this->cell_id;
+							$u->save_unit_property();
+							server::add("move_list",array($u->previous_position, 
+																$u->position));
+							loger::save(4,json_encode(array($u->id=>array($u->previous_position,
+																		$u->position))));
+						}
 					}	
 				}
 	}
@@ -607,6 +624,10 @@ class ship extends cells{
 	function __construct(){
 		return $this;
 	}	
+	function move_in($unit){
+		parent::move_in($unit);
+		//Тут будет обработка того когда юнит принес золото на корабль
+	}
 }
 class closed extends cells{
 	//30 - 0 не открытая клетка    
