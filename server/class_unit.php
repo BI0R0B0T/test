@@ -8,6 +8,7 @@ class unit{
 	public $can_move;
 	public $possible_move;
 	public $color;
+	public $draggable;
 	private $master;
 	private $waitng_time;
 	public $previous_position;
@@ -25,6 +26,7 @@ class unit{
 		$this->id = $id;
 		$master = game::get_player($this->master);
 		$this->color = $master->color;
+		$this->draggable = ($_SESSION["player_id"] == $this->master?TRUE:FALSE);
 	}
 	static function get_units_from_db(){
 		$db = game_db::db_conn();
@@ -88,17 +90,14 @@ class unit{
 	* @version 0.3
 	*/
 	public function move_to($cell_id, $need_return = TRUE){
-		//Проверяем возможен ли такой ход
-		$prev_cell = game::get_cell($this->position);
-		if(!in_array($cell_id,$prev_cell->possible_next_cells)){
-			server::add("reason", "imposible move from ".$this->position." to ".$cell_id );
-			server::return_fail(); 
-		}
-		loger::save(3,json_encode(array("start_move")));
+        $prev_cell = game::get_cell($this->position);
 		//Взаимодействие с клеткой с которой уходит юнит
 		$prev_cell->move_out($this);
 		$this->previous_position = $this->position;
 		$this->position = $cell_id;
+		server::add("move_list",array($this->previous_position,$this->position));
+		loger::save(4,json_encode(array($this->id=>array($this->previous_position, 
+														$this->position))));
 		//получаем информацию о клетке на которую идет юнит
 		$cell = game::get_cell($cell_id);
 		if(30 == $cell->type){
@@ -109,9 +108,6 @@ class unit{
 		$cell->move_in($this);
 		$this->possible_move = $cell->possible_next_cells;
 		$this->save_unit_property();
-		server::add("move_list",array($this->previous_position,$this->position));
-		loger::save(4,json_encode(array($this->id=>array($this->previous_position, 
-														$this->position))));
 		if($need_return){
 			server::add("units", game::get_units());
 			$player = game::get_player($_SESSION["player_id"]);
@@ -136,6 +132,8 @@ class unit{
 	*/
 	public function unit_die(){
 		loger::save(6,$this->id);
+		$this->die = TRUE;
+		$this->save_unit_property();
 	}
 	/**
 	* Убийство юнита. Юнит моментально воскрешается на корабле. Без монет и всего что с ним было.

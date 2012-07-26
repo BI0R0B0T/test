@@ -506,8 +506,9 @@ class crocodille extends cells{
 	function __construct(){
 		return $this;
 	}
-	function cell_action(){
-		abort_move();
+	function move_in($unit){
+		parent::move_in($unit);
+		$unit->move_to($unit->previous_position);
 	}
 }
 class cannibal extends cells{

@@ -23,7 +23,7 @@ class server{
      * @return void
      */
     public static function input($request){
-		game::get_ship(1);
+//		game::get_ship(1);
         $req = json_decode($request);
         if(!$req){
             self::add("reason", "no data");
@@ -56,6 +56,7 @@ class server{
      */
     public static function output(){
         self::$responce["status"] = self::$state?"OK":"FAIL";
+//		loger::log_analizer(loger::get_from(0)) ;	
         printf(json_encode(self::$responce));
         exit;
     }
@@ -119,7 +120,8 @@ class server{
          */
         if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
             game::convert_2_JSON($_SESSION["gameId"]);
-        }else{
+        }else{     
+        	$_SESSION["start"] = TRUE;
 			$_SESSION["play"] = 1;
 			$_SESSION["gameId"] = game::start_game($type);
         }
@@ -225,7 +227,14 @@ class server{
     private static function move_unit($move){
 		$unit = game::get_unit($move[0]);
         if(game::checkPossibleMove()){
-        	//действие клеток на юниты
+			//Проверяем возможен ли такой ход
+			$prev_cell = game::get_cell($unit->position);
+			if(!in_array($move[1],$prev_cell->possible_next_cells)){
+				self::add("reason", "imposible move from ".$this->position." to ".$cell_id );
+				self::return_fail(); 
+			}
+			loger::save(3,json_encode(array("start_move")));        	
+			//действие клеток на юниты
         	
         	//перемещение юнита
             $unit->move_to($move[1], TRUE);
@@ -257,7 +266,7 @@ class server{
 	*/
 	private static function get_log($from){
 		self::add("you_move",(game::who_next() == $_SESSION["player_id"])?1:0);
-		loger::get_from((int)$from);
+		server::add("log", loger::get_from((int)$from));
 		self::output();
 	}
 }

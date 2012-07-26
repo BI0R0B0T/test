@@ -122,6 +122,7 @@ function game(){
 		document.getElementById("wait_connection").style.display = "block";
         var conn = new serverConnect(new message(11,this.gameId));
         var status = conn.send(true);
+        var_dump(status);
         if(status["gameId"] != undefined){
 			document.location.href = "game.php?g="+status["gameId"];
         }

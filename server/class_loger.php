@@ -48,14 +48,19 @@ class loger{
 		server::add("last_id",$db->lastInsertRowId());
 	}
 	/**
-	* Возвращает объект логи начиная с указанного id
+	* Возвращает логи начиная с указанного id в виде массива
+	* @return array 
 	*/
 	public static function get_from($id){
 		$db = game_db::db_conn();
 		$sql = "SELECT log.id, log.text, log.type, log.who_add FROM log WHERE log.id > ".$id;
 		$res = $db->query($sql);
 		game_db::check_error($sql);
-		server::add("log",$res->fetchArray(SQLITE3_ASSOC));
+		$resault = array();
+		while($a = $res->fetchArray(SQLITE3_ASSOC)){
+			$resault[] = $a;
+		}
+		return $resault;
 	}
 	/**
 	* Возвращает Id последнего ходившего игрока
@@ -72,6 +77,24 @@ class loger{
 		}else{
 			return 0;
 		}
+	}
+	
+	public static function log_analizer($log){
+		$return = array();
+		foreach($log as $v){
+			$type = $v["type"];
+			if(!in_array($type, array(4))){ continue; }
+			$txt = (array)json_decode($v["text"]);
+			$map = array();
+			foreach($txt as $k=>$move){
+				foreach($move as $cell){
+					if(in_array($cell, $map)){continue;}
+					$map[] = $cell;
+					server::add("cell",game::get_cell($cell));
+				}
+			}
+		}
+		server::add("units", game::get_units());
 	}
 }
 ?>
