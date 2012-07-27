@@ -43,9 +43,9 @@ function game(){
         var g = conn.send(true);
         this.gameId = g["gameId"];
         sid = g["SID"];
-        this.checkStatus();
-		global.gameStatus = 3;
-//        document.location.href = "game.php?g="+this.gameId;
+//        this.checkStatus();
+//		global.gameStatus = 3;
+        document.location.href = "game.php?g="+this.gameId;
 //        this.update();
 //        gameUpdate.start();
         g = null;

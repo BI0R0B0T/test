@@ -59,8 +59,7 @@ class user_info
 				}
 			}
 			if(!$add){
-				server::add("reason","Maximum $max players in game");
-				server::return_fail();
+				server::return_fail("Maximum $max players in game");
 			}
 		}
 		$sql="INSERT INTO players(player_id,first_name,last_name,photo,photo_rec,coins,played, color, number) VALUES(";

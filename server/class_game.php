@@ -37,8 +37,7 @@ class game{
      */
     public static function start_game($type){
 		if((int)$type->type <=0 || (int)$type->type > 3){
-			server::add("reason", "incorrect game type");
-			server::return_fail();
+			server::return_fail("incorrect game type");
 		}else{
 			$_SESSION["game_type"] = $type->type;
 			$_SESSION["game_desc"] = $type->desc;
@@ -218,9 +217,8 @@ class game{
 		if(self::who_next() == $_SESSION["player_id"]){
 			return TRUE;
 		}else{
-			server::add("reason", "This isn't your turn. Reason 2 (id = ".$_SESSION["player_id"]
-											." want ".self::who_next().")");
-			server::return_fail();
+			server::return_fail("This isn't your turn. Reason 2 (id = ".$_SESSION["player_id"]
+								." want ".self::who_next().")");
 		}
 	}
 	/**
