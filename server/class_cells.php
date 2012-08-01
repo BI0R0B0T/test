@@ -527,17 +527,30 @@ class aerostat extends cells{
 	}
 	function move_in($unit){
 		parent::move_in($unit);
+		$player = game::get_player($_SESSION["player_id"]);
+		$player->move_finished = TRUE;
 		$unit->go_to_ship();
 	}
 }
 class airplane extends cells{
 	//22 - 1 самолет  
-	private $active = TRUE;
 	function __construct(){
-		for($i = 0; $i<169; $i++){
-			$this->possible_next_cells[] = $i;
+		if($this->ship_there){
+			for($i = 0; $i<169; $i++){
+				$this->possible_next_cells[] = $i;
+			}
+		}else{
+			$this->possible_next_cells = array();
+			$this->possible_move=array( array(0,1), array(0,-1), array(1,-1), array(1,0),
+										array(1,1), array(-1,-1), array(-1,0), array(-1,1));
 		}
 		return $this;
+	}
+	function move_in($unit){
+		parent::move_in();
+	}
+	function move_out($unit){
+		$this->ship_there = FALSE;
 	}
 	function cell_action(){
 		check_to_use();
