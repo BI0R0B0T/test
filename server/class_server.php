@@ -120,8 +120,9 @@ class server{
             game::convert_2_JSON($_SESSION["gameId"]);
         }else{     
         	$_SESSION["start"] = TRUE;
-			$_SESSION["play"] = 1;
+			$_SESSION["status"] = 1;
 			$_SESSION["gameId"] = game::start_game($type);
+			self::output();
         }
 
     }
@@ -132,7 +133,7 @@ class server{
         if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
             game::stop_game($_SESSION["gameId"]);
             if(unlink("../db/".$_SESSION["gameId"].".db")){
-	            $_SESSION["play"] = 0;
+	            $_SESSION["status"] = 0;
 	            $_SESSION["gameId"] = null;
 	            self::output();
             }else{
@@ -183,7 +184,7 @@ class server{
      */
     private static function drop_game($game_id){
         game::stop_game($game_id);
-        $_SESSION["play"] = 0;
+        $_SESSION["status"] = 0;
         $_SESSION["gameId"] = null;
         self::output();
     }
@@ -193,7 +194,7 @@ class server{
      *
      */
     private static function open_game($game_id){
-        $_SESSION["play"] = 0;
+        $_SESSION["status"] = 0;
         $_SESSION["gameId"] = $game_id;
         self::give_game();
     }
@@ -207,7 +208,7 @@ class server{
             self::give_game();
         }else{
             if(gamelist::can_connect($game_id)){
-                $_SESSION["play"] = 1;
+                $_SESSION["status"] = 1;
                 $_SESSION["gameId"] = $game_id;
                 game::add_player();
             }else{

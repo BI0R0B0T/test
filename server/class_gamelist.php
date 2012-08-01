@@ -1,19 +1,25 @@
 <?php
 class gamelist{
+	public static $players = array();
 	private static $gamelist = NULL;
-	private static $game_db = NULL;
 	/**
 	* Проверяет можно ли подключится к данной игре в качестве игрока
 	* @param int $game_id
 	* @return boolean
-	* @version 0.2
+	* @version 0.3
 	*/
 	public static function can_connect($game_id){
-		self::get_db();
-		$sql = "SELECT player1, player2, player3, player4, type FROM games WHERE game_db = ".$game_id;
-		$res = self::$game_db->query($sql);
-		game_stat::check_error($sql);
-		$res = $res->fetchArray(SQLITE3_ASSOC);
+		try{
+			$db = game_stat::get_db();
+			$sth = $db->prepare("SELECT player1, player2, player3, player4, type FROM games ".
+								"WHERE game_db = ?");
+			$sth->bindParam(1,$game_id);
+			$sth->setFetchMode(PDO::FETCH_ASSOC);
+			$sth->execute();
+			$res = $sth->fetch();
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
 		$max = (1==$res["type"]?2:4);
 		$can = FALSE;
 		for($i = 1; $i<=$max; $i++){
@@ -39,80 +45,82 @@ class gamelist{
 	* Add game info in game_stat
 	* 
 	* @param string $game_id
-	* @version 0.2
+	* @return void
+	* @version 0.3
 	*/
 	public static function add_game($game_id){
-		$player_number = (1==$_SESSION["game_type"]?2:4);
-		self::get_db();
-		$sql ="INSERT INTO games(id, game_db, player_number, player1, player2, player4, player3, played_now,";
-		$sql.=" game_status, type, desc) VALUES(null, '".$game_id."', $player_number,".$_SESSION["player_id"].",null,";
-		$sql.=" null, null, 1, 2, ".$_SESSION["game_type"].", '".($_SESSION["game_desc"]?$_SESSION["game_desc"]:$game_id)."')";
-		$res = self::$game_db->query($sql);
-		game_stat::check_error($sql);
-		self::update_user(array("status"=>$_SESSION["play"],"game_id"=>self::$game_db->lastInsertRowID()));
+		try{
+		$db = game_stat::get_db();
+		$sth = $db->prepare("INSERT INTO games(id, game_db, player_number, player1, player2, ".
+					"player4, player3, played_now, game_status, type, desc) VALUES(null,".
+					":id,:player_number,:player_id,null,null, null, 1, 2, :type,:desc)");
+		$sth->bindParam(":id",$game_id);
+		$sth->bindParam(":player_number",(1==$_SESSION["game_type"]?2:4));
+		$sth->bindParam(":player_id",$_SESSION["player_id"]);
+		$sth->bindParam(":type",$_SESSION["game_type"]);
+		$sth->bindParam(":desc",($_SESSION["game_desc"]?$_SESSION["game_desc"]:$game_id));
+		$sth->execute();
+		self::update_user(array("status"=>$_SESSION["status"],
+								"game_id"=>$db->lastInsertID()));
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
 	}
+	
 	public static function stopgame($gameid){
-		self::get_db();
-		$sql = "UPDATE games SET played_now = 0 WHERE game_db = ".$gameid;
-		self::$game_db->query($sql);
-		game_stat::check_error($sql);
-	}
-	public static function update_user($property){
-		self::get_db();
-		$sql = "UPDATE players SET";
-		$str = "";
-		foreach($property as $k=>$v){
-			if($k == "player_id"){ continue;}
-			if(is_null($v)){
-				$str .= ", $k = null";
-			}else{
-				$str .= ", $k = ".(is_numeric($v)?$v:"\"".$v."\"");
-			}
+		try{
+			$db = game_stat::get_db();
+			$sth = $db->prepare("UPDATE games SET played_now = 0 WHERE game_db = ?");
+			$sth->execute(array($gameid));
+		}catch(PDOException $e){
+			server::return_fail($e);
 		}
-		$str[0] = " ";
-		$sql .=$str." WHERE players.id = ".$_SESSION["player_id"];
-		$res = self::$game_db->query($sql);
-		game_stat::check_error($sql);
 	}
-	public static function add_user(){
-		self::get_db();
-		$sql = "SELECT  count() AS count FROM players WHERE players.id = ".$_SESSION["player_id"];
-		$res = self::$game_db->query($sql);
-		game_stat::check_error($sql);
-		$usr = $res->fetchArray(SQLITE3_ASSOC);
-		if($usr["count"]){
-			$sql = "UPDATE players SET status =  ".$_SESSION["play"].", game_id =  ";
-			$sql.= ($_SESSION["gameId"]?"\"".$_SESSION["gameId"]."\"":"null");
-			$sql.=", photo_rec =  \"".$_SESSION["photo_rec"]."\", photo =  \"".$_SESSION["photo"];
-			$sql.="\", last_name =  \"".$_SESSION["last_name"]."\", first_name = \"";
-			$sql.=$_SESSION["first_name"]."\"  WHERE players.id = ".$_SESSION["player_id"];
-		}else{
-			$sql = "INSERT INTO players(id, first_name, last_name, photo, photo_rec, status, game_id)";
-			$sql.= "VALUES(".$_SESSION["player_id"].", \"".$_SESSION["first_name"]."\", \"";
-			$sql.= $_SESSION["last_name"]."\", \"".$_SESSION["photo"]."\", \"".$_SESSION["photo_rec"]."\", ";
-			$sql.= $_SESSION["play"].", \"".($_SESSION["gameId"]?$_SESSION["gameId"]:"null")."\")" ;
+	/**
+	* Добавляет ссылку на объект игрока в gamelist
+	* @param object $player class player
+	* @return void
+	*/ 
+	public static function add_player($player){
+		self::$players[$player->player_id] = $player;
+	}
+	/**
+	* Возвращает объект игрока 
+	* @param int $player_id
+	* return object class player
+	*/ 
+	public static function get_player($player_id){
+		if(!isset(self::$players[$player_id])){
+			self::$players[$player_id] = player::get_from_db($player_id);
 		}
-		$res = self::$game_db->query($sql);
-		game_stat::check_error($sql);
+		return self::$players[$player_id];
 	}
+
 	public static function finished_game(){
 		
 	}
 	private function __construct(){
-		self::get_db();
-		$sql  = "SELECT  games.game_db, games.player_number, games.player1, games.player2,"; 
-		$sql .= "games.player3, games.player4, games.game_status, games.type, games.desc, players.first_name,"; 
-		$sql .= "players.last_name, players.id as player_id, players.photo, players.photo_rec "; 
-		$sql .= "FROM players INNER JOIN games ON (players.game_id = games.id)"; 
-		$sql .= "WHERE games.played_now = 1";
-		$res = self::$game_db->query($sql);
-		game_stat::check_error($sql);
-		while($add = $res->fetchArray(SQLITE3_ASSOC)) {
-			self::$gamelist[$add["game_db"]]["player_number"] = $add["player_number"];
-			self::$gamelist[$add["game_db"]]["game_status"] = $add["game_status"];
-			self::$gamelist[$add["game_db"]]["game_type"] = $add["type"];
-			self::$gamelist[$add["game_db"]]["game_desc"] = $add["desc"];
-			self::$gamelist[$add["game_db"]]["players"][] = new player($add);
+		try{
+			$db = game_stat::get_db();
+			$sql  = "SELECT  games.game_db, games.player_number, games.player1, games.player2,"; 
+			$sql .= "games.player3, games.player4, games.game_status, games.type, games.desc, ";
+			$sql .= "players.first_name,"; 
+			$sql .= "players.last_name, players.player_id, players.photo, players.photo_rec "; 
+			$sql .= "FROM players INNER JOIN games ON (players.game_id = games.id)"; 
+			$sql .= "WHERE games.played_now = 1";
+			$sth = $db->query($sql);
+			$sth->setFetchMode(PDO::FETCH_ASSOC);
+			while($add = $sth->fetch()) {
+				self::$gamelist[$add["game_db"]]["player_number"] = $add["player_number"];
+				self::$gamelist[$add["game_db"]]["game_status"] = $add["game_status"];
+				self::$gamelist[$add["game_db"]]["game_type"] = $add["type"];
+				self::$gamelist[$add["game_db"]]["game_desc"] = $add["desc"];
+				$player = new player($add);
+				self::$gamelist[$add["game_db"]]["players"][] = $player;
+				self::add_player($player);
+			}			
+		}catch(PDOException $e){
+			server::return_fail($e);
 		}
 	}
 	private function __clone(){
@@ -135,12 +143,17 @@ class gamelist{
 	* 								5 - Идет игра (недостаток игроков)
 	*/
 	public static function get_game_status(){
-		self::get_db();
-		$sql = "SELECT games.game_status FROM games WHERE game_db = ".$_SESSION["gameId"];
-		$status = self::$game_db->querySingle($sql);
-		game_stat::check_error($sql);
-		$_SESSION["game_status"] = (int)$status;
-		return (int)$status;
+		try{
+			$db = game_stat::get_db();
+			$sth = $db->prepare("SELECT games.game_status FROM games WHERE game_db = ?");
+			$sth->execute(array($_SESSION["gameId"]));			
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
+		$status = $sth->fetch(PDO::FETCH_ASSOC);
+		$status = (int)$status["game_status"];
+		$_SESSION["game_status"] = $status;
+		return $status;
 	}
 	/**
 	* ОБновляет статус игры в БД game_stat
@@ -154,21 +167,27 @@ class gamelist{
 	* 								5 - Идет игра (недостаток игроков)
 	*/
 	private static function set_game_status($status){
-		self::get_db();
-		$sql = "UPDATE games SET games.game_status = ".(int)$status." WHERE game_db = ".$_SESSION["gameId"];
-		self::$game_db->query($sql);
-		game_stat::check_error($sql);
-		$_SESSION["game_status"] = (int)$status;
+		try{
+			$db = game_stat::get_db();
+			$sth = $db->prepare("UPDATE games SET games.game_status = ? WHERE game_db = ?");
+			$sth->execute(array((int)$status, $_SESSION["gameId"]));
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
 	}
 	/**
 	* Обновляет статус игры
 	*/
 	public static function update_game_status(){
-		self::get_db();
-		$sql = "SELECT player_number, player1, player2, player3, player4, played_now, game_status FROM games WHERE game_db = ".$_SESSION["gameId"];
-		$res = self::$game_db->query($sql);
-		game_stat::check_error($sql);
-		$res = $res->fetchArray(SQLITE3_ASSOC);
+		try{
+			$db = game_stat::get_db();
+			$sth = $db->prepare("SELECT player_number, player1, player2, player3, player4, ".
+								"played_now, game_status FROM games WHERE game_db = ?");
+			$sth->execute(array($_SESSION["gameId"]));
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
+		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if($res["played_now"] != 1){ 
 			server::add("info","don't need update game_status");
 			server::output();
