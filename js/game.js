@@ -2,14 +2,17 @@ var interval = 10000;
 var timer;
 var intervalMapList = null;
 var diametr = "20px";
-var game;
+//var game;
 var sid;
 var gameUpdate = new gameUpdater();
-var global = {
-	gameStatus: 0,			// 0-не играем, 1-наш ход, 2-не наш ход, 3 - ожидаем подключения остальных
+var globals = {
+	gameStatus: 0,				// 0-не играем, 1-наш ход, 2-не наш ход, 3 - ожидаем подключения остальных
 	type: 1,
-	gameStatusInterval: 2000, // Время через которое обновляется статус игры
-	intervalGameStatus: null	//Хранится ссылка на интервал обновления статуса игры
+	gameStatusInterval: 2000, 	// Время через которое обновляется статус игры
+	intervalGameStatus: null,	//Хранится ссылка на интервал обновления статуса игры
+	gameUpdateInterval: 1000,	// Время через которое обновляется игра
+	lastMoveId: 0,				// id последней записи в ходе игры
+	gameId: null				// id текущей игры
 }
 
 function serverConnect(message){
@@ -31,6 +34,7 @@ function serverConnect(message){
         }
     }
 }
+
 function game(){
     this.gameId = null;
     this.start = function (option){
@@ -43,11 +47,11 @@ function game(){
         var g = conn.send(true);
         this.gameId = g["gameId"];
         sid = g["SID"];
-//        this.checkStatus();
-//		global.gameStatus = 3;
+//      this.checkStatus();
+//		globals.gameStatus = 3;
         document.location.href = "game.php?g="+this.gameId;
-//        this.update();
-//        gameUpdate.start();
+//      this.update();
+//      gameUpdate.start();
         g = null;
         conn = null;
     }
@@ -66,18 +70,19 @@ function game(){
         map = null;
         map_id = null;
         this.gameId = null;
-        mapList.updateStop();
-        mapList.get();
-        mapList.updateStart();
+//        mapList.updateStop();
+//        mapList.get();
+//        mapList.updateStart();
     }
     this.update = function(){
         if(!this.gameId){return;}
-		if(global.gameStatus != 1){return;}
-        var msg = new message(2,getCookie("PHPSESSID"));
+//		if(globals.gameStatus != 1){return;}
+ //       var msg = new message(2,getCookie("PHPSESSID"));
+        var msg = new message(13,globals.lastMoveId);
         var conn = new serverConnect(msg);
         var g = conn.send();
         drawMap(g);
-        if(g["status"] = "FAIL"){gameUpdate.start();}
+        if(g["status"] != "FAIL"){gameUpdate.start();}
         msg = null;
         g = null;
     }
@@ -93,8 +98,8 @@ function game(){
         msg = null;
         g = null;
         str = null;
-        game.update();
-        gameUpdate.start();
+ //       this.update();
+ //       gameUpdate.start();
     }
 	this.newGame = function(){
 		document.getElementById("create_game").style.display = "block";
@@ -111,8 +116,8 @@ function game(){
 //		for (var i = 0; i < elems.length; i++) {
 //			elems[i].style.display = "none";
 //		}
-		clearInterval(global.intervalGameStatus);
-    	global.intervalGameStatus = null;
+		clearInterval(globals.intervalGameStatus);
+    	globals.intervalGameStatus = null;
     	mapList.updateStart();
 	}
 	this.checkStatus = function(){
@@ -127,25 +132,25 @@ function game(){
 			document.location.href = "game.php?g="+status["gameId"];
         }
         if(status["game_status"] == 2){
-        	if(!global.intervalGameStatus){ 
-//        		window.setTimeout("game.checkStatus()",global.gameStatusInterval);
-        		global.intervalGameStatus = setInterval("game.checkStatus()",global.gameStatusInterval)
+        	if(!globals.intervalGameStatus){ 
+//        		window.setTimeout("game.checkStatus()",globals.gameStatusInterval);
+        		globals.intervalGameStatus = setInterval("game.checkStatus()",globals.gameStatusInterval)
         	}
-			global.gameStatus = 3;
+			globals.gameStatus = 3;
 			mapList.updateStop();
         }else{
-			clearInterval(global.intervalGameStatus);
-    		global.intervalGameStatus = null;
+			clearInterval(globals.intervalGameStatus);
+    		globals.intervalGameStatus = null;
     		document.location.href = "game.php?g="+this.gameId;
         }
 	}
-}
+}  
 function message(comandCode,comand){
 	this.comandCode = comandCode;
 	this.comand = comand;
 }
 function toPost(message){
-    if(!getCookie("SID")) {message.sid = sid;}
+//   if(!getCookie("SID")) {message.sid = sid;}
 //	var sid = getCookie("PHPSESSID");
 //	if(sid){ message.sid = sid; }
 	return JSON.stringify(message);
@@ -181,7 +186,7 @@ function getCookie(name) {
 function gameUpdater(){
     this.timer = null;
     this.start = function(){
-        if(!this.timer) this.timer = setInterval('game.update()',interval);
+        if(!this.timer) this.timer = setInterval('game.update()',globals.gameUpdateInterval);
     }
     this.stop = function(){
         clearInterval(this.timer);
@@ -255,6 +260,7 @@ function drawMap(newMap){
 	for(var i in newMap["units"]){
 		drawUnit(newMap["units"][i]);
 	}
+	globals.lastMoveId = newMap["last_id"];
 	i = null;
  	newMap = null;
 	map = null;
@@ -412,10 +418,10 @@ mapList.get = function(){
 	mapList.updateStop();
 }
 mapList.draw = function(games){
-    if(global.type == 1){
+    if(globals.type == 1){
         var mapListId = "map_list_big";
     }else{
-//    	alert(global.type);
+//    	alert(globals.type);
   //      var mapListId = "map_list";
         return ;
     }
@@ -426,7 +432,7 @@ mapList.draw = function(games){
     div.appendChild(ul);
     for(var gameName in games){
         var li = document.createElement("LI");
-		if(global.type == 1){
+		if(globals.type == 1){
 	        li.innerHTML  = gameName+"<a href=game.php?g="+gameName+">play</a> <a href= #>view</a>"+
 			"<a href='javascript:game.stop(\""+gameName+"\")'> x </a>";
 	    }else{

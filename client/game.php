@@ -50,7 +50,7 @@ w.attachEvent("onload", w.qbaka._ldr);qbaka.key='11811407e9cfd4d3525af7db009d862
 print <<<LABEL
 <script type="text/javascript" id="selector">
     window.onload = function(){
-        global.type = 2;
+        globals.type = 2;
         game = new game();
         game.open($id);
     }
@@ -66,10 +66,10 @@ LABEL;
 print <<<LABEL
 <script type="text/javascript" id="selector">
     window.onload = function(){
-        global.type = 1;
+        globals.type = 1;
         mapList.get();
         mapList.updateStart();
-        game = new game();
+        var game = new game();
 		drawPlayerInfo(getPlayerInfo(""));
      }
  </script>
