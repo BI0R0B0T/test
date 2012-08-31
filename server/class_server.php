@@ -26,8 +26,7 @@ class server{
 //		game::get_ship(1);
         $req = json_decode($request);
         if(!$req){
-            self::add("reason", "no data");
-            self::return_fail();
+             self::return_fail("no data");
         }
         self::check_require($req);
         switch ($req->comandCode){
@@ -45,8 +44,7 @@ class server{
             case 11: self::get_game_status($req->comand);break;
             case 12: self::get_log($req->comand);break;
             default:
-                    self::add("reason", "incorrect comand (0)");
-                    self::return_fail();
+                    self::return_fail("incorrect comand (0)");
         }
     }
     /**
@@ -79,10 +77,12 @@ class server{
     /**
      * Экстренное завршение работы сервера (неправильные входные параметры)
      * @static
+	 * @param string $reason текст причины
      * @return void
      */
-    public static function return_fail(){
+    public static function return_fail($reason){
         self::$state = FALSE;
+		self::add("reason", $reason);
         self::output();
     }
     /**
@@ -96,17 +96,15 @@ class server{
         //Проверка на то все ли параметры на месте
         if(in_array($require->comandCode,array(0,4,6,7,8,9))){
             if(!isset($require->comand) or "" == $require->comand) {
-                self::add("reason", "incorrect comand (1)");
                 self::add("req", $require);
-                self::return_fail();
+                self::return_fail("incorrect comand (1)");
             }
         }
         //Проверка на то играет ли данный пользователь впринципе
         if(!in_array($require->comandCode,array(0,8,5,6,10))){
             if(!isset($_SESSION["gameId"]) && is_null($_SESSION["gameId"])){
-                self::add("reason", "incorrect comand (2)");
-                self::add("req", $require);
-                self::return_fail();
+				self::add("req", $require);
+                self::return_fail("incorrect comand (2)");
             }
         }
     }
@@ -122,8 +120,9 @@ class server{
             game::convert_2_JSON($_SESSION["gameId"]);
         }else{     
         	$_SESSION["start"] = TRUE;
-			$_SESSION["play"] = 1;
+			$_SESSION["status"] = 1;
 			$_SESSION["gameId"] = game::start_game($type);
+			self::output();
         }
 
     }
@@ -134,15 +133,14 @@ class server{
         if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
             game::stop_game($_SESSION["gameId"]);
             if(unlink("../db/".$_SESSION["gameId"].".db")){
-	            $_SESSION["play"] = 0;
+	            $_SESSION["status"] = 0;
 	            $_SESSION["gameId"] = null;
 	            self::output();
             }else{
-            	self::add("reason", "Can't drop file "."../db/".$_SESSION["gameId"].".db") ;
-				self::return_fail();
+ 				self::return_fail("Can't drop file "."../db/".$_SESSION["gameId"].".db");
             }
         }else{
-            self::return_fail();
+            self::return_fail("Incorrect game id in SESSION");
         }
     }
     /**
@@ -152,7 +150,7 @@ class server{
         if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
             game::convert_2_JSON($_SESSION["gameId"]);
         }else{
-            self::return_fail();
+            self::return_fail("Incorrect game id in SESSION");
         }
     }
     /**
@@ -186,7 +184,7 @@ class server{
      */
     private static function drop_game($game_id){
         game::stop_game($game_id);
-        $_SESSION["play"] = 0;
+        $_SESSION["status"] = 0;
         $_SESSION["gameId"] = null;
         self::output();
     }
@@ -196,7 +194,7 @@ class server{
      *
      */
     private static function open_game($game_id){
-        $_SESSION["play"] = 0;
+        $_SESSION["status"] = 0;
         $_SESSION["gameId"] = $game_id;
         self::give_game();
     }
@@ -210,12 +208,11 @@ class server{
             self::give_game();
         }else{
             if(gamelist::can_connect($game_id)){
-                $_SESSION["play"] = 1;
+                $_SESSION["status"] = 1;
                 $_SESSION["gameId"] = $game_id;
                 game::add_player();
             }else{
-                self::add("reason", "You can't connect to this game :(");
-                self::return_fail();
+				self::return_fail("You can't connect to this game :(");
             }
         }
     }
@@ -230,8 +227,7 @@ class server{
 			//Проверяем возможен ли такой ход
 			$prev_cell = game::get_cell($unit->position);
 			if(!in_array($move[1],$prev_cell->possible_next_cells)){
-				self::add("reason", "imposible move from ".$this->position." to ".$cell_id );
-				self::return_fail(); 
+				self::return_fail("imposible move from ".$this->position." to ".$cell_id); 
 			}
 			loger::save(3,json_encode(array("start_move")));        	
 			//действие клеток на юниты
@@ -239,7 +235,7 @@ class server{
         	//перемещение юнита
             $unit->move_to($move[1], TRUE);
         }else{
-            self::return_fail();
+            self::return_fail("");
         }
     }
 	
