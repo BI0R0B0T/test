@@ -8,8 +8,7 @@ class game_db{
 			if(isset($_SESSION["start"])) {
 				copy(self::ADR."main.db", $db_name);
 			}else{
-				server::add("reason","no such file $db_name") ;
-				server::return_fail();
+				server::return_fail("no such file $db_name");
 			}
 		}
 		self::$db_connection = new SQlite3($db_name);

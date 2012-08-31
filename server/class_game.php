@@ -15,7 +15,7 @@ class game{
 			$_SESSION["gameId"] = self::$game_id;
 			self::$player_id= new user_info($_SESSION["player_id"], $_SESSION["first_name"],
 											$_SESSION["last_name"],$_SESSION["photo"],
-											$_SESSION["photo_rec"],1,$_SESSION["play"]
+											$_SESSION["photo_rec"],1,$_SESSION["status"]
 											);
 			$_SESSION["player_number"] = self::$player_id->save_in_db();
 			for($i = 0; $i < 3; $i++){
@@ -37,15 +37,15 @@ class game{
      */
     public static function start_game($type){
 		if((int)$type->type <=0 || (int)$type->type > 3){
-			server::add("reason", "incorrect game type");
-			server::return_fail();
+			server::return_fail("incorrect game type");
 		}else{
 			$_SESSION["game_type"] = $type->type;
 			$_SESSION["game_desc"] = $type->desc;
 		}
 		new game();
 		$id = explode(".",self::$game_id);
-		echo json_encode(array("gameId"=>$id[0], "SID" => session_id()));
+		server::add("gameId",$id[0]);
+		server::add("SID" ,session_id());
 		gamelist::add_game($id[0]);
 		loger::save(0,json_encode(array("start game", $_SESSION["game_type"], $_SESSION["game_desc"])));
 		return self::$game_id;
@@ -93,7 +93,7 @@ class game{
 	public static function add_player(){
 		self::$player_id= new user_info($_SESSION["player_id"], $_SESSION["first_name"],
 										$_SESSION["last_name"],$_SESSION["photo"],
-										$_SESSION["photo_rec"],1,$_SESSION["play"]
+										$_SESSION["photo_rec"],1,$_SESSION["status"]
 										);
 		$_SESSION["player_number"] = self::$player_id->save_in_db();
 		loger::save(1,json_encode(array("add_player")));
@@ -218,9 +218,8 @@ class game{
 		if(self::who_next() == $_SESSION["player_id"]){
 			return TRUE;
 		}else{
-			server::add("reason", "This isn't your turn. Reason 2 (id = ".$_SESSION["player_id"]
-											." want ".self::who_next().")");
-			server::return_fail();
+			server::return_fail("This isn't your turn. Reason 2 (id = ".$_SESSION["player_id"]
+								." want ".self::who_next().")");
 		}
 	}
 	/**

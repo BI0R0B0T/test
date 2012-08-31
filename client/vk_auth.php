@@ -20,8 +20,7 @@ if(isset($_GET["access_token"]) && isset($_GET["expires_in"]) && isset($_GET["us
 		$user_info['player_id'] = $user_info['uid'];
 		$user = new player($user_info);
 		$user->add_in_session();
-		gamelist::add_user();
-//		var_dump($token->get_from_db($user_info['uid']));
+		$user->add_in_db();
 		header("Location: game.php");
 	}catch(Exception $e){
 		echo json_encode(array("status"=>"FAIL", "reason" =>$e->getMessage()));
