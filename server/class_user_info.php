@@ -94,5 +94,10 @@ class user_info
 		$res = $res->fetchArray(SQLITE3_ASSOC);
 		return new user_info($res["player_id"],$res["first_name"],$res["last_name"],$res["photo"],$res["photo_rec"],TRUE,TRUE,$res["color"],$res["number"]);
 	}
+	
+	public function quit(){
+		$this->played = FALSE;
+		$this->plaer_number = 0;
+	}
 }
 ?>

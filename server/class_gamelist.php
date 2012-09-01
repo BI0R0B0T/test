@@ -204,5 +204,12 @@ class gamelist{
 			if($res["game_status"] != 2) self::set_game_status(2);
 		}
 	}
+	/**
+	* Выход пользователя из игры. Происходит подчистка игры за ним
+	* @return void
+	*/
+	public static function exit_player(){
+		self::get_player($_SESSION["player_id"])->quit();
+	}
 }
 ?>

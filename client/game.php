@@ -25,28 +25,13 @@ w.attachEvent("onload", w.qbaka._ldr);qbaka.key='11811407e9cfd4d3525af7db009d862
 </head>
 <body>
 <?php
-/*  if(need_to_add()){
-	  $_SESSION = array(
-		"player_id" => (int)ceil(rand(0,100)),
-		"first_name" => "test".(int)rand(0,10),
-		"last_name" => "test".(int)rand(0,10),
-		"photo" => "no",
-		"photo_rec" => "no",
-		"SID" => session_id(),
-		"play" => 0,
-		"gameId" => null
-	  );
-	  gamelist::add_user();
-  }else{
-//  	var_dump($_SESSION);
-  }
-  */
-  if(isset($_GET["g"])){
-	//Запустить игру
-     $id = $_GET["g"];
-     if(!file_exists("../db/".$_GET["g"].".db")){
-		 echo "<script type=\"text/javascript\">document.location.href = \"game.php\"</script>";
-     }
+if(isset($_GET["g"])){
+//Запустить игру
+$id = $_GET["g"];
+//Проверяем существует ли такая игра
+if(!file_exists("../db/".$_GET["g"].".db")){
+ echo "<script type=\"text/javascript\">document.location.href = \"game.php\"</script>";
+}
 print <<<LABEL
 <script type="text/javascript" id="selector">
     window.onload = function(){
@@ -57,12 +42,9 @@ print <<<LABEL
 </script>
 </div>
 <div id="map">Map will be here</div>
-</body>
-</html>   
 LABEL;
-	  
-  }else{
-  //Запустить окно выбора игры
+}else{
+//Запустить окно выбора игры
 print <<<LABEL
 <script type="text/javascript" id="selector">
     window.onload = function(){
@@ -72,7 +54,7 @@ print <<<LABEL
         game = new game();
 		drawPlayerInfo(getPlayerInfo(""));
      }
- </script>
+</script>
 <div id="select_game">
 	<div id="map_list_big">Map list will be here</div>
 	<div id="rule">
@@ -101,37 +83,8 @@ print <<<LABEL
 	<ul></ul>​
 	<footer><a href="javascript:game.cancel()">cancel </a></footer>
 </div>
-</body>
-</html>   
 LABEL;
-	  
-  }
-  function need_to_add(){
-	  $name = array("player_id", "first_name", "last_name");
-	  foreach($name as $v){
-		  if(!isset($_SESSION[$v]) ||  "" == $_SESSION[$v]) { return TRUE; }
-	  }
-	  return FALSE;
-  }
-	function __autoload($class_name){
-		include "../server/class_".$class_name.".php";
-	}  
-	exit();
-//  var_dump($GLOBALS);
-print <<<LABEL
-<div id="left">
-	<div id="rule">
-		<ul>
-			<li><a href="javascript:game.start()">Create Game </a></li>
-			<li><a href="javascript:exitFromGame()">exit </a></li>
-		</ul>
-	</div>
-	<div id="map_list">Map list will be here</div>
-	<div id="debug"></div>
-</div>
-<div id="map">Map will be here</div>
-</body>
-</html>   
-LABEL;
-
+}
 ?>
+</body>
+</html>

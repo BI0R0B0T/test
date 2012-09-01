@@ -375,51 +375,32 @@ function undecorate(id){
 	}
 	cellId = null;
 }
+//выход из игры. Удаляются вся информация об играх и сбрасываются все временные переменные в null
 function exitFromGame(){
-	var jsonData = toPost(new message(3,getCookie("PHPSESSID")));
-	setCookie("PHPSESSID",null);
-	var req = getXmlHttpRequest();
-	req.open("POST", "../server/game_server.php", false);
-	req.setRequestHeader("Content-Type", "text/plain");
-	req.setRequestHeader("Content-Length", jsonData.length);			
-	req.send(jsonData);	
+    var conn = new serverConnect(new message(3,""));
+    conn.send(false);
 	window.location = "http://kodomo.fbb.msu.ru/~dolgov/piraty/index.php";
-	jsonData = null;
-	req = null;			
+	conn = null;
 }
-
-function mapList(){
-//    var mapList;
-//    mapList.get();
-}
+//Заглушка чтобы работало
+function mapList(){}
 mapList.get = function(){
-    var jsonData = toPost(new message(5,""));
-    var reqML = getXmlHttpRequest();
-    reqML.open("POST", "../server/game_server.php", true);
-    reqML.setRequestHeader("Content-Type", "text/plain");
-    reqML.setRequestHeader("Content-Length", jsonData.length);
-    reqML.send(jsonData);
-    reqML.onreadystatechange = function(){
-        if (reqML.readyState != 4) return;
-        var gameList = JSON.parse(reqML.responseText);
-        if(null == gameList["gamelist"]){return ;}
-        mapList.draw(gameList["gamelist"]);
-		mapList.updateStart();
-        reqML = null;
-        gameList = null;
-        jsonData = null;
-    }
-	mapList.updateStop();
+    var conn = new serverConnect(new message(5,""));
+    var gameList = conn.send(true);
+    if(null == gameList["gamelist"]){return ;}
+    mapList.draw(gameList["gamelist"]);
+	mapList.updateStart();
+	gameList = null;
+	conn = null;
 }
 mapList.draw = function(games){
     if(global.type == 1){
         var mapListId = "map_list_big";
     }else{
-//    	alert(global.type);
-  //      var mapListId = "map_list";
+//		alert(global.type);
+//		var mapListId = "map_list";
         return ;
     }
-//    alert(games);
     var div = document.getElementById(mapListId) ;
     while(div.hasChildNodes()){ div.removeChild(div.lastChild);}
     var ul = document.createElement("UL");
@@ -427,7 +408,7 @@ mapList.draw = function(games){
     for(var gameName in games){
         var li = document.createElement("LI");
 		if(global.type == 1){
-	        li.innerHTML  = gameName+"<a href=game.php?g="+gameName+">play</a> <a href= #>view</a>"+
+	        li.innerHTML = gameName+"<a href=game.php?g="+gameName+">play</a><a href=#>view</a>"+
 			"<a href='javascript:game.stop(\""+gameName+"\")'> x </a>";
 	    }else{
 	        li.innerHTML  = "<a href=\"javascript:game.open("+gameName+")\">"+gameName+"</a> "+

@@ -258,5 +258,9 @@ class game{
 		$player = self::get_player($master_id);
 		return self::get_cell($resault[$player->player_number]);
 	}
+	
+	public static function exit_player(){
+		self::get_player($_SESSION["player_id"])->quit();
+	}
 }
 ?>

@@ -1,10 +1,6 @@
 <?php
 /**
- * Created by JetBrains PhpStorm.
- * User: mikhail
- * Date: 29.06.12
- * Time: 17:20
- * To change this template use File | Settings | File Templates.
+ * @author Dolgov mikhail
  * Данный класс нужен для работы с общей БД, для отдельной игры используется класс user_info.
  * В будущем оба класса будут объеденены.
  * @version 0.4
@@ -117,5 +113,12 @@ class player
 		}
 		return new player($add);
 	}
-	
+	/**
+	* Подчищаем информацию об игроке в бд
+	*/ 
+	public function quit(){
+		$this->status = 0;
+		$this->game_id = NULL;
+		$this->update_in_db();
+	}
 }

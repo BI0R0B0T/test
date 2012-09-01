@@ -166,9 +166,10 @@ class server{
      * выход из игры (игра не удаляется)
      */
     private static function exit_from_game(){
+		gamelist::exit_player();
+		game::exit_player();
         session_destroy();
         $_SESSION = array();
-        $_COOKIE = array();
         self::output();
     }
     /**
