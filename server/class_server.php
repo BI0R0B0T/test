@@ -43,6 +43,7 @@ class server{
             case 10: self::get_player_info($req->comand);break;
             case 11: self::get_game_status($req->comand);break;
             case 12: self::get_log($req->comand);break;
+            case 13: self::game_update($req->comand); break;
             default:
                     self::return_fail("incorrect comand (0)");
         }
@@ -54,6 +55,7 @@ class server{
      */
     public static function output(){
         self::$responce["status"] = self::$state?"OK":"FAIL";
+        if(!isset(self::$responce["last_id"]) && self::$state){ self::add("last_id",loger::get_last_id()); }
 //		loger::log_analizer(loger::get_from(0)) ;	
         printf(json_encode(self::$responce));
         exit;
@@ -266,4 +268,18 @@ class server{
 		server::add("log", loger::get_from((int)$from));
 		self::output();
 	}
+	/**
+	* Возвращает, что произошло с момента последнего хода
+	* 
+	* @param int $id последнего хода
+	*/
+	private static function game_update($id){
+		if(0 >= $id){
+			self::return_fail("Incorrect data ($id)");
+		}
+		$log = loger::get_from($id);
+		self::add("log",$log);
+		loger::log_analizer($log);
+		self::output(); 
+	}	
 }
