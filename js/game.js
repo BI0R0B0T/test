@@ -411,7 +411,7 @@ mapList.draw = function(games){
     for(var gameName in games){
         var li = document.createElement("LI");
 		if(globals.type == 1){
-	        li.innerHTML = gameName+"<a href=game.php?g="+gameName+">play</a><a href=#>view</a>"+
+	        li.innerHTML  = gameName+"<a href=game.php?g="+gameName+">play</a> <a href= #>view</a>"+
 			"<a href='javascript:game.stop(\""+gameName+"\")'> x </a>";
 	    }else{
 	        li.innerHTML  = "<a href=\"javascript:game.open("+gameName+")\">"+gameName+"</a> "+
