@@ -25,12 +25,15 @@ class token{
 	}
 	  
 	public function get_from_db($player_id){
-		$db = game_stat::get_db();
-		$stmt = $db->prepare("SELECT token, expires_in FROM tokens WHERE id =:id");
-		$stmt->bindValue(':id', $player_id, SQLITE3_INTEGER);
-		$result = $stmt->execute();
-		game_stat::check_error("SELECT token, expires_in FROM tokens WHERE id =".$player_id);
-		$result = $result->fetchArray();
+		try{
+			$db = game_stat::get_db();
+			$stmt = $db->prepare("SELECT token, expires_in FROM tokens WHERE id =:id");
+			$stmt->bindValue(':id', $player_id, SQLITE3_INTEGER);
+			$stmt->execute();
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);;
 		if(empty($result)){
 			return FALSE;
 		}else{
@@ -48,23 +51,30 @@ class token{
 		return $this->expires_in;
 	}
 	public function save(){
-		//Проверка на то есть ли токен для данного пользователя
-		if($prev = $this->get_from_db($this->player_id)){
-			//check need to update
-			if($this->expires_in > $prev->get_experies_in()){
-				return;
+		try{
+			$db = game_stat::get_db();
+			//Проверка на то есть ли токен для данного пользователя
+			if($prev = $this->get_from_db($this->player_id)){
+				//check need to update
+				if($this->expires_in > $prev->get_experies_in()){
+					return;
+				}
+				//update info
+				$stmt = $db->prepare("UPDATE tokens SET token = :token, expires_in = :expires_in".
+									" WHERE tokens.id = :player_id");
+//				$sql = "UPDATE tokens SET token = '".$this->token."', expires_in = ".$this->expires_in." ";
+//				$sql.= "WHERE tokens.id = ".$this->player_id;
+			}else{
+				//add new
+				$stmt = $db->prepare("INSERT INTO tokens(id, token, expires_in) VALUES(".
+									 ":player_id,:token, :expires_in)");
+//				$sql = "INSERT INTO tokens(id, token, expires_in) VALUES(";
+//				$sql.= $this->player_id.", '".$this->token."', ".$this->expires_in.")";
 			}
-			//update info
-			$sql = "UPDATE tokens SET token = '".$this->token."', expires_in = ".$this->expires_in." ";
-			$sql.= "WHERE tokens.id = ".$this->player_id;
-		}else{
-			//add new
-			$sql = "INSERT INTO tokens(id, token, expires_in) VALUES(";
-			$sql.= $this->player_id.", '".$this->token."', ".$this->expires_in.")";
+			$stmt->execute((array)$this);
+		}catch(PDOException $e){
+			server::return_fail($e);
 		}
-		$db = game_stat::get_db();
-		$resault = $db->query($sql);
-		game_stat::check_error($sql);
 	}
 	private function save_in_session(){
 		$_SESSION["expires_in"] = $this->expires_in;

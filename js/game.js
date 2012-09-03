@@ -2,14 +2,17 @@ var interval = 10000;
 var timer;
 var intervalMapList = null;
 var diametr = "20px";
-var game;
+//var game;
 var sid;
 var gameUpdate = new gameUpdater();
-var global = {
-	gameStatus: 0,			// 0-не играем, 1-наш ход, 2-не наш ход, 3 - ожидаем подключения остальных
+var globals = {
+	gameStatus: 0,				// 0-не играем, 1-наш ход, 2-не наш ход, 3 - ожидаем подключения остальных
 	type: 1,
-	gameStatusInterval: 2000, // Время через которое обновляется статус игры
-	intervalGameStatus: null	//Хранится ссылка на интервал обновления статуса игры
+	gameStatusInterval: 2000, 	// Время через которое обновляется статус игры
+	intervalGameStatus: null,	//Хранится ссылка на интервал обновления статуса игры
+	gameUpdateInterval: 1000,  // Время через которое обновляется игра
+	lastMoveId: 0,        // id последней записи в ходе игры
+	gameId: null        // id текущей игры
 }
 
 function serverConnect(message){
@@ -74,11 +77,11 @@ function game(){
     this.update = function(){
         if(!this.gameId){return;}
 //		if(globals.gameStatus != 1){return;}
- //       var msg = new message(2,getCookie("PHPSESSID"));
+//		var msg = new message(2,getCookie("PHPSESSID"));
         var msg = new message(13,globals.lastMoveId);
         var conn = new serverConnect(msg);
         var g = conn.send();
-        drawMap(g);
+        updateMap(g);
         if(g["status"] != "FAIL"){gameUpdate.start();}
         msg = null;
         g = null;
@@ -90,7 +93,8 @@ function game(){
         var msg = new message(8,str);
         var conn = new serverConnect(msg);
         var g = conn.send();
-        drawMap(g);
+		
+//		drawMap(g);
         if(g["status"] != "FAIL")gameUpdate.start();
         msg = null;
         g = null;
@@ -317,6 +321,19 @@ function drawUnit(unit){
 		unitDiv = null;
 		parentDiv = null;
 }
+function updateMap(serverResponce){
+	for(var i in serverResponce["map"]){
+		var cell = new cells(serverResponce["map"][i]);
+		cell.changeCell();
+	}
+	for(var i in serverResponce["units"]){
+		while(exUnit = document.getElementById("unit_"+serverResponce["units"][i]["id"])){
+			exUnit.parentNode.removeChild(exUnit);
+		}
+		drawUnit(serverResponce["units"][i]);
+	}
+	i = null;
+}
 function unit_move(unit_id, cell_id){
 	//Проверяем произошел ли перенос юнита... а то он может остался на той-же клетке
 	var unit = document.getElementById(unit_id);
@@ -325,17 +342,7 @@ function unit_move(unit_id, cell_id){
     var conn = new serverConnect(new message(9,a));
     var cl = conn.send(true);
 	if(cl["status"] == "FAIL"){ return; }
-	for(var i in cl["map"]){
-		var cell = new cells(cl["map"][i]);
-		cell.changeCell();
-	}
-	for(var i in cl["units"]){
-		while(exUnit = document.getElementById("unit_"+cl["units"][i]["id"])){
-			exUnit.parentNode.removeChild(exUnit);
-		}
-		drawUnit(cl["units"][i]);
-	}
-	i = null;
+	updateMap(cl);
 }
 function displayInDebug(text){
 	var div = document.getElementById("debug");

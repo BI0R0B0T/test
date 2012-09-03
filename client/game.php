@@ -36,7 +36,7 @@ print <<<LABEL
 <script type="text/javascript" id="selector">
     window.onload = function(){
         globals.type = 2;
-        game = new game();
+        var game = new game();
         game.open($id);
     }
 </script>

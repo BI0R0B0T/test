@@ -15,7 +15,7 @@ $user_info = array(
 );
 $user = new player($user_info);
 $user->add_in_session();
-gamelist::add_user();
+$user->add_in_db();
 
 //var_dump($_SESSION);
 header("Location: game.php");
