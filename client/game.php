@@ -36,7 +36,7 @@ print <<<LABEL
 <script type="text/javascript" id="selector">
     window.onload = function(){
         globals.type = 2;
-        var game = new game();
+        game = new games();
         game.open($id);
     }
 </script>
@@ -51,7 +51,7 @@ print <<<LABEL
         globals.type = 1;
         mapList.get();
         mapList.updateStart();
-        var game = new game();
+        game = new games();
 		drawPlayerInfo(getPlayerInfo(""));
      }
 </script>

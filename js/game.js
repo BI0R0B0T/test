@@ -1,23 +1,27 @@
-var interval = 10000;
-var timer;
-var intervalMapList = null;
-var diametr = "20px";
-//var game;
-var sid;
+var game;
+//var sid;
 var gameUpdate = new gameUpdater();
 var globals = {
 	gameStatus: 0,				// 0-не играем, 1-наш ход, 2-не наш ход, 3 - ожидаем подключения остальных
-	type: 1,
+	type: 1,					// Для заглушки
 	gameStatusInterval: 2000, 	// Время через которое обновляется статус игры
-	intervalGameStatus: null,	//Хранится ссылка на интервал обновления статуса игры
-	gameUpdateInterval: 1000,  // Время через которое обновляется игра
-	lastMoveId: 0,        // id последней записи в ходе игры
-	gameId: null        // id текущей игры
+	intervalGameStatus: null,	// Хранится ссылка на интервал обновления статуса игры
+	gameUpdateInterval: 10000,	// Время через которое обновляется игра
+	lastMoveId: 		0, 		// id последней записи в ходе игры
+	gameId: 			null,	// id текущей игры
+	mapListUpdInterval: 30000,	// Время через которое обновляется список игр
+	intervalMapList:	null,	// Хранится ссылка на интервал обновления списка игр
+	diametr:			"20px"	// Диаметр юнита
 }
-
+/**
+* функция связи с сервером
+* @param string текст запроса
+* @return string текст ответа сервера
+*/
 function serverConnect(message){
-    this.jsonData = toPost(message);
-    this.req = null;
+    this.jsonData = toPost(message);	//текст запроса
+    this.req = null;					//указатель на объект XmlHttpRequest
+	this.assinc = true;					//режим запроса (синхронный/ассинхронный)
     this.send = function(assinc){
         var req = getXmlHttpRequest();
         req.open("POST", "../server/game_server.php", this.assinc);
@@ -35,10 +39,10 @@ function serverConnect(message){
     }
 }
 
-function game(){
+function games(){
     this.gameId = null;
     this.start = function (option){
-        if(this.gameId != null){ game.stop(); }
+        if(this.gameId != null){ this.stop(); }
         var msg = {
 			type:option,
 			desc:""
@@ -46,7 +50,7 @@ function game(){
         var conn = new serverConnect(new message(0,msg));
         var g = conn.send(true);
         this.gameId = g["gameId"];
-        sid = g["SID"];
+//      sid = g["SID"];
 //      this.checkStatus();
 //		globals.gameStatus = 3;
         document.location.href = "game.php?g="+this.gameId;
@@ -93,14 +97,18 @@ function game(){
         var msg = new message(8,str);
         var conn = new serverConnect(msg);
         var g = conn.send();
-		
-//		drawMap(g);
-        if(g["status"] != "FAIL")gameUpdate.start();
-        msg = null;
-        g = null;
-        str = null;
- //       this.update();
- //       gameUpdate.start();
+        if(g["status"] != "FAIL"){
+			drawMap(g);
+			gameUpdate.start();
+			msg = null;
+	        g = null;
+	        str = null;
+
+		}else{
+			alert(g["reason"]);
+			document.location.href = "game.php";
+			return;
+		}
     }
 	this.newGame = function(){
 		document.getElementById("create_game").style.display = "block";
@@ -278,8 +286,8 @@ function drawUnit(unit){
 		unitDiv.cell_part = unit.cell_part;
 		unitDiv.can_move = unit.can_move;
 		unitDiv.possible_move = unit.possible_move;
-		unitDiv.style.width = diametr;
-		unitDiv.style.height = diametr;
+		unitDiv.style.width = globals.diametr;
+		unitDiv.style.height = globals.diametr;
 		unitDiv.style.background = "#"+unit.color.toString(16);
 		unitDiv.setAttribute("draggable",true);
 		//Событие вызываемое при переносе юнита
@@ -435,11 +443,13 @@ mapList.draw = function(games){
 	games = null;
 }
 mapList.updateStart = function(){
-    if(!intervalMapList){ intervalMapList = setInterval("mapList.get()",10000)}
+    if(!globals.intervalMapList){ 
+		globals.intervalMapList = setInterval("mapList.get()",globals.mapListUpdInterval)
+	}
 }
 mapList.updateStop = function(){
-    clearInterval(intervalMapList);
-    intervalMapList = null;
+    clearInterval(globals.intervalMapList);
+    globals.intervalMapList = null;
 }
 
 function getPlayerInfo(id){

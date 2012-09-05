@@ -55,7 +55,9 @@ class server{
      */
     public static function output(){
         self::$responce["status"] = self::$state?"OK":"FAIL";
-        if(!isset(self::$responce["last_id"]) && self::$state){ self::add("last_id",loger::get_last_id()); }
+        if(!isset(self::$responce["last_id"])&&self::$state&&!isset($_GLOBALS["dont_need_log"])){
+			self::add("last_id",loger::get_last_id()); 
+		}
 //		loger::log_analizer(loger::get_from(0)) ;	
         printf(json_encode(self::$responce));
         exit;
@@ -178,6 +180,8 @@ class server{
      * выводит список доступных игр
      */
     private static function display_game_list(){
+//		self::add("run","display_game_list");
+		$_GLOBALS["dont_need_log"] = TRUE;
         gamelist::get_gamelist();
     }
     /**

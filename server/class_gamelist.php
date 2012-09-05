@@ -55,13 +55,16 @@ class gamelist{
 					"player4, player3, played_now, game_status, type, desc) VALUES(null,".
 					":id,:player_number,:player_id,null,null, null, 1, 2, :type,:desc)");
 		$sth->bindParam(":id",$game_id);
-		$sth->bindParam(":player_number",(1==$_SESSION["game_type"]?2:4));
+		$i = (1==$_SESSION["game_type"]?2:4);
+		$sth->bindParam(":player_number",$i);
 		$sth->bindParam(":player_id",$_SESSION["player_id"]);
 		$sth->bindParam(":type",$_SESSION["game_type"]);
-		$sth->bindParam(":desc",($_SESSION["game_desc"]?$_SESSION["game_desc"]:$game_id));
+		$i = ($_SESSION["game_desc"]?$_SESSION["game_desc"]:$game_id);
+		$sth->bindParam(":desc", $i);
 		$sth->execute();
-		self::update_user(array("status"=>$_SESSION["status"],
-								"game_id"=>$db->lastInsertID()));
+		self::get_player($_SESSION["player_id"])
+			->update_property(array("status"=>$_SESSION["status"],
+									"game_id"=>$db->lastInsertID()));
 		}catch(PDOException $e){
 			server::return_fail($e);
 		}
