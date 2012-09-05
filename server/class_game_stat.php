@@ -9,6 +9,7 @@ class game_stat{
 //			self::$game_db = new SQLite3(DBNAME);
 			try{
 				self::$game_db = new PDO("sqlite:".DBNAME);
+				self::$game_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			}catch(PDOException $e){
 				server::return_fail($e->getMessage());
 			}
