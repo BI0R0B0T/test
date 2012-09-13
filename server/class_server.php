@@ -66,7 +66,7 @@ class server{
      * Добавляет данные в ответ сервера
      * @static
      * @param string $field - имя поля в ответе сервера
-     * @param mixed data - данные которые нужно добавить
+     * @param mixed $data - данные которые нужно добавить
      * @return void
      */
     public static function add($field, $data){
@@ -234,7 +234,7 @@ class server{
 			//Проверяем возможен ли такой ход
 			$prev_cell = game::get_cell($unit->position);
 			if(!in_array($move[1],$prev_cell->possible_next_cells)){
-				self::return_fail("imposible move from ".$this->position." to ".$cell_id); 
+				self::return_fail("imposible move from ".$unit->position." to ".$move[1]);
 			}
 			loger::save(3,json_encode(array("start_move")));        	
 			//действие клеток на юниты
