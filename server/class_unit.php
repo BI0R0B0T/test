@@ -44,7 +44,7 @@ class unit{
 	/**
 	* save unit property in game_db
 	*/
-	function save_unit_property(){
+	public function save_unit_property(){
 		$db = game_db::db_conn();
 		$sql = "UPDATE units SET have_coin = ".($this->have_coins?1:0).", waiting_time = ".$this->waitng_time;
 		$sql.=", die = ".($this->die?1:0).", cell_position_id = ".$this->position.", cell_part = ".$this->cell_part;
