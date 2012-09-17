@@ -182,25 +182,35 @@ class game{
 	*/
 	private static function save_gamestat_in_db(){
 		$db = game_db::db_conn();
-		$sql = "INSERT INTO games (id, player1_id, player2_id, player3_id, player4_id, game_type) VALUES (null,";
-		$sql.=$_SESSION["player_id"].",null,null,null,".$_SESSION["game_type"].")";
-		$db->query($sql);
-		game_db::check_error($sql);
+		try{
+			$sth = $db->prepare("INSERT INTO games (id, player1_id, player2_id, player3_id, "
+								."player4_id, game_type) VALUES (null,:player_id,null,null, "
+								."null, :game_type)");
+			$sth->bindParam(":player_id", $_SESSION["player_id"]);
+			$sth->bindParam(":game_type", $_SESSION["game_type"]);
+			$sth->execute();
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
 	}
 	/**
 	* Возвращает ID игрока чей ход следующий
 	* @return int 
-	* @version 0.1
+	* @version 0.2
 	*/
 	public static function who_next(){
 		$previous_id = loger::who_was_last();
 		$previous = self::get_player($previous_id);
 		$db = game_db::db_conn();
-		$sql = "SELECT games.player1_id,games.player2_id,games.player3_id,games.player4_id,games.game_type ";
-		$sql.="FROM games";
-		$res = $db->query($sql);
-		game_db::check_error($sql);
-		$res = $res->fetchArray(SQLITE3_ASSOC);
+		try{
+			$sql = "SELECT games.player1_id,games.player2_id,games.player3_id, ";
+			$sql.= "games.player4_id,games.game_type FROM games";
+			$sth = $db->prepare($sql);
+			$sth->execute();
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
+		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		$max = (1==$res["game_type"]?2:4);
 		if($previous->player_number == $max){
 			$next_number = 1;
@@ -247,12 +257,15 @@ class game{
 	*/
 	public static function get_ship($master_id){
 		$db = game_db::db_conn();
-		$sql = "SELECT map.cell_id FROM map WHERE map.type = 29";
-		$res = $db->query($sql);
-		game_db::check_error($sql);
+		$try{
+			$sth = $db->prepare("SELECT map.cell_id FROM map WHERE map.type = 29");
+			$sth->execute();
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
 		$i = 1;
 		$resault = array();
-		while($a = $res->fetchArray(SQLITE3_ASSOC)){
+		while($a = $sth->fetch(PDO::FETCH_ASSOC)){
 			$resault[$i++] = $a["cell_id"];
 		}
 		$player = self::get_player($master_id);

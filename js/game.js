@@ -21,22 +21,44 @@ var globals = {
 function serverConnect(message){
     this.jsonData = toPost(message);	//текст запроса
     this.req = null;					//указатель на объект XmlHttpRequest
-	this.assinc = true;					//режим запроса (синхронный/ассинхронный)
+//	this.assinc = true;					//режим запроса (синхронный/ассинхронный)
     this.send = function(assinc){
         var req = getXmlHttpRequest();
         req.open("POST", "../server/game_server.php", this.assinc);
         req.setRequestHeader("Content-Type", "text/plain");
         req.setRequestHeader("Content-Length", this.jsonData.length);
         req.send(this.jsonData);
+		serverIn(this.jsonData);
         if(this.assinc){
             req.onreadystatechange = function(){
                 if( req.readyState != 4) return;
-                return   JSON.parse(req.responseText);
+				var out = req.responseText;
+				serverOut(out);
+				return   JSON.parse(out);
+//				return   JSON.parse(req.responseText);
             }
         }else{
-            return   JSON.parse(req.responseText);
+				var out = req.responseText;
+				serverOut(out);
+				return   JSON.parse(out);
+//				return   JSON.parse(req.responseText);
         }
     }
+}
+
+function serverIn(txt){
+	var div = document.getElementById("debug");
+	while(div.hasChildNodes()) div.removeChild(div.lastChild);
+	var p = document.createElement("P");
+	p.innerHTML = "<b>IN:</b>"+txt+"<br><hr>";
+	div.appendChild(p);
+}
+
+function serverOut(txt){
+	var div = document.getElementById("debug");
+	var p = document.createElement("P");
+	p.innerHTML = "<b>OUT:</b>"+txt;
+	div.appendChild(p);
 }
 
 function games(){
@@ -91,19 +113,18 @@ function games(){
         g = null;
     }
     this.open = function(Id){
-        this.gameId = Id;
-        if(!this.gameId){return;}
-        var str = ""+this.gameId;
-        var msg = new message(8,str);
-        var conn = new serverConnect(msg);
-        var g = conn.send();
+		if(!Id){return;}
+		this.gameId = Id;
+//        var str = ""+this.gameId;
+		var msg = new message(8,this.gameId);
+		var conn = new serverConnect(msg);
+		var g = conn.send();
         if(g["status"] != "FAIL"){
 			drawMap(g);
 			gameUpdate.start();
 			msg = null;
-	        g = null;
-	        str = null;
-
+	 		g = null;
+	 		str = null;
 		}else{
 			alert(g["reason"]);
 			document.location.href = "game.php";

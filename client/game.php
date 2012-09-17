@@ -42,6 +42,7 @@ print <<<LABEL
 </script>
 </div>
 <div id="map">Map will be here</div>
+<div id="debug"></div>
 LABEL;
 }else{
 //Запустить окно выбора игры
