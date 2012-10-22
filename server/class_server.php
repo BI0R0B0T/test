@@ -31,7 +31,7 @@ class server{
         self::check_require($req);
         switch ($req->comandCode){
             case 0: self::start_game($req->comand); break;
-            case 1: self::stopgame() ; break;
+            case 1: self::stop_game() ; break;
             case 2: self::give_game(); break;
             case 3: self::exit_from_game(); break;
             case 4: self::open_cell($req->comand); break; //depricated
@@ -133,7 +133,7 @@ class server{
     /**
      * Останавливаем игру (при этом игра удаляется))
      */
-    private static function stopgame(){
+    private static function stop_game(){
         if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
             game::stop_game($_SESSION["gameId"]);
             if(unlink("../db/".$_SESSION["gameId"].".db")){

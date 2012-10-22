@@ -11,6 +11,7 @@ abstract class cells{
 	public $auto_move = FALSE;
 	public $coins_count = 0;
 	public $ship_there = FALSE;
+	public $open = FALSE;
 	protected $possible_move = array();//массив возможных перемещений, каждое перемещение это координаты (x,y)
 	public $possible_next_cells = array();
 	private $count = 0; //Сколько раз пользователь был на этой клетке за ход
@@ -131,8 +132,8 @@ abstract class cells{
 	public static function get_cell_from_db($id){
 		$db = game_db::db_conn();
 		try{
-			$sth = $db->prepare("SELECT  map.cell_id, map.type, map.rotate, map.can_stay_here, ";
-								."map.open, map.coins_count, map.ship_there FROM map ";
+			$sth = $db->prepare("SELECT  map.cell_id, map.type, map.rotate, map.can_stay_here, "
+								."map.open, map.coins_count, map.ship_there FROM map "
 								."WHERE map.cell_id = :cell_id");
 			$sth->bindParam(":cell_id",$id,PDO::PARAM_INT);
 			$sth->execute();
@@ -299,10 +300,14 @@ abstract class cells{
 	* @version 0.1
 	*/
 	private function prepare(){
-		$cell = (array)$this;
-		$cell["can_stay_here"] = (int)$cell["can_stay_here"];
-		$cell["open"] = (int)$cell["open"];
-		$cell["ship_there"] = (int)$cell["ship_there"];
+		$cell = array();
+		$cell["cell_id"] = $this->cell_id;
+		$cell["type"] = $this->type;
+		$cell["rotate"] = $this->rotate;
+		$cell["can_stay_here"] = (int)$this->can_stay_here;
+		$cell["open"] = (int)$this->open;
+		$cell["coins_count"] = $this->coins_count;
+		$cell["ship_there"] = (int)$this->ship_there;
 		return $cell;
 	}
 	/**

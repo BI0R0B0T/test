@@ -29,17 +29,24 @@ class unit{
 		$this->draggable = ($_SESSION["player_id"] == $this->master?TRUE:FALSE);
 	}
 	static function get_units_from_db(){
-		$db = game_db::db_conn();
-		$sql = "SELECT id, master_id, have_coin, waiting_time, die, cell_position_id, previous_position, cell_part FROM units ";
-		$res = $db->query($sql);
-		game_db::check_error($sql);
-		$units = array();
-		while($unit = $res->fetchArray(SQLITE3_ASSOC)){
-			$units[$unit["id"]] = new unit( $unit["id"],$unit["master_id"],$unit["cell_position_id"],
-											$unit["die"],$unit["have_coin"],$unit["cell_part"],
-											$unit["waiting_time"],$unit["previous_position"]);
+		try{
+			$sql =  "SELECT id, master_id, have_coin, waiting_time, die, cell_position_id, ".
+					"previous_position, cell_part FROM units ";
+			$sth = game_db::db_conn()
+					->query($sql);
+			$sth->setFetchMode(PDO::FETCH_ASSOC);
+			$units = array();
+			while($unit = $sth->fetch()){
+				$units[$unit["id"]] = new unit( $unit["id"],$unit["master_id"],
+												$unit["cell_position_id"],$unit["die"],
+												$unit["have_coin"],$unit["cell_part"],
+												$unit["waiting_time"],$unit["previous_position"]
+												);
+			}
+			return $units;
+		}catch(PDOException $e){
+			server::return_fail($e);
 		}
-		return $units;
 	}
 	/**
 	* save unit property in game_db

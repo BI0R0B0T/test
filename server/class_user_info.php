@@ -34,65 +34,84 @@ class user_info
 	* Сохраняет свежесозданного пользователя в БД
 	*/
 	public function save_in_db(){
-		$db = game_db::db_conn();
-		//Определим какой по номеру он будет
-		$sql = "SELECT player1_id, player2_id, player3_id, player4_id, game_type FROM games";
-		$res = $db->query($sql);
-		game_db::check_error($sql);
-		$res = $res->fetchArray(SQLITE3_ASSOC);
-		if(!$res){
-			$this->player_number = 1;
-			$this->update_player_id_in_games();
-		}else{
-			$add = FALSE;
-			if($res["game_type"] == 1){
-				$max = 2;
+		try{
+			$sql = "SELECT player1_id, player2_id, player3_id, player4_id, game_type FROM games";
+			$sth = game_db::db_conn()
+					->query($sql);
+			$sth->setFetchMode(PDO::FETCH_ASSOC);
+			$res = $sth->fetch();
+			if(!$res){
+				$this->player_number = 1;
+				$this->update_player_id_in_games();
 			}else{
-				$max = 4;
-			}
-			for($i=1; $i<=$max; $i++){
-				if(!$res["player".$i."_id"]){
-					$this->player_number = $i;
-					$this->update_player_id_in_games();
-					$add = TRUE;
-					break;
+				$add = FALSE;
+				if($res["game_type"] == 1){
+					$max = 2;
+				}else{
+					$max = 4;
+				}
+				for($i=1; $i<=$max; $i++){
+					if(!$res["player".$i."_id"]){
+						$this->player_number = $i;
+						$this->update_player_id_in_games();
+						$add = TRUE;
+						break;
+					}
+				}
+				if(!$add){
+					server::return_fail("Maximum $max players in game");
 				}
 			}
-			if(!$add){
-				server::return_fail("Maximum $max players in game");
-			}
+			$sql="INSERT INTO players(player_id,first_name,last_name,photo,photo_rec,coins, ".
+				 "played, color, number) VALUES(:player_id, :first_name,:last_name,:photo,".
+				  ":photo_rec, :coins, :played, :color, :number)";
+			$sth = game_db::db_conn()
+					->prepare($sql);
+			$sth->bindParam(":player_id",$this->user_id);
+			$sth->bindParam(":first_name",$this->first_name);
+			$sth->bindParam(":last_name",$this->last_name);
+			$sth->bindParam(":photo",$this->photo);
+			$sth->bindParam(":photo_rec",$this->photo_rec);
+			$sth->bindParam(":coins",$this->coins);
+			$sth->bindParam(":played",$this->played);
+			$sth->bindParam(":color",self::$color_array[$this->player_number]);
+			$sth->bindParam(":number",$this->player_number);
+			$sth->execute();
+			return $this->player_number;
+		}catch(PDOException $e){
+			server::return_fail($e);
 		}
-		$sql="INSERT INTO players(player_id,first_name,last_name,photo,photo_rec,coins,played, color, number) VALUES(";
-		$sql .=$this->user_id.", \"".$this->first_name."\", \"".$this->last_name."\", \"".$this->photo;
-		$sql .= "\", \"".$this->photo_rec."\", ".$this->coins.", 1,".self::$color_array[$this->player_number].",".$this->player_number.")" ;
-		$res = $db->query($sql);
-		game_db::check_error($sql);
-		return $this->player_number;
 	}
 	/**
 	* Обновляет информацию в таблице games
 	*/
 	public function update_player_id_in_games(){
-		$db = game_db::db_conn();
-		$sql = "UPDATE games SET player".$this->player_number."_id = ".$this->user_id." WHERE id = 1";
-		$db->query($sql);
-		game_db::check_error($sql);
+		try{
+			$sql = "UPDATE games SET player".$this->player_number."_id = :id WHERE id = 1";
+			$sth = game_db::db_conn()
+					->prepare($sql);
+			$sth->bindParam(":id",$this->user_id);
+			$sth->execute();
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
 	}
 	public static function get_from_db($id){
-		$db = game_db::db_conn();
-		$sql = "SELECT first_name,last_name,photo,photo_rec,coins,played,color,number FROM players WHERE player_id = ".$id;
-		$res = $db->query($sql);
-		game_db::check_error($sql);
-		$res = $res->fetchArray(SQLITE3_ASSOC);
-		return new user_info($id,$res["first_name"],$res["last_name"],$res["photo"],$res["photo_rec"],TRUE,TRUE,$res["color"],$res["number"]);
-	}
-	public static function get_from_db_by_number($number){
-		$db = game_db::db_conn();
-		$sql = "SELECT player_id,first_name,last_name,photo,photo_rec,coins,played,color, number FROM players WHERE played = 1 and number = ".$id;
-		$res = $db->query($sql);
-		game_db::check_error($sql);
-		$res = $res->fetchArray(SQLITE3_ASSOC);
-		return new user_info($res["player_id"],$res["first_name"],$res["last_name"],$res["photo"],$res["photo_rec"],TRUE,TRUE,$res["color"],$res["number"]);
+		try{
+			$sql =  "SELECT first_name,last_name,photo,photo_rec,coins,played,color,number ".
+					"FROM players WHERE player_id = :id";
+			$sth = game_db::db_conn()
+					->prepare($sql);
+			$sth->bindParam(":id",$id);
+			$sth->execute();
+			$sth->setFetchMode(PDO::FETCH_ASSOC);
+			$res = $sth->fetch();
+			return new user_info(	$res["player_id"],$res["first_name"],$res["last_name"],
+									$res["photo"],$res["photo_rec"],TRUE,TRUE,$res["color"],
+									$res["number"]);
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
 	}
 	
 	public function quit(){
@@ -100,4 +119,3 @@ class user_info
 		$this->plaer_number = 0;
 	}
 }
-?>

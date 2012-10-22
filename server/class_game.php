@@ -257,7 +257,7 @@ class game{
 	*/
 	public static function get_ship($master_id){
 		$db = game_db::db_conn();
-		$try{
+		try{
 			$sth = $db->prepare("SELECT map.cell_id FROM map WHERE map.type = 29");
 			$sth->execute();
 		}catch(PDOException $e){
