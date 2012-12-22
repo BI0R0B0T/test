@@ -27,8 +27,10 @@ class player
 	public function add_in_db(){
 		try{
 			$db = game_stat::get_db();
-			$sth = $db->prepare("SELECT  count() AS count FROM players WHERE player_id = ?");
-			$sth->execute(array($_SESSION["player_id"]));
+			$sth = $db->prepare("SELECT  player_id AS count FROM players WHERE player_id = :player_id");
+	//		var_dump($db);
+	//		var_dump($sth);
+			$sth->execute(array(":player_id"=>$_SESSION["player_id"]));
 			$sth->setFetchMode(PDO::FETCH_ASSOC);
 			$usr = $sth->fetch();
 			if($usr["count"]){
@@ -81,7 +83,7 @@ class player
 		$sql.= "players.status, players.game_id FROM players WHERE players.id = ".$id;
 		$resault = $db->query($sql);
 		game_stat::check_error($sql);
-		$resault = $resault->fetchArray(SQLITE3_ASSOC);
+		$resault = $resault->fetchAll(PDO::FETCH_ASSOC);
 		$resault["player_id"] = $id;
 		return new player($resault);
 	}
