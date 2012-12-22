@@ -1,44 +1,70 @@
-var interval = 10000;
-var timer;
-var intervalMapList = null;
-var diametr = "20px";
-//var game;
-var sid;
+var game;
+//var sid;
 var gameUpdate = new gameUpdater();
 var globals = {
 	gameStatus: 0,				// 0-не играем, 1-наш ход, 2-не наш ход, 3 - ожидаем подключения остальных
-	type: 1,
+	type: 1,					// Для заглушки
 	gameStatusInterval: 2000, 	// Время через которое обновляется статус игры
-	intervalGameStatus: null,	//Хранится ссылка на интервал обновления статуса игры
-	gameUpdateInterval: 1000,  // Время через которое обновляется игра
-	lastMoveId: 0,        // id последней записи в ходе игры
-	gameId: null        // id текущей игры
+	intervalGameStatus: null,	// Хранится ссылка на интервал обновления статуса игры
+	gameUpdateInterval: 10000,	// Время через которое обновляется игра
+	lastMoveId: 		0, 		// id последней записи в ходе игры
+	gameId: 			null,	// id текущей игры
+	mapListUpdInterval: 30000,	// Время через которое обновляется список игр
+	intervalMapList:	null,	// Хранится ссылка на интервал обновления списка игр
+	diametr:			"20px"	// Диаметр юнита
 }
-
+/**
+* функция связи с сервером
+* @param string message текст запроса
+* @return string текст ответа сервера
+*/
 function serverConnect(message){
-    this.jsonData = toPost(message);
-    this.req = null;
+    this.jsonData = toPost(message);	//текст запроса
+    this.req = null;					//указатель на объект XmlHttpRequest
+//	this.assinc = true;					//режим запроса (синхронный/ассинхронный)
     this.send = function(assinc){
         var req = getXmlHttpRequest();
         req.open("POST", "../server/game_server.php", this.assinc);
         req.setRequestHeader("Content-Type", "text/plain");
         req.setRequestHeader("Content-Length", this.jsonData.length);
         req.send(this.jsonData);
+		serverIn(this.jsonData);
         if(this.assinc){
             req.onreadystatechange = function(){
                 if( req.readyState != 4) return;
-                return   JSON.parse(req.responseText);
+				var out = req.responseText;
+				serverOut(out);
+				return   JSON.parse(out);
+//				return   JSON.parse(req.responseText);
             }
         }else{
-            return   JSON.parse(req.responseText);
+				var out = req.responseText;
+				serverOut(out);
+				return   JSON.parse(out);
+//				return   JSON.parse(req.responseText);
         }
     }
 }
 
-function game(){
+function serverIn(txt){
+	var div = document.getElementById("debug");
+	while(div.hasChildNodes()) div.removeChild(div.lastChild);
+	var p = document.createElement("P");
+	p.innerHTML = "<b>IN:</b>"+txt+"<br><hr>";
+	div.appendChild(p);
+}
+
+function serverOut(txt){
+	var div = document.getElementById("debug");
+	var p = document.createElement("P");
+	p.innerHTML = "<b>OUT:</b>"+txt;
+	div.appendChild(p);
+}
+
+function games(){
     this.gameId = null;
     this.start = function (option){
-        if(this.gameId != null){ game.stop(); }
+        if(this.gameId != null){ this.stop(); }
         var msg = {
 			type:option,
 			desc:""
@@ -46,7 +72,7 @@ function game(){
         var conn = new serverConnect(new message(0,msg));
         var g = conn.send(true);
         this.gameId = g["gameId"];
-        sid = g["SID"];
+//      sid = g["SID"];
 //      this.checkStatus();
 //		globals.gameStatus = 3;
         document.location.href = "game.php?g="+this.gameId;
@@ -87,20 +113,23 @@ function game(){
         g = null;
     }
     this.open = function(Id){
-        this.gameId = Id;
-        if(!this.gameId){return;}
-        var str = ""+this.gameId;
-        var msg = new message(8,str);
-        var conn = new serverConnect(msg);
-        var g = conn.send();
-		
-//		drawMap(g);
-        if(g["status"] != "FAIL")gameUpdate.start();
-        msg = null;
-        g = null;
-        str = null;
- //       this.update();
- //       gameUpdate.start();
+		if(!Id){return;}
+		this.gameId = Id;
+//        var str = ""+this.gameId;
+		var msg = new message(8,this.gameId);
+		var conn = new serverConnect(msg);
+		var g = conn.send();
+        if(g["status"] != "FAIL"){
+			drawMap(g);
+			gameUpdate.start();
+			msg = null;
+	 		g = null;
+	 		str = null;
+		}else{
+			alert(g["reason"]);
+			document.location.href = "game.php";
+			return;
+		}
     }
 	this.newGame = function(){
 		document.getElementById("create_game").style.display = "block";
@@ -278,8 +307,8 @@ function drawUnit(unit){
 		unitDiv.cell_part = unit.cell_part;
 		unitDiv.can_move = unit.can_move;
 		unitDiv.possible_move = unit.possible_move;
-		unitDiv.style.width = diametr;
-		unitDiv.style.height = diametr;
+		unitDiv.style.width = globals.diametr;
+		unitDiv.style.height = globals.diametr;
 		unitDiv.style.background = "#"+unit.color.toString(16);
 		unitDiv.setAttribute("draggable",true);
 		//Событие вызываемое при переносе юнита
@@ -435,11 +464,13 @@ mapList.draw = function(games){
 	games = null;
 }
 mapList.updateStart = function(){
-    if(!intervalMapList){ intervalMapList = setInterval("mapList.get()",10000)}
+    if(!globals.intervalMapList){ 
+		globals.intervalMapList = setInterval("mapList.get()",globals.mapListUpdInterval)
+	}
 }
 mapList.updateStop = function(){
-    clearInterval(intervalMapList);
-    intervalMapList = null;
+    clearInterval(globals.intervalMapList);
+    globals.intervalMapList = null;
 }
 
 function getPlayerInfo(id){

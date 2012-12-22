@@ -11,6 +11,7 @@ abstract class cells{
 	public $auto_move = FALSE;
 	public $coins_count = 0;
 	public $ship_there = FALSE;
+	public $open = FALSE;
 	protected $possible_move = array();//массив возможных перемещений, каждое перемещение это координаты (x,y)
 	public $possible_next_cells = array();
 	private $count = 0; //Сколько раз пользователь был на этой клетке за ход
@@ -113,23 +114,33 @@ abstract class cells{
 	public function save_cell_in_db(){
 		$db = game_db::db_conn();
 		$sql = "INSERT INTO map( cell_id, type, rotate, can_stay_here, open, coins_count,"; 
-		$sql .= "ship_there) VALUES (".$this->cell_to_str().")";
-		$db->query($sql);
-		game_db::check_error($sql);
+		$sql.= "ship_there) VALUES (:cell_id, :type, :rotate, :can_stay_here, :open, ";
+		$sql.= ":coins_count, :ship_there)";
+		try{
+			$sth = $db->prepare($sql);
+			$sth->execute($this->prepare());
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
 	}
 	/**
 	* Возвращает объект cells из БД
 	* @param int $id
 	* @return object
-	* @version 0.2
+	* @version 0.3
 	*/
 	public static function get_cell_from_db($id){
 		$db = game_db::db_conn();
-		$sql = "SELECT  map.cell_id, map.type, map.rotate, map.can_stay_here, map.open, ";
-		$sql .= "map.coins_count, map.ship_there FROM map WHERE map.cell_id = ".$id;
-		$cell = $db->query($sql);
-		game_db::check_error($sql);
-		$res = $cell->fetchArray(SQLITE3_ASSOC);
+		try{
+			$sth = $db->prepare("SELECT  map.cell_id, map.type, map.rotate, map.can_stay_here, "
+								."map.open, map.coins_count, map.ship_there FROM map "
+								."WHERE map.cell_id = :cell_id");
+			$sth->bindParam(":cell_id",$id,PDO::PARAM_INT);
+			$sth->execute();
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
+		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if(1 == $res['open']){
 			$new_cell = self::new_cell($res['type'],$res['cell_id'],TRUE);
 			$new_cell->rotate = $res['rotate'];
@@ -141,23 +152,22 @@ abstract class cells{
 		}
 		return $new_cell;
 	}
+	/**
+	* Открывает закрытую клетку
+	* @param int $id 
+	* @return cells
+	* @version 0.2
+	*/
 	public static function open_cell($id){
-		self::change_cell($id,"open",1);
-		return self::get_cell_from_db($id);
-	}
-	public static function change_cell($id,$property,$new_value){
 		$db = game_db::db_conn();
-		$property_list = array("type", "open", "coins_count");
-		if(in_array($property, $property_list)){
-			if($property == "open" || $property == "coins_count"){
-				$sql = "UPDATE map SET $property = $new_value WHERE map.cell_id = $id";
-			}else{
-				
-			}
-			$db->query($sql);
-			game_db::check_error($sql);
+		try{
+			$sth = $db->prepare("UPDATE map SET open = 1 WHERE map.cell_id = :cell_id");
+			$sth->bindParam(":cell_id",$id,PDO::PARAM_INT);
+			$sth->execute();
+		}catch(PDOException $e){
+			server::return_fail($e);
 		}
-		
+		return self::get_cell_from_db($id);
 	}
 	protected function add_same_info($type){
 		$this->rotate = (int)round(rand(0,3));
@@ -274,16 +284,31 @@ abstract class cells{
 	}
 	public function update_info_in_db(){
 		$db = game_db::db_conn();
-		$sql = "UPDATE map SET ";
-		$sql.= "type = ".$this->type.", ";
-		$sql.= "rotate = ".$this->rotate.", ";
-		$sql.= "can_stay_here = ".($this->can_stay_here?1:0)." ,";
-		$sql.= "open = ".(is_a($this, "closed")?0:1).", ";
-		$sql.= "coins_count = ".$this->coins_count.", ";
-		$sql.= "ship_there = ".($this->ship_there?1:0)." ";
-		$sql.= "WHERE map.cell_id = ".$this->cell_id;
-		$db->query($sql);
-		game_db::check_error($sql);
+		try{
+			$sth = $db->prepare("UPDATE map SET type = :type, rotate = :rotate, "
+								."can_stay_here = :can_stay_here, open = :open, "
+								."coins_count = :coins_count, ship_there = :ship_there "
+								."WHERE map.cell_id = :cell_id");
+			$sth->execute($this->prepare());
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}
+	}
+	/**
+	* Подготавливает объект для внесения его в БД
+	* @return array
+	* @version 0.1
+	*/
+	private function prepare(){
+		$cell = array();
+		$cell["cell_id"] = $this->cell_id;
+		$cell["type"] = $this->type;
+		$cell["rotate"] = $this->rotate;
+		$cell["can_stay_here"] = (int)$this->can_stay_here;
+		$cell["open"] = (int)$this->open;
+		$cell["coins_count"] = $this->coins_count;
+		$cell["ship_there"] = (int)$this->ship_there;
+		return $cell;
 	}
 	/**
 	* Действие которое происходит когда юнит приходит на клетку
@@ -547,7 +572,7 @@ class airplane extends cells{
 		return $this;
 	}
 	function move_in($unit){
-		parent::move_in();
+		parent::move_in($unit);
 	}
 	function move_out($unit){
 		$this->ship_there = FALSE;

@@ -3,7 +3,7 @@
  * @author Dolgov mikhail
  * Данный класс нужен для работы с общей БД, для отдельной игры используется класс user_info.
  * В будущем оба класса будут объеденены.
- * @version 0.4
+ * @version 0.5
  */
 class player
 {
@@ -27,10 +27,8 @@ class player
 	public function add_in_db(){
 		try{
 			$db = game_stat::get_db();
-			$sth = $db->prepare("SELECT  player_id AS count FROM players WHERE player_id = :player_id");
-	//		var_dump($db);
-	//		var_dump($sth);
-			$sth->execute(array(":player_id"=>$_SESSION["player_id"]));
+			$sth = $db->prepare("SELECT  count() AS count FROM players WHERE player_id = ?");
+			$sth->execute(array($_SESSION["player_id"]));
 			$sth->setFetchMode(PDO::FETCH_ASSOC);
 			$usr = $sth->fetch();
 			if($usr["count"]){
@@ -39,7 +37,7 @@ class player
 				$sth = $db->prepare("INSERT INTO players(player_id,first_name,last_name,photo,".
 							"photo_rec,status,game_id) VALUES(:player_id, :first_name, ".
 							":last_name,:photo,:photo_rec,:status,:game_id)");
-				$sth->execute((array)$this);
+				$sth->execute($this->prepare_to_db());
 			}
 		}catch(PDOException $e){
 			server::return_fail($e);
@@ -58,8 +56,8 @@ class player
 									"photo_rec = :photo_rec, ".
 									"status = :status, ".
 									"game_id = :game_id ". 
-								"WHERE players.player_id = player_id");
-			$sth->execute((array)$this);
+								"WHERE players.player_id = :player_id");
+			$sth->execute($this->prepare_to_db());
 		}catch(PDOException $e){
 			server::return_fail($e);
 		}		
@@ -79,11 +77,15 @@ class player
  	}
 	public static function get_from_db($id){
 		$db = game_stat::get_db();
-		$sql = "SELECT players.first_name, players.last_name, players.photo, players.photo_rec, ";
-		$sql.= "players.status, players.game_id FROM players WHERE players.id = ".$id;
-		$resault = $db->query($sql);
-		game_stat::check_error($sql);
-		$resault = $resault->fetchAll(PDO::FETCH_ASSOC);
+		$sql ="SELECT first_name, last_name, photo, photo_rec, ";
+		$sql.="status, game_id FROM players WHERE player_id = ".$id;
+		try{
+			$sth = $db->prepare($sql);
+			$sth->execute();
+			$resault = $sth->fetch(PDO::FETCH_ASSOC);
+		}catch(PDOException $e){
+			server::return_fail($e);
+		}		
 		$resault["player_id"] = $id;
 		return new player($resault);
 	}
@@ -122,5 +124,20 @@ class player
 		$this->status = 0;
 		$this->game_id = NULL;
 		$this->update_in_db();
+	}
+	/**
+	* Возвращает массив для ввода в БД
+	* @return array
+	*/
+	private function prepare_to_db(){
+		return array(
+					    ":player_id"	=> $this->player_id,
+					    ":first_name"=> $this->first_name,
+					    ":last_name"	=> $this->last_name,
+					    ":photo"		=> $this->photo,
+					    ":photo_rec"	=> $this->photo_rec,
+						":status"	=> $this->status,
+						":game_id"	=> $this->game_id
+					);
 	}
 }

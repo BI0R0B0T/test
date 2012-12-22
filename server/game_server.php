@@ -3,7 +3,9 @@ session_name("game");
 session_start();
 require_once("config.php");
 // Читаем данные, переданные в POST
-$rawPost = file_get_contents('php://input');
+//$rawPost = file_get_contents('php://input');
+//to test only
+$rawPost = $_GET["q"];
 // Заголовки ответа
 date_default_timezone_set("Europe/Moscow");
 header('Content-type: text/plain; charset=utf-8');
@@ -22,6 +24,6 @@ function __autoload($class_name){
 try{
 	server::input($rawPost);
 }catch(Exception $e){
-	echo json_encode(array("status"=>"FAIL", "reason" =>$e->getMessage()));
+	server::return_fail($e->getMessage());
 }
 ?>

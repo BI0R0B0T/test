@@ -71,7 +71,9 @@ class token{
 //				$sql = "INSERT INTO tokens(id, token, expires_in) VALUES(";
 //				$sql.= $this->player_id.", '".$this->token."', ".$this->expires_in.")";
 			}
-			$stmt->execute((array)$this);
+			$stmt->execute(array(":player_id"	=> $this->player_id,
+								 ":expires_in"	=> $this->expires_in,
+								 ":token"		=> $this->token));
 		}catch(PDOException $e){
 			server::return_fail($e);
 		}

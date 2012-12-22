@@ -98,15 +98,19 @@ class loger{
 	}
 	
 	public static function get_last_id(){
-		$db = game_db::db_conn();
-		$sql = "SELECT id FROM log ORDER BY id DESC LIMIT 1";
-		$res = $db->query($sql);
-		game_db::check_error($sql);
-		$later = $res->fetchArray(SQLITE3_ASSOC);
-		if($later){
-			return (int)$later["id"];
-		}else{
-			return 0;
+		try{
+			$sql = "SELECT id FROM log ORDER BY id DESC LIMIT 1";
+			$sth = game_db::db_conn()
+					->query($sql);
+			$sth->setFetchMode(PDO::FETCH_ASSOC);
+			$later = $sth->fetch();
+			if($later){
+				return (int)$later["id"];
+			}else{
+				return 0;
+			}
+		}catch(PDOException $e){
+			server::return_fail($e);
 		}
 	}
 }

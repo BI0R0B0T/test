@@ -31,7 +31,7 @@ class server{
         self::check_require($req);
         switch ($req->comandCode){
             case 0: self::start_game($req->comand); break;
-            case 1: self::stopgame() ; break;
+            case 1: self::stop_game() ; break;
             case 2: self::give_game(); break;
             case 3: self::exit_from_game(); break;
             case 4: self::open_cell($req->comand); break; //depricated
@@ -55,7 +55,9 @@ class server{
      */
     public static function output(){
         self::$responce["status"] = self::$state?"OK":"FAIL";
-        if(!isset(self::$responce["last_id"]) && self::$state){ self::add("last_id",loger::get_last_id()); }
+        if(!isset(self::$responce["last_id"])&&self::$state&&!isset($_GLOBALS["dont_need_log"])){
+			self::add("last_id",loger::get_last_id()); 
+		}
 //		loger::log_analizer(loger::get_from(0)) ;	
         printf(json_encode(self::$responce));
         exit;
@@ -64,7 +66,7 @@ class server{
      * Добавляет данные в ответ сервера
      * @static
      * @param string $field - имя поля в ответе сервера
-     * @param mixed data - данные которые нужно добавить
+     * @param mixed $data - данные которые нужно добавить
      * @return void
      */
     public static function add($field, $data){
@@ -131,7 +133,7 @@ class server{
     /**
      * Останавливаем игру (при этом игра удаляется))
      */
-    private static function stopgame(){
+    private static function stop_game(){
         if(isset($_SESSION["gameId"]) && !is_null($_SESSION["gameId"])){
             game::stop_game($_SESSION["gameId"]);
             if(unlink("../db/".$_SESSION["gameId"].".db")){
@@ -178,6 +180,8 @@ class server{
      * выводит список доступных игр
      */
     private static function display_game_list(){
+//		self::add("run","display_game_list");
+		$_GLOBALS["dont_need_log"] = TRUE;
         gamelist::get_gamelist();
     }
     /**
@@ -230,7 +234,7 @@ class server{
 			//Проверяем возможен ли такой ход
 			$prev_cell = game::get_cell($unit->position);
 			if(!in_array($move[1],$prev_cell->possible_next_cells)){
-				self::return_fail("imposible move from ".$this->position." to ".$cell_id); 
+				self::return_fail("imposible move from ".$unit->position." to ".$move[1]);
 			}
 			loger::save(3,json_encode(array("start_move")));        	
 			//действие клеток на юниты

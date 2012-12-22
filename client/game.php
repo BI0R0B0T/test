@@ -36,12 +36,13 @@ print <<<LABEL
 <script type="text/javascript" id="selector">
     window.onload = function(){
         globals.type = 2;
-        var game = new game();
+        game = new games();
         game.open($id);
     }
 </script>
 </div>
 <div id="map">Map will be here</div>
+<div id="debug"></div>
 LABEL;
 }else{
 //Запустить окно выбора игры
@@ -51,7 +52,7 @@ print <<<LABEL
         globals.type = 1;
         mapList.get();
         mapList.updateStart();
-        var game = new game();
+        game = new games();
 		drawPlayerInfo(getPlayerInfo(""));
      }
 </script>
