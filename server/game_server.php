@@ -13,7 +13,7 @@ header('Cache-Control: no-store, no-cache');
 header('Expires: ' . date('r'));
 header('Last-Modified: ' . date('r'));
 /**
- * Автоматическое подключение классовvk_auth.php
+ * Автоматическое подключение классов
  * @param string $class_name имя класса
  * @version 0.1
  */
@@ -22,8 +22,9 @@ function __autoload($class_name){
 }
 // Передаем данные серверу на обработку
 try{
-	server::input($rawPost);
+    printf(json_encode(server::input($rawPost)));
 }catch(Exception $e){
-	server::return_fail($e->getMessage());
+    printf(json_encode(server::output()));
+//	server::return_fail($e->getMessage());
 }
 ?>

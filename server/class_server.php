@@ -58,9 +58,8 @@ class server{
         if(!isset(self::$responce["last_id"])&&self::$state&&!isset($_GLOBALS["dont_need_log"])){
 			self::add("last_id",loger::get_last_id()); 
 		}
+        return self::$responce;
 //		loger::log_analizer(loger::get_from(0)) ;	
-        printf(json_encode(self::$responce));
-        exit;
     }
     /**
      * Добавляет данные в ответ сервера
@@ -82,12 +81,14 @@ class server{
      * Экстренное завршение работы сервера (неправильные входные параметры)
      * @static
 	 * @param string $reason текст причины
+     * @throw Exception
      * @return void
      */
     public static function return_fail($reason){
         self::$state = FALSE;
 		self::add("reason", $reason);
         self::output();
+        throw new Exception("failed");
     }
     /**
      * Проверяет правомерность запроса.
@@ -97,6 +98,10 @@ class server{
      * @version 0.3
      */
     private static function check_require($require){
+        if(!is_object($require)){
+            self::add("req", $require);
+            self::return_fail("incorrect input data");
+        }
         //Проверка на то все ли параметры на месте
         if(in_array($require->comandCode,array(0,4,6,7,8,9))){
             if(!isset($require->comand) or "" == $require->comand) {
