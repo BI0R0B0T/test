@@ -15,7 +15,7 @@ var globals = {
 }
 /**
 * функция связи с сервером
-* @param string текст запроса
+* @param string message текст запроса
 * @return string текст ответа сервера
 */
 function serverConnect(message){
