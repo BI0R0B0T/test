@@ -3,7 +3,7 @@
 * Паттерн фабрика по созданию новой клетки
 * @author M.Dolgov <dolgov@bk.ru>
 **/
-abstract class cells{
+abstract class cells implements Serializable{
 	public $cell_id;
     public $type;
 	public $rotate;
@@ -137,20 +137,20 @@ abstract class cells{
 								."WHERE map.cell_id = :cell_id");
 			$sth->bindParam(":cell_id",$id,PDO::PARAM_INT);
 			$sth->execute();
+			$res = $sth->fetch(PDO::FETCH_ASSOC);
+			if(1 == $res['open']){
+				$new_cell = self::new_cell($res['type'],$res['cell_id'],TRUE);
+				$new_cell->rotate = $res['rotate'];
+				$new_cell->can_stay_here = $res["can_stay_here"]==1?TRUE:FALSE;
+				$new_cell->coins_count = $res['coins_count'];
+				$new_cell->set_possible_next_cells($res['cell_id']);
+			}else{
+				$new_cell = self::new_cell(30,$res['cell_id'],TRUE);
+			}
+			return $new_cell;
 		}catch(PDOException $e){
 			server::return_fail($e);
 		}
-		$res = $sth->fetch(PDO::FETCH_ASSOC);
-		if(1 == $res['open']){
-			$new_cell = self::new_cell($res['type'],$res['cell_id'],TRUE);
-			$new_cell->rotate = $res['rotate'];
-			$new_cell->can_stay_here = $res["can_stay_here"]==1?TRUE:FALSE;
-			$new_cell->coins_count = $res['coins_count'];
-			$new_cell->set_possible_next_cells($res['cell_id']);
-		}else{
-			$new_cell = self::new_cell(30,$res['cell_id'],TRUE);
-		}
-		return $new_cell;
 	}
 	/**
 	* Открывает закрытую клетку
@@ -331,6 +331,17 @@ abstract class cells{
 	* @param object $unit
 	*/
 	public function stand_action($unit){}
+
+	/**
+	 * @return string|void
+	 */
+	public function serialize(){}
+
+	/**
+	 * @param string $string
+	 * @return mixed|void
+	 */
+	public function unserialize($string){}
 }
 
 class automove_cell extends cells{
@@ -435,7 +446,7 @@ class horses extends automove_cell{
 
 class whirligigs extends singlestep{
 	function cell_action(){
-		slow_move($this->waiting_time);
+//		slow_move($this->waiting_time);
 	}
 	
 }
@@ -484,7 +495,7 @@ class catcher extends singlestep{
 		return $this;
 	}
 	function cell_action(){
-		catch_pirate();
+//		catch_pirate();
 	}
 }
 class gun extends automove_cell{
@@ -494,7 +505,7 @@ class gun extends automove_cell{
 		return $this;
 	}
 	function cell_action(){
-		repeat_move();
+//		repeat_move();
 	}
 }
 class fort extends singlestep{
@@ -572,7 +583,7 @@ class airplane extends cells{
 		return $this;
 	}
 	function move_in($unit){
-		parent::move_in();
+		parent::move_in($unit);
 	}
 	function move_out($unit){
 		$this->ship_there = FALSE;
